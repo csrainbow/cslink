@@ -16,6 +16,21 @@ INSTALL_DIR="${1:-/opt/cslink}"
 SERVICE_NAME="cslink"
 NODE_MAJOR=20
 
+# Urutan kandidat port otomatis (bisa di-override: CSLINK_PORT=8080)
+CSLINK_PORT_CANDIDATES=(3000 4000 5000 8080 8111 9000)
+pick_free_port() {
+    for p in "${CSLINK_PORT_CANDIDATES[@]}"; do
+        if command -v ss >/dev/null 2>&1; then
+            if ! ss -ltn "sport = :$p" 2>/dev/null | grep -q LISTEN; then echo "$p"; return; fi
+        elif command -v netstat >/dev/null 2>&1; then
+            if ! netstat -ltn 2>/dev/null | grep -qE "[:.]$p[[:space:]]"; then echo "$p"; return; fi
+        else
+            if ! (exec 3<>/dev/tcp/127.0.0.1/$p) 2>/dev/null; then echo "$p"; return; fi
+        fi
+    done
+    echo "${CSLINK_PORT_CANDIDATES[0]}"
+}
+
 # --- Warna helper -------------------------------------------------------------
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
 info()  { echo -e "${CYAN}[INFO]${NC} $*"; }
@@ -103,13 +118,17 @@ cd "$INSTALL_DIR"
 # --- Konfigurasi .env ---------------------------------------------------------
 if [ ! -f .env ]; then
     cp .env.example .env
+    # Pilih port otomatis (3000 bila kosong)
+    CSLINK_PORT=${CSLINK_PORT:-$(pick_free_port)}
+    sed -i "s|^PORT=.*|PORT=$CSLINK_PORT|" .env
     # Cari IP LAN otomatis
     LAN_IP=$(ip -4 addr show 2>/dev/null | grep -oP '(?<=inet\s)192\.168\.\d+\.\d+' | head -1 || true)
     if [ -n "$LAN_IP" ]; then
-        sed -i "s|^BASE_URL=.*|BASE_URL=http://$LAN_IP:3000|" .env
-        ok "Terdeteksi IP LAN: $LAN_IP"
+        sed -i "s|^BASE_URL=.*|BASE_URL=http://$LAN_IP:$CSLINK_PORT|" .env
+        ok "Terdeteksi IP LAN: $LAN_IP (port $CSLINK_PORT)"
     else
-        warn "IP LAN tidak ditemukan, gunakan http://localhost:3000 secara default."
+        sed -i "s|^BASE_URL=.*|BASE_URL=http://localhost:$CSLINK_PORT|" .env
+        warn "IP LAN tidak ditemukan, gunakan http://localhost:$CSLINK_PORT secara default."
     fi
 else
     ok "File .env sudah ada, mempertahankan konfigurasi."
