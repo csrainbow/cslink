@@ -38,8 +38,9 @@ async function authFetch(url, options) {
 // ======== Navigation ========
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', function(e) {
-        e.preventDefault();
         const section = this.dataset.section;
+        if (!section) return;
+        e.preventDefault();
         navigateTo(section);
     });
 });
