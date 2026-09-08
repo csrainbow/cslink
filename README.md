@@ -41,11 +41,11 @@ Script otomatis melakukan:
 1. Install package dasar (`git`, `curl`)
 2. Install **Node.js v20** bila belum ada
 3. Kloning repo CSLINK
-4. Membuat `.env` (deteksi IP LAN otomatis)
+4. Membuat `.env` (deteksi IP LAN otomatis + **auto-pilih port kosong**: 3000 → 4000 → 5000 → 8080; bisa di-override dengan `CSLINK_PORT=8080`)
 5. Install dependency (`npm install`)
 6. Registrasi **systemd service** `cslink` (auto-restart + auto-start saat boot)
 
-Setelah selesai, akses via `http://IP-LAN:3000`.
+Setelah selesai, akses via `http://IP-LAN:PORT` (port yang dipilih ditampilkan di akhir instalasi, default `3000` bila kosong).
 
 ### Instalasi Manual
 
