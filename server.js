@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const crypto = require('crypto');
 const path = require('path');
 const QRCode = require('qrcode');
 const UAParser = require('ua-parser-js');
@@ -13,9 +13,22 @@ const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 7);
 
-app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    const originHost = origin.replace(/^https?:\/\//, '').split('/')[0];
+    if (originHost !== req.headers.host) {
+      return res.status(403).json({ error: 'Forbidden origin' });
+    }
+  }
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
+app.get('/index.html', (req, res) => res.redirect('/'));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 const isValidUrl = (string) => {
   try {
@@ -33,6 +46,154 @@ const sanitizeUrl = (url) => {
   }
   return clean;
 };
+
+// ==================== Autentikasi & Private Mode ====================
+const COOKIE_NAME = 'cslink_session';
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+function getConfig(key) {
+  const row = db.prepare('SELECT value FROM config WHERE key = ?').get(key);
+  return row ? row.value : null;
+}
+
+function setConfig(key, value) {
+  db.prepare('INSERT INTO config (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+    .run(key, value);
+}
+
+function hashPassword(password, salt) {
+  return crypto.scryptSync(String(password), salt, 64).toString('hex');
+}
+
+function timingSafeEqualHex(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  const ba = Buffer.from(a, 'hex');
+  const bb = Buffer.from(b, 'hex');
+  if (ba.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ba, bb);
+}
+
+function setupRequired() {
+  return !getConfig('admin_pass_hash');
+}
+
+function issueSession(res, username) {
+  const token = crypto.randomBytes(32).toString('hex');
+  const expires = new Date(Date.now() + SESSION_TTL_MS).toISOString().slice(0, 19);
+  db.prepare('INSERT INTO sessions (token, username, expires_at) VALUES (?, ?, ?)').run(token, username, expires);
+  res.setHeader('Set-Cookie', `${COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}`);
+  return token;
+}
+
+function clearSession(res) {
+  res.setHeader('Set-Cookie', `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`);
+}
+
+function getSession(req) {
+  const header = req.headers.cookie || '';
+  const match = header.split(';').map(s => s.trim()).find(s => s.startsWith(COOKIE_NAME + '='));
+  if (!match) return null;
+  const token = match.slice(COOKIE_NAME.length + 1);
+  const row = db.prepare('SELECT * FROM sessions WHERE token = ?').get(token);
+  if (!row) return null;
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  return row;
+}
+
+function requireAuth(req, res, next) {
+  const session = getSession(req);
+  if (!session) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  req.user = session.username;
+  next();
+}
+
+app.get('/', (req, res) => {
+  if (!getSession(req)) return res.redirect('/login');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/api/auth/status', (req, res) => {
+  const session = getSession(req);
+  res.json({
+    setup_required: setupRequired(),
+    authenticated: !!session,
+    username: session ? session.username : null
+  });
+});
+
+app.post('/api/setup', (req, res) => {
+  if (!setupRequired()) return res.status(403).json({ error: 'Setup sudah dilakukan' });
+  const { username, password } = req.body || {};
+  if (!username || !/^[a-zA-Z0-9_.-]{3,30}$/.test(username)) {
+    return res.status(400).json({ error: 'Username 3-30 karakter (huruf, angka, ._-)' });
+  }
+  if (!password || String(password).length < 6) {
+    return res.status(400).json({ error: 'Password minimal 6 karakter' });
+  }
+  const salt = crypto.randomBytes(16).toString('hex');
+  setConfig('admin_user', username.trim());
+  setConfig('admin_salt', salt);
+  setConfig('admin_pass_hash', hashPassword(password, salt));
+  issueSession(res, username.trim());
+  res.json({ ok: true, username: username.trim() });
+});
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body || {};
+  const storedUser = getConfig('admin_user');
+  const salt = getConfig('admin_salt');
+  const hash = getConfig('admin_pass_hash');
+  if (!storedUser || !hash) {
+    return res.status(400).json({ error: 'Setup admin belum dilakukan' });
+  }
+  const attempt = hashPassword(password || '', salt || '');
+  const ok = username && username.trim() === storedUser && timingSafeEqualHex(attempt, hash);
+  if (!ok) {
+    return res.status(401).json({ error: 'Username atau password salah' });
+  }
+  issueSession(res, storedUser);
+  res.json({ ok: true, username: storedUser });
+});
+
+app.post('/api/logout', (req, res) => {
+  const session = getSession(req);
+  if (session) db.prepare('DELETE FROM sessions WHERE token = ?').run(session.token);
+  clearSession(res);
+  res.json({ ok: true });
+});
+
+app.get('/api/auth/me', requireAuth, (req, res) => {
+  res.json({ username: req.user });
+});
+
+app.post('/api/auth/change-password', requireAuth, (req, res) => {
+  const { current, password } = req.body || {};
+  const salt = getConfig('admin_salt');
+  const hash = getConfig('admin_pass_hash');
+  if (!hash || !salt) {
+    return res.status(400).json({ error: 'Setup admin belum dilakukan' });
+  }
+  if (!current || !timingSafeEqualHex(hashPassword(current, salt), hash)) {
+    return res.status(401).json({ error: 'Password saat ini salah' });
+  }
+  if (!password || String(password).length < 6) {
+    return res.status(400).json({ error: 'Password baru minimal 6 karakter' });
+  }
+  const newSalt = crypto.randomBytes(16).toString('hex');
+  setConfig('admin_salt', newSalt);
+  setConfig('admin_pass_hash', hashPassword(password, newSalt));
+  db.prepare('DELETE FROM sessions WHERE token != ?').run(getSession(req).token);
+  res.json({ ok: true });
+});
+
+// Semua API pengelolaan wajib login (redirect /abc tetap publik)
+app.use('/api', requireAuth);
 
 // Shorten URL
 app.post('/api/shorten', (req, res) => {
@@ -100,13 +261,13 @@ app.get('/:code', (req, res) => {
     const { code } = req.params;
 
     if (code === 'api' || code === 'analytics' || code.includes('.')) {
-      return res.status(404).sendFile(path.join(__dirname, 'public', 'index.html'));
+      return res.status(404).redirect('/');
     }
 
     const url = db.prepare('SELECT * FROM urls WHERE short_code = ? AND is_active = 1').get(code);
 
     if (!url) {
-      return res.status(404).sendFile(path.join(__dirname, 'public', 'index.html'));
+      return res.status(404).redirect('/');
     }
 
     if (url.expires_at && new Date(url.expires_at) < new Date()) {

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSLINK - Masuk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="login-body">
+    <div class="login-wrap">
+        <div class="login-card">
+            <div class="login-brand">
+                <i class="fas fa-link login-brand-icon"></i>
+                <span class="login-brand-text">CSLINK</span>
+                <span class="login-brand-tagline">Powered By Percetakan Rainbow</span>
+            </div>
+            <h2 class="login-title" id="login-title">Masuk</h2>
+            <p class="login-subtitle" id="login-subtitle">Silakan masukkan kredensial Anda.</p>
+            <div id="login-alert" class="login-alert hidden"></div>
+            <form id="login-form" autocomplete="off">
+                <div class="login-field">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Username admin" required>
+                </div>
+                <div class="login-field">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div class="login-field" id="confirm-field">
+                    <label for="confirm">Ulangi Password</label>
+                    <input type="password" id="confirm" class="form-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="login-submit">
+                    <i class="fas fa-sign-in-alt"></i> Masuk
+                </button>
+            </form>
+            <p class="login-transparent-note">Halaman ini hanya untuk admin CSLINK.</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            const form = document.getElementById('login-form');
+            const title = document.getElementById('login-title');
+            const subtitle = document.getElementById('login-subtitle');
+            const confirmField = document.getElementById('confirm-field');
+            const confirmInput = document.getElementById('confirm');
+            const alertBox = document.getElementById('login-alert');
+            const submitBtn = document.getElementById('login-submit');
+
+            let setupRequired = false;
+
+            function showAlert(message) {
+                alertBox.textContent = message;
+                alertBox.classList.remove('hidden');
+            }
+
+            function hideAlert() {
+                alertBox.classList.add('hidden');
+                alertBox.textContent = '';
+            }
+
+            function applyMode() {
+                if (setupRequired) {
+                    title.textContent = 'Setup Admin';
+                    subtitle.textContent = 'Buat akun admin pertama untuk CSLINK.';
+                    confirmField.classList.remove('hidden');
+                    confirmInput.setAttribute('required', '');
+                    submitBtn.innerHTML = '<i class="fas fa-user-shield"></i> Buat Akun Admin';
+                } else {
+                    title.textContent = 'Masuk';
+                    subtitle.textContent = 'Silakan masukkan kredensial Anda.';
+                    confirmField.classList.add('hidden');
+                    confirmInput.removeAttribute('required');
+                    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
+                }
+                hideAlert();
+            }
+
+            fetch('/api/auth/status')
+                .then(r => r.json())
+                .then(status => {
+                    if (status.authenticated) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    setupRequired = status.setup_required;
+                    applyMode();
+                })
+                .catch(() => {
+                    setupRequired = false;
+                    applyMode();
+                });
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                hideAlert();
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const confirm = confirmInput.value;
+
+                if (setupRequired && password !== confirm) {
+                    showAlert('Password dan ulangi password tidak sama.');
+                    return;
+                }
+
+                const endpoint = setupRequired ? '/api/setup' : '/api/login';
+                const original = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="loading"></span> Memproses...';
+
+                try {
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.error || 'Gagal memproses permintaan');
+                    }
+                    window.location.href = '/';
+                } catch (err) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = original;
+                    showAlert(err.message);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

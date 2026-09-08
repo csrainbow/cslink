@@ -70,6 +70,18 @@ async function initDatabase() {
       clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS config (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      token TEXT PRIMARY KEY,
+      username TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   db.run('CREATE INDEX IF NOT EXISTS idx_urls_short_code ON urls(short_code);');

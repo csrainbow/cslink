@@ -99,6 +99,18 @@ BASE_URL=http://localhost:3000   # URL dasar untuk redirect
 DB_PATH=./data/urls.db # Lokasi database
 ```
 
+## Login / Private Mode
+
+CSLINK **wajib login** untuk mengelola link — dashboard, pembuatan link, analitik, QR, dan seluruh API pengelolaan dilindungi sesi login. Redirect link pendek (`/:code`) **tetap publik** sehingga link yang dibagikan tetap bisa dibuka pengunjung.
+
+- **Setup admin pertama kali**: buka `http://IP:PORT/login` → form "Setup Admin" → buat username & password (min. 6 karakter). Kredensial disimpan ter-hash (scrypt) di database.
+- **Sesi**: cookie `cslink_session` (HttpOnly, SameSite=Lax, berlaku 7 hari, tersimpan di database sehingga tetap aktif walau server restart).
+- **Ganti password**: menu **Pengaturan → Ganti Kata Sandi Admin** (sesi perangkat lain otomatis dimatikan).
+- **Logout**: tombol **Keluar** di navbar.
+- **Keamanan**: API memblokir permintaan lintas-origin (CORS terkunci ke host yang sama); tanpa kredensial semua endpoint `/api/*` mengembalikan **401**.
+
+> Reset password lupa? Hapus baris `admin_*` pada Tabel `config` di database, lalu buka `/login` untuk setup ulang.
+
 ## Akses Publik (Cloudflare Tunnel)
 
 Tanpa IP publik / port forwarding — memakai [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/):
@@ -131,17 +143,25 @@ Lalu di dashboard Cloudflare tambahkan DNS record:
 
 ## API Endpoints
 
+Semua endpoint `*` wajib login (cookie sesi). `/api/auth/*`, `/login`, dan redirect `/:code` bersifat publik.
+
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| POST | `/api/shorten` | Memperpendek URL |
-| GET | `/:code` | Redirect ke URL asli |
-| GET | `/api/url/:code` | Info URL tertentu |
-| GET | `/api/urls` | Daftar semua URL (dengan pagination & search) |
-| DELETE | `/api/url/:code` | Hapus URL |
-| PATCH | `/api/url/:code/toggle` | Toggle aktif/nonaktif |
-| GET | `/api/analytics/:code` | Analitik URL tertentu |
-| GET | `/api/qr/:code` | Generate QR Code |
-| GET | `/api/stats` | Statistik keseluruhan |
+| GET | `/api/auth/status` | Status setup & sesi (publik) |
+| POST | `/api/setup` | Buat akun admin pertama (publik, sekali saja) |
+| POST | `/api/login` | Login (publik) |
+| POST | `/api/logout` | Logout sudah login |
+| GET | `/api/auth/me` | Info pengguna saat ini\* |
+| POST | `/api/auth/change-password` | Ganti password\* |
+| POST | `/api/shorten` | Memperpendek URL\* |
+| GET | `/:code` | Redirect ke URL asli (publik) |
+| GET | `/api/url/:code` | Info URL tertentu\* |
+| GET | `/api/urls` | Daftar semua URL (dengan pagination & search)\* |
+| DELETE | `/api/url/:code` | Hapus URL\* |
+| PATCH | `/api/url/:code/toggle` | Toggle aktif/nonaktif\* |
+| GET | `/api/analytics/:code` | Analitik URL tertentu\* |
+| GET | `/api/qr/:code` | Generate QR Code\* |
+| GET | `/api/stats` | Statistik keseluruhan\* |
 
 ## Cara Penggunaan
 
@@ -160,7 +180,8 @@ Lalu di dashboard Cloudflare tambahkan DNS record:
 ├── package.json       # Konfigurasi proyek
 ├── .env.example       # Template environment variables
 ├── public/            # Frontend files
-│   ├── index.html     # HTML utama
+│   ├── index.html     # HTML utama (dashboard)
+│   ├── login.html     # Halaman login / setup admin
 │   ├── styles.css     # CSS styles
 │   └── script.js      # JavaScript frontend
 └── data/              # Database files (auto-generated)

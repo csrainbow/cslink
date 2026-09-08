@@ -25,6 +25,16 @@ const searchInput = document.getElementById('search-input');
 const analyticsUrlSelect = document.getElementById('analytics-url-select');
 const analyticsContent = document.getElementById('analytics-content');
 
+// ======== Auth Helper ========
+async function authFetch(url, options) {
+    const res = await fetch(url, options);
+    if (res.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Sesi berakhir, silakan masuk kembali.');
+    }
+    return res;
+}
+
 // ======== Navigation ========
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', function(e) {
@@ -84,7 +94,7 @@ shortenForm.addEventListener('submit', async function(e) {
     submitBtn.disabled = true;
     
     try {
-        const response = await fetch('/api/shorten', {
+        const response = await authFetch('/api/shorten', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -166,7 +176,7 @@ closeResultBtn.addEventListener('click', function() {
 // ======== Load Stats ========
 async function loadStats() {
     try {
-        const response = await fetch('/api/stats');
+        const response = await authFetch('/api/stats');
         const data = await response.json();
         
         document.getElementById('stat-urls').textContent = data.total_urls || 0;
@@ -186,7 +196,7 @@ async function loadLinks(page = 1, search = '') {
             url += `&search=${encodeURIComponent(search)}`;
         }
         
-        const response = await fetch(url);
+        const response = await authFetch(url);
         const data = await response.json();
         
         state.currentPage = data.pagination.page;
@@ -287,7 +297,7 @@ searchInput.addEventListener('input', function() {
 // ======== URL Actions ========
 async function toggleURL(code) {
     try {
-        const response = await fetch(`/api/url/${code}/toggle`, { method: 'PATCH' });
+        const response = await authFetch(`/api/url/${code}/toggle`, { method: 'PATCH' });
         const data = await response.json();
         
         if (!response.ok) {
@@ -305,7 +315,7 @@ async function deleteURL(code) {
     if (!confirm('Yakin ingin menghapus link ini?')) return;
     
     try {
-        const response = await fetch(`/api/url/${code}`, { method: 'DELETE' });
+        const response = await authFetch(`/api/url/${code}`, { method: 'DELETE' });
         const data = await response.json();
         
         if (!response.ok) {
@@ -322,7 +332,7 @@ async function deleteURL(code) {
 // ======== Analytics ========
 async function loadAnalyticsSelect() {
     try {
-        const response = await fetch('/api/urls?limit=100');
+        const response = await authFetch('/api/urls?limit=100');
         const data = await response.json();
         
         analyticsUrlSelect.innerHTML = '<option value="">Pilih link untuk dianalisis...</option>';
@@ -368,7 +378,7 @@ async function fetchAnalytics(code) {
     analyticsContent.innerHTML = '<div class="loading-container"><span class="loading"></span> Memuat analitik...</div>';
     
     try {
-        const response = await fetch(`/api/analytics/${code}`);
+        const response = await authFetch(`/api/analytics/${code}`);
         const data = await response.json();
         
         if (!response.ok) {
@@ -536,7 +546,7 @@ function getQRDownloadData(data) {
 
 async function showQR(code) {
     try {
-        const response = await fetch(buildQRQuery(code));
+        const response = await authFetch(buildQRQuery(code));
         const data = await response.json();
         if (data.error || !response.ok) {
             showToast(data.error || 'Gagal membuat QR code', 'error');
@@ -709,7 +719,7 @@ function initSettings() {
     async function updatePreview() {
         let sampleCode = null;
         try {
-            const resp = await fetch('/api/urls?limit=1');
+            const resp = await authFetch('/api/urls?limit=1');
             const data = await resp.json();
             if (data.urls && data.urls.length) {
                 sampleCode = data.urls[0].short_code;
@@ -725,7 +735,7 @@ function initSettings() {
 
         previewHint.classList.add('hidden');
         try {
-            const resp = await fetch(buildQRQuery(sampleCode));
+            const resp = await authFetch(buildQRQuery(sampleCode));
             const data = await resp.json();
             let box = document.getElementById('qr-preview');
             let svgBox = box.querySelector('.qr-svg');
@@ -774,10 +784,10 @@ function initSettings() {
     document.getElementById('preview-download').addEventListener('click', function() {
         let sampleCode = null;
         // need a sample; reuse last known or fetch
-        fetch('/api/urls?limit=1').then(r => r.json()).then(data => {
+        authFetch('/api/urls?limit=1').then(r => r.json()).then(data => {
             if (data.urls && data.urls.length) {
                 sampleCode = data.urls[0].short_code;
-                return fetch(buildQRQuery(sampleCode));
+                return authFetch(buildQRQuery(sampleCode));
             }
             throw new Error('no url');
         }).then(r => r.json()).then(data => {
@@ -798,9 +808,62 @@ function initSettings() {
     updatePreview();
 }
 
+// ======== Session / Akun ========
+document.getElementById('logout-btn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {}
+    window.location.href = '/login';
+});
+
+async function loadUser() {
+    try {
+        const response = await authFetch('/api/auth/me');
+        const data = await response.json();
+        const el = document.getElementById('nav-username');
+        if (el) el.textContent = data.username || '';
+    } catch (err) {}
+}
+
+document.getElementById('change-password-btn').addEventListener('click', async function() {
+    const current = document.getElementById('pw-current').value;
+    const password = document.getElementById('pw-new').value;
+    const confirm = document.getElementById('pw-confirm').value;
+
+    if (!current) { showToast('Masukkan password saat ini', 'error'); return; }
+    if (password.length < 6) { showToast('Password baru minimal 6 karakter', 'error'); return; }
+    if (password !== confirm) { showToast('Ulangi password baru tidak sama', 'error'); return; }
+
+    const original = this.innerHTML;
+    this.disabled = true;
+    this.innerHTML = '<span class="loading"></span> Memproses...';
+
+    try {
+        const response = await authFetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ current, password })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Gagal mengganti password');
+
+        document.getElementById('pw-current').value = '';
+        document.getElementById('pw-new').value = '';
+        document.getElementById('pw-confirm').value = '';
+        showToast('Kata sandi berhasil diganti');
+    } catch (error) {
+        showToast(error.message, 'error');
+    } finally {
+        this.disabled = false;
+        this.innerHTML = original;
+    }
+});
+
 // ======== Initialize ========
 document.addEventListener('DOMContentLoaded', function() {
     loadStats();
     loadQRSettings();
     initSettings();
+    loadUser();
 });

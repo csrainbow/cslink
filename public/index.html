@@ -28,6 +28,8 @@
                     <a href="#analytics" class="nav-link" data-section="analytics"><i class="fas fa-chart-line"></i> Analitik</a>
                     <a href="#" class="nav-link" data-section="settings"><i class="fas fa-cog"></i> Pengaturan</a>
                     <a href="#" class="nav-link" data-section="about"><i class="fas fa-info-circle"></i> Tentang</a>
+                    <span class="nav-user"><i class="fas fa-user"></i> <span id="nav-username"></span></span>
+                    <a href="#" class="nav-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Keluar</a>
                 </div>
             </div>
         </nav>
@@ -256,6 +258,32 @@
                         </div>
                         <div class="preview-info" id="preview-info"></div>
                         <button class="btn btn-primary" id="preview-download"><i class="fas fa-download"></i> Unduh Contoh QR</button>
+                    </div>
+
+                    <!-- Password Settings -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-key settings-card-icon"></i>
+                            <div>
+                                <h3>Ganti Kata Sandi Admin</h3>
+                                <p>Perbarui kata sandi untuk mengakses CSLINK.</p>
+                            </div>
+                        </div>
+                        <div class="settings-form">
+                            <div class="settings-group">
+                                <label>Password saat ini</label>
+                                <input type="password" id="pw-current" class="form-input" placeholder="Password lama">
+                            </div>
+                            <div class="settings-group">
+                                <label>Password baru</label>
+                                <input type="password" id="pw-new" class="form-input" placeholder="Minimal 6 karakter">
+                            </div>
+                            <div class="settings-group">
+                                <label>Ulangi password baru</label>
+                                <input type="password" id="pw-confirm" class="form-input" placeholder="Ulangi password baru">
+                            </div>
+                            <button class="btn btn-primary" id="change-password-btn"><i class="fas fa-key"></i> Ganti Password</button>
+                        </div>
                     </div>
                 </div>
 
