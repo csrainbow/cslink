@@ -11,6 +11,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan p
 - Tombol **Grafik** pada setiap baris untuk membuka detail analitik (grafik klik per hari, browser, OS, dan klik terbaru) di bawah tabel.
 - Endpoint baru `GET /api/analytics/summary` — ringkasan klik per link beserta rincian perangkat (mobile/desktop/tablet) dalam satu query.
 - Pencarian link pada halaman Analitik (filter cepat tanpa reload).
+- **API Key (opsional)**: set `API_KEY` di `.env` → akses API pengelolaan cukup dengan header `x-api-key`, tanpa perlu sesi login (berguna untuk skrip/otomasi).
 
 ## [1.0.2] - 2026-09-11
 

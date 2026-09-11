@@ -101,6 +101,12 @@ function getSession(req) {
 }
 
 function requireAuth(req, res, next) {
+  const apiKey = process.env.API_KEY || '';
+  const provided = req.headers['x-api-key'] || '';
+  if (apiKey !== '' && provided === apiKey) {
+    req.user = 'api';
+    return next();
+  }
   const session = getSession(req);
   if (!session) {
     return res.status(401).json({ error: 'Unauthorized' });

@@ -107,6 +107,7 @@ CSLINK **wajib login** untuk mengelola link — dashboard, pembuatan link, anali
 - **Sesi**: cookie `cslink_session` (HttpOnly, SameSite=Lax, berlaku 7 hari, tersimpan di database sehingga tetap aktif walau server restart).
 - **Ganti password**: menu **Pengaturan → Ganti Kata Sandi Admin** (sesi perangkat lain otomatis dimatikan).
 - **Logout**: tombol **Keluar** di navbar.
+- **API Key (opsional)**: set `API_KEY` di `.env` untuk mengakses API pengelolaan tanpa sesi login — kirim header `x-api-key: <API_KEY>`. Screening: bila `API_KEY` kosong, akses tetap lewat sesi login.
 - **Keamanan**: API memblokir permintaan lintas-origin (CORS terkunci ke host yang sama); tanpa kredensial semua endpoint `/api/*` mengembalikan **401**.
 
 > Reset password lupa? Hapus baris `admin_*` pada Tabel `config` di database, lalu buka `/login` untuk setup ulang.
