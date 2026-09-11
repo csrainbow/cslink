@@ -394,98 +394,102 @@ async function fetchAnalytics(code) {
 
 function renderAnalytics(data) {
     const { url, analytics } = data;
-    
-    // Calculate browser percentages
+
     const totalBrowser = analytics.clicks_by_browser.reduce((sum, b) => sum + b.count, 0) || 1;
     const totalOS = analytics.clicks_by_os.reduce((sum, o) => sum + o.count, 0) || 1;
-    
     const maxDay = Math.max(...analytics.clicks_by_day.map(d => d.count), 1);
-    
+    const deviceCount = device => analytics.clicks_by_device.find(d => d.device === device)?.count || 0;
+
+    const dayBars = analytics.clicks_by_day.length
+        ? analytics.clicks_by_day.map(d => `
+                        <div class="day-bar" style="height: ${(d.count / maxDay) * 100}%" title="${d.date}: ${d.count} klik"></div>
+                    `).join('')
+        : '<p class="no-data">Belum ada klik</p>';
+
+    const daySummary = analytics.clicks_by_day.length
+        ? `<div class="chart-meta">
+                    <span>${formatDate(analytics.clicks_by_day[0].date)} &ndash; ${formatDate(analytics.clicks_by_day[analytics.clicks_by_day.length - 1].date)}</span>
+                    <span class="chart-total"><strong>${analytics.total_clicks}</strong> klik</span>
+                </div>`
+        : '';
+
+    const bars = (list, total) => list.length
+        ? `<div class="bar-chart">
+                    ${list.slice(0, 5).map(item => `
+                        <div class="bar-row">
+                            <span class="bar-label">${item.browser || item.os}</span>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: ${(item.count / total) * 100}%">
+                                    <span class="bar-value">${item.count}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`
+        : '<p class="no-data">Belum ada data</p>';
+
+    const recentRows = analytics.recent_clicks.length
+        ? analytics.recent_clicks.slice(0, 10).map(c => `
+                    <tr>
+                        <td class="recent-main"><i class="fas fa-globe recent-icon"></i>${c.browser} <span class="recent-sep">/</span> ${c.os}</td>
+                        <td><span class="device-chip ${c.device}">${c.device}</span></td>
+                        <td class="recent-ip">${c.ip_address || '&ndash;'}</td>
+                        <td class="recent-date">${formatDate(c.clicked_at)}</td>
+                    </tr>`).join('')
+        : '<tr><td colspan="4" class="empty-row">Belum ada klik</td></tr>';
+
     const content = `
-        <div class="analytics-stats">
-            <div class="analytics-stat">
-                <span class="value">${analytics.total_clicks}</span>
-                <span class="label">Total Klik</span>
+        <div class="analytics-overview">
+            <div class="stat-block main">
+                <span class="stat-num">${analytics.total_clicks}</span>
+                <span class="stat-lbl">Total Klik</span>
             </div>
-            <div class="analytics-stat">
-                <span class="value">${analytics.clicks_by_device.find(d => d.device === 'mobile')?.count || 0}</span>
-                <span class="label">Mobile</span>
+            <div class="stat-block">
+                <span class="stat-num">${deviceCount('mobile')}</span>
+                <span class="stat-lbl"><i class="fas fa-mobile-alt"></i> Mobile</span>
             </div>
-            <div class="analytics-stat">
-                <span class="value">${analytics.clicks_by_device.find(d => d.device === 'desktop')?.count || 0}</span>
-                <span class="label">Desktop</span>
+            <div class="stat-block">
+                <span class="stat-num">${deviceCount('desktop')}</span>
+                <span class="stat-lbl"><i class="fas fa-desktop"></i> Desktop</span>
             </div>
-            <div class="analytics-stat">
-                <span class="value">${analytics.clicks_by_device.find(d => d.device === 'tablet')?.count || 0}</span>
-                <span class="label">Tablet</span>
+            <div class="stat-block">
+                <span class="stat-num">${deviceCount('tablet')}</span>
+                <span class="stat-lbl"><i class="fas fa-tablet-alt"></i> Tablet</span>
             </div>
         </div>
-        
-        <div class="analytics-grid">
-            <div class="analytics-card">
-                <h3><i class="fas fa-calendar"></i> Klik Per Hari</h3>
-                <div class="day-chart">
-                    ${analytics.clicks_by_day.length ? analytics.clicks_by_day.map(d => `
-                        <div class="day-bar" style="height: ${(d.count / maxDay) * 100}%" title="${d.date}: ${d.count} klik" data-date="${d.date}" data-count="${d.count}"></div>
-                    `).join('') : '<p class="no-data">Belum ada data</p>'}
-                </div>
-            </div>
-            
+
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-bar"></i> Grafik Klik per Hari</h3>
+            <div class="day-chart">${dayBars}</div>
+            ${daySummary}
+        </div>
+
+        <div class="breakdown-grid">
             <div class="analytics-card">
                 <h3><i class="fas fa-globe"></i> Browser</h3>
-                ${analytics.clicks_by_browser.length ? `
-                    <div class="bar-chart">
-                        ${analytics.clicks_by_browser.slice(0, 6).map(b => `
-                            <div class="bar-row">
-                                <span class="bar-label">${b.browser}</span>
-                                <div class="bar-track">
-                                    <div class="bar-fill" style="width: ${(b.count / totalBrowser) * 100}%">
-                                        <span class="bar-value">${b.count}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : '<p class="no-data">Belum ada data</p>'}
+                ${bars(analytics.clicks_by_browser, totalBrowser)}
             </div>
-            
             <div class="analytics-card">
                 <h3><i class="fab fa-windows"></i> Sistem Operasi</h3>
-                ${analytics.clicks_by_os.length ? `
-                    <div class="bar-chart">
-                        ${analytics.clicks_by_os.slice(0, 6).map(o => `
-                            <div class="bar-row">
-                                <span class="bar-label">${o.os}</span>
-                                <div class="bar-track">
-                                    <div class="bar-fill" style="width: ${(o.count / totalOS) * 100}%">
-                                        <span class="bar-value">${o.count}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : '<p class="no-data">Belum ada data</p>'}
-            </div>
-            
-            <div class="analytics-card">
-                <h3><i class="fas fa-clock"></i> Klik Terbaru</h3>
-                ${analytics.recent_clicks.length ? `
-                    <ul class="recent-clicks">
-                        ${analytics.recent_clicks.slice(0, 8).map(c => `
-                            <li class="recent-click">
-                                <div class="recent-click-info">
-                                    <span>${c.browser} / ${c.os}</span>
-                                    <span class="recent-click-meta">${c.device} ${c.ip_address ? '• ' + c.ip_address : ''}</span>
-                                </div>
-                                <span class="recent-click-date">${formatDate(c.clicked_at)}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                ` : '<p class="no-data">Belum ada klik</p>'}
+                ${bars(analytics.clicks_by_os, totalOS)}
             </div>
         </div>
+
+        <div class="links-table-wrapper recent-table">
+            <table class="links-table">
+                <thead>
+                    <tr>
+                        <th>Klik Terbaru</th>
+                        <th>Device</th>
+                        <th>IP</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tbody>${recentRows}</tbody>
+            </table>
+        </div>
     `;
-    
+
     analyticsContent.innerHTML = content;
 }
 
