@@ -159,6 +159,7 @@ Semua endpoint `*` wajib login (cookie sesi). `/api/auth/*`, `/login`, dan redir
 | GET | `/api/urls` | Daftar semua URL (dengan pagination & search)\* |
 | DELETE | `/api/url/:code` | Hapus URL\* |
 | PATCH | `/api/url/:code/toggle` | Toggle aktif/nonaktif\* |
+| GET | `/api/analytics/summary` | Ringkasan semua link (klik + perangkat)\* |
 | GET | `/api/analytics/:code` | Analitik URL tertentu\* |
 | GET | `/api/qr/:code` | Generate QR Code\* |
 | GET | `/api/stats` | Statistik keseluruhan\* |
