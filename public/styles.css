@@ -338,6 +338,88 @@ body {
     color: var(--danger);
 }
 
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--gray);
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+.btn-ghost:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: #fef2f2;
+}
+
+.btn-outline.active {
+    background: var(--gradient);
+    color: white;
+    border-color: transparent;
+}
+
+.analytics-detail-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-top: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.analytics-detail-head h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.analytics-detail-head h3 i {
+    color: var(--primary);
+}
+
+.detail-code {
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.detail-url {
+    font-size: 13px;
+    color: var(--gray);
+    word-break: break-all;
+}
+
+.detail-url:hover {
+    color: var(--primary);
+}
+
+.analytics-table .num,
+.analytics-table .num-analytic {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.analytics-table .num-analytic strong {
+    color: var(--primary);
+    font-weight: 700;
+}
+
 /* Options */
 .advanced-options {
     margin-top: 16px;
@@ -1480,6 +1562,17 @@ body {
 
     .links-table {
         font-size: 13px;
+    }
+
+    .analytics-table th:nth-child(2),
+    .analytics-table td:nth-child(2),
+    .analytics-table th:nth-child(4),
+    .analytics-table td:nth-child(4),
+    .analytics-table th:nth-child(5),
+    .analytics-table td:nth-child(5),
+    .analytics-table th:nth-child(6),
+    .analytics-table td:nth-child(6) {
+        display: none;
     }
 
     .links-table th:nth-child(4),

@@ -410,6 +410,41 @@ app.patch('/api/url/:code/toggle', (req, res) => {
   }
 });
 
+// Analytics summary — all links with device breakdown
+app.get('/api/analytics/summary', (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT
+        u.id, u.short_code, u.original_url, u.title, u.created_at, u.is_active,
+        COUNT(c.id) AS total_clicks,
+        SUM(CASE WHEN c.device = 'mobile'  THEN 1 ELSE 0 END) AS mobile_clicks,
+        SUM(CASE WHEN c.device = 'desktop' THEN 1 ELSE 0 END) AS desktop_clicks,
+        SUM(CASE WHEN c.device = 'tablet'  THEN 1 ELSE 0 END) AS tablet_clicks
+      FROM urls u
+      LEFT JOIN clicks c ON u.id = c.url_id
+      GROUP BY u.id
+      ORDER BY u.created_at DESC
+    `).all();
+
+    res.json({
+      urls: rows.map(r => ({
+        short_code: r.short_code,
+        original_url: r.original_url,
+        title: r.title,
+        created_at: r.created_at,
+        is_active: r.is_active,
+        total_clicks: r.total_clicks,
+        mobile: r.mobile_clicks,
+        desktop: r.desktop_clicks,
+        tablet: r.tablet_clicks
+      }))
+    });
+  } catch (error) {
+    console.error('Error analytics summary:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get analytics for a URL
 app.get('/api/analytics/:code', (req, res) => {
   try {

@@ -22,8 +22,10 @@ const linksTbody = document.getElementById('links-tbody');
 const linksEmpty = document.getElementById('links-empty');
 const pagination = document.getElementById('pagination');
 const searchInput = document.getElementById('search-input');
-const analyticsUrlSelect = document.getElementById('analytics-url-select');
-const analyticsContent = document.getElementById('analytics-content');
+const analyticsTbody = document.getElementById('analytics-tbody');
+const analyticsEmpty = document.getElementById('analytics-empty');
+const analyticsSearch = document.getElementById('analytics-search');
+const analyticsDetail = document.getElementById('analytics-detail');
 
 // ======== Auth Helper ========
 async function authFetch(url, options) {
@@ -60,7 +62,7 @@ function navigateTo(section) {
             loadLinks();
         }
         if (section === 'analytics') {
-            loadAnalyticsSelect();
+            loadAnalyticsTable();
         }
     }
     
@@ -331,68 +333,94 @@ async function deleteURL(code) {
 }
 
 // ======== Analytics ========
-async function loadAnalyticsSelect() {
+let analyticsAllLinks = [];
+
+async function loadAnalyticsTable() {
     try {
-        const response = await authFetch('/api/urls?limit=100');
+        const response = await authFetch('/api/analytics/summary');
         const data = await response.json();
-        
-        analyticsUrlSelect.innerHTML = '<option value="">Pilih link untuk dianalisis...</option>';
-        
-        data.urls.forEach(url => {
-            const option = document.createElement('option');
-            option.value = url.short_code;
-            option.textContent = `/${url.short_code} — ${truncate(url.original_url, 30)}`;
-            analyticsUrlSelect.appendChild(option);
-        });
-        
-        analyticsContent.innerHTML = '';
+        analyticsAllLinks = data.urls || [];
+        renderAnalyticsTable();
     } catch (error) {
-        console.error('Failed to load analytics select:', error);
+        console.error('Failed to load analytics:', error);
+        analyticsTbody.innerHTML = `<tr><td colspan="7" class="empty-row">${error.message}</td></tr>`;
     }
 }
 
-analyticsUrlSelect.addEventListener('change', function() {
-    const code = this.value;
-    if (!code) {
-        analyticsContent.innerHTML = '';
-        return;
-    }
-    showAnalytics(code);
+function renderAnalyticsTable() {
+    const query = (analyticsSearch.value || '').toLowerCase();
+    const filtered = analyticsAllLinks.filter(u =>
+        !query ||
+        (u.short_code || '').toLowerCase().includes(query) ||
+        (u.original_url || '').toLowerCase().includes(query) ||
+        (u.title || '').toLowerCase().includes(query)
+    );
+
+    analyticsEmpty.classList.toggle('hidden', filtered.length > 0);
+
+    analyticsTbody.innerHTML = filtered.length
+        ? filtered.map(u => `
+            <tr>
+                <td class="short-code-cell">/${u.short_code}</td>
+                <td class="url-cell">
+                    <span class="url-original" title="${escapeHtml(u.original_url)}">${escapeHtml(truncate(u.original_url, 50))}</span>
+                </td>
+                <td class="num-analytic"><strong>${u.total_clicks}</strong></td>
+                <td class="num-analytic">${u.mobile}</td>
+                <td class="num-analytic">${u.desktop}</td>
+                <td class="num-analytic">${u.tablet}</td>
+                <td>
+                    <button class="btn btn-outline btn-sm" data-code="${escapeHtml(u.short_code)}">
+                        <i class="fas fa-chart-line"></i> Grafik
+                    </button>
+                </td>
+            </tr>`).join('')
+        : '<tr><td colspan="7" class="empty-row">Tidak ada link ditemukan</td></tr>';
+}
+
+analyticsSearch.addEventListener('input', renderAnalyticsTable);
+
+analyticsTbody.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-code]');
+    if (!btn) return;
+    const code = btn.getAttribute('data-code');
+    [...document.querySelectorAll('#analytics-tbody [data-code]')].forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    fetchAnalytics(code, analyticsDetail);
 });
 
 function showAnalytics(code) {
     navigateTo('analytics');
-    
-    // Ensure the dropdown is populated before selecting (async)
-    const selectOptions = Array.from(analyticsUrlSelect.options).map(o => o.value);
-    if (!selectOptions.includes(code)) {
-        loadAnalyticsSelect().then(() => {
-            analyticsUrlSelect.value = code;
-        });
-    } else {
-        analyticsUrlSelect.value = code;
-    }
-    fetchAnalytics(code);
+    fetchAnalytics(code, analyticsDetail);
+    setTimeout(() => {
+        const btns = [...document.querySelectorAll('#analytics-tbody [data-code]')];
+        const match = btns.find(b => b.getAttribute('data-code') === code);
+        if (match) {
+            btns.forEach(b => b.classList.remove('active'));
+            match.classList.add('active');
+        }
+    }, 100);
 }
 
-async function fetchAnalytics(code) {
-    analyticsContent.innerHTML = '<div class="loading-container"><span class="loading"></span> Memuat analitik...</div>';
-    
+async function fetchAnalytics(code, container) {
+    container.innerHTML = '<div class="loading-container"><span class="loading"></span> Memuat analitik...</div>';
+
     try {
         const response = await authFetch(`/api/analytics/${code}`);
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.error || 'Gagal memuat analitik');
         }
-        
-        renderAnalytics(data);
+
+        renderAnalytics(data, container);
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
-        analyticsContent.innerHTML = `<p class="error-message">${error.message}</p>`;
+        container.innerHTML = `<p class="error-message">${error.message}</p>`;
     }
 }
 
-function renderAnalytics(data) {
+function renderAnalytics(data, container) {
     const { url, analytics } = data;
 
     const totalBrowser = analytics.clicks_by_browser.reduce((sum, b) => sum + b.count, 0) || 1;
@@ -402,43 +430,51 @@ function renderAnalytics(data) {
 
     const dayBars = analytics.clicks_by_day.length
         ? analytics.clicks_by_day.map(d => `
-                        <div class="day-bar" style="height: ${(d.count / maxDay) * 100}%" title="${d.date}: ${d.count} klik"></div>
-                    `).join('')
+            <div class="day-bar" style="height: ${(d.count / maxDay) * 100}%" title="${d.date}: ${d.count} klik"></div>
+        `).join('')
         : '<p class="no-data">Belum ada klik</p>';
 
     const daySummary = analytics.clicks_by_day.length
         ? `<div class="chart-meta">
-                    <span>${formatDate(analytics.clicks_by_day[0].date)} &ndash; ${formatDate(analytics.clicks_by_day[analytics.clicks_by_day.length - 1].date)}</span>
-                    <span class="chart-total"><strong>${analytics.total_clicks}</strong> klik</span>
-                </div>`
+            <span>${formatDate(analytics.clicks_by_day[0].date)} &ndash; ${formatDate(analytics.clicks_by_day[analytics.clicks_by_day.length - 1].date)}</span>
+            <span class="chart-total"><strong>${analytics.total_clicks}</strong> klik</span>
+        </div>`
         : '';
 
     const bars = (list, total) => list.length
         ? `<div class="bar-chart">
-                    ${list.slice(0, 5).map(item => `
-                        <div class="bar-row">
-                            <span class="bar-label">${item.browser || item.os}</span>
-                            <div class="bar-track">
-                                <div class="bar-fill" style="width: ${(item.count / total) * 100}%">
-                                    <span class="bar-value">${item.count}</span>
-                                </div>
-                            </div>
+            ${list.slice(0, 5).map(item => `
+                <div class="bar-row">
+                    <span class="bar-label">${item.browser || item.os}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width: ${(item.count / total) * 100}%">
+                            <span class="bar-value">${item.count}</span>
                         </div>
-                    `).join('')}
-                </div>`
+                    </div>
+                </div>
+            `).join('')}
+        </div>`
         : '<p class="no-data">Belum ada data</p>';
 
     const recentRows = analytics.recent_clicks.length
         ? analytics.recent_clicks.slice(0, 10).map(c => `
-                    <tr>
-                        <td class="recent-main"><i class="fas fa-globe recent-icon"></i>${c.browser} <span class="recent-sep">/</span> ${c.os}</td>
-                        <td><span class="device-chip ${c.device}">${c.device}</span></td>
-                        <td class="recent-ip">${c.ip_address || '&ndash;'}</td>
-                        <td class="recent-date">${formatDate(c.clicked_at)}</td>
-                    </tr>`).join('')
+            <tr>
+                <td class="recent-main"><i class="fas fa-globe recent-icon"></i>${c.browser} <span class="recent-sep">/</span> ${c.os}</td>
+                <td><span class="device-chip ${c.device}">${c.device}</span></td>
+                <td class="recent-ip">${c.ip_address || '&ndash;'}</td>
+                <td class="recent-date">${formatDate(c.clicked_at)}</td>
+            </tr>`).join('')
         : '<tr><td colspan="4" class="empty-row">Belum ada klik</td></tr>';
 
     const content = `
+        <div class="analytics-detail-head">
+            <div>
+                <h3><i class="fas fa-chart-line"></i> Grafik Analitik <span class="detail-code">/${url.short_code}</span></h3>
+                <a href="${escapeHtml(url.original_url)}" target="_blank" rel="noopener" class="detail-url">${escapeHtml(truncate(url.original_url, 80))}</a>
+            </div>
+            <button class="btn btn-ghost" id="close-analytics-detail"><i class="fas fa-times"></i> Tutup</button>
+        </div>
+
         <div class="analytics-overview">
             <div class="stat-block main">
                 <span class="stat-num">${analytics.total_clicks}</span>
@@ -490,7 +526,13 @@ function renderAnalytics(data) {
         </div>
     `;
 
-    analyticsContent.innerHTML = content;
+    container.innerHTML = content;
+
+    const closeBtn = container.querySelector('#close-analytics-detail');
+    if (closeBtn) closeBtn.addEventListener('click', () => {
+        container.innerHTML = '';
+        [...document.querySelectorAll('#analytics-tbody [data-code]')].forEach(b => b.classList.remove('active'));
+    });
 }
 
 // ======== QR Code ========
