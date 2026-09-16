@@ -46,14 +46,15 @@ module.exports = function register(app) {
   }
 
   async function cobalt(url) {
-    const C = process.env.COBALT_API || ''; if (!C) return null;
+    const C = process.env.COBALT_API || '';
+    if (!C) return { configured: false };
     try {
       const r = await ffetch(C, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ url, videoQuality: '1080' }) }, 15000);
       const j = await r.json().catch(() => null);
       const pick = j && (j.url || j.stream || (j.urls && j.urls[0] && (j.urls[0].url || j.urls[0])));
-      if (pick) return { url: pick, thumb: j.thumbnail || j.thumb || null };
+      if (pick) return { configured: true, url: pick, thumb: j.thumbnail || j.thumb || null };
     } catch (e) { /* fallback */ }
-    return null;
+    return { configured: true };
   }
 
   function meta(html) {
@@ -94,7 +95,7 @@ module.exports = function register(app) {
     const code = shortId(p, clean);
     const md = body.mode || modeOf(p, clean);
     const cob = await cobalt(clean);
-    if (cob) {
+    if (cob && cob.url) {
       return res.json({ success: true, source: 'cobalt', platform: p, mode: md, type: md, shortcode: code, author: '@' + p + '_user', caption: p + ' media via Cobalt', thumbnail: cob.thumb, duration: null, originalUrl: clean, medias: [
         { quality: 'HD 1080p', kind: 'video', url: cob.url, label: 'MP4 HD via Cobalt' },
         { quality: 'SD 720p', kind: 'video', url: cob.url, label: 'MP4 SD' },
@@ -129,7 +130,10 @@ module.exports = function register(app) {
       }
     }
     const d = demoMedia(p, code);
-    return res.json({ success: true, demo: true, platform: p, mode: md, type: md, shortcode: code, author: '@demo.user', caption: 'Mode demo ' + p + ' - situs memblokir bot. Isi COBALT_API utk link asli (lihat README).', thumbnail: d.thumb, duration: '0:15', originalUrl: clean, note: 'DEMO', medias: d.medias });
+    const demoTxt = cob && cob.configured
+      ? 'Mode demo - server media ditolak oleh ' + p + ' utk link ini (blokir bot / butuh login). Coba link lain.'
+      : 'Mode demo ' + p + ' - isi COBALT_API utk link asli (lihat README).';
+    return res.json({ success: true, demo: true, platform: p, mode: md, type: md, shortcode: code, author: '@demo.user', caption: demoTxt, thumbnail: d.thumb, duration: '0:15', originalUrl: clean, note: 'DEMO', medias: d.medias });
   });
   app.get('/csnap/api/proxy', async (req, res) => {
     const fileUrl = req.query.url;
