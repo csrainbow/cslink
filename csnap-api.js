@@ -69,20 +69,20 @@ module.exports = function register(app) {
   function demoMedia(p, code) {
     const seed = String(code).slice(0, 12) || 'demo';
     if (p === 'youtube') return { thumb: 'https://i.ytimg.com/vi/' + seed + '/hqdefault.jpg', medias: [
-      { quality: 'MP4 1080p', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', label: 'MP4 1080p demo', size: '8.2 MB' },
-      { quality: 'MP4 720p', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerH264.mp4', label: 'MP4 720p demo', size: '5.4 MB' },
-      { quality: 'MP3 Audio', kind: 'audio', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', label: 'MP3 demo (via proxy)' }] };
+      { quality: 'MP4 1080p', kind: 'video', url: 'https://media.w3.org/2010/05/sintel/trailer.mp4', label: 'MP4 1080p demo', size: '4.3 MB' },
+      { quality: 'MP4 720p', kind: 'video', url: 'https://media.w3.org/2010/05/bunny/trailer.mp4', label: 'MP4 720p demo', size: '0.3 MB' },
+      { quality: 'MP3 Audio', kind: 'audio', url: 'https://download.samplelib.com/mp3/sample-15s.mp3', label: 'MP3 demo (via proxy)' }] };
     if (p === 'tiktok') return { thumb: 'https://picsum.photos/seed/tt' + seed.length + '/540/960', medias: [
-      { quality: 'HD No Watermark', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', label: 'MP4 HD demo', size: '3.1 MB' },
-      { quality: 'SD', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', label: 'MP4 SD demo' },
-      { quality: 'MP3 Audio', kind: 'audio', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', label: 'MP3 demo' }] };
+      { quality: 'HD No Watermark', kind: 'video', url: 'https://media.w3.org/2010/05/sintel/trailer.mp4', label: 'MP4 HD demo', size: '4.3 MB' },
+      { quality: 'SD', kind: 'video', url: 'https://media.w3.org/2010/05/bunny/trailer.mp4', label: 'MP4 SD demo' },
+      { quality: 'MP3 Audio', kind: 'audio', url: 'https://download.samplelib.com/mp3/sample-15s.mp3', label: 'MP3 demo' }] };
     if (p === 'facebook') return { thumb: 'https://picsum.photos/seed/fb' + seed.length + '/640/640', medias: [
-      { quality: 'HD 720p', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', label: 'MP4 HD demo' },
-      { quality: 'SD 480p', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4', label: 'MP4 SD demo' },
+      { quality: 'HD 720p', kind: 'video', url: 'https://media.w3.org/2010/05/sintel/trailer.mp4', label: 'MP4 HD demo' },
+      { quality: 'SD 480p', kind: 'video', url: 'https://media.w3.org/2010/05/bunny/trailer.mp4', label: 'MP4 SD demo' },
       { quality: 'Thumbnail', kind: 'image', url: 'https://picsum.photos/seed/fb' + seed.length + '/640/640', label: 'JPG Cover' }] };
     return { thumb: 'https://picsum.photos/seed/ig' + seed.length + '/640/640', medias: [
-      { quality: 'HD 1080p', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', label: 'MP4 1080p demo', size: '8.2 MB' },
-      { quality: 'SD 720p', kind: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', label: 'MP4 720p demo', size: '3.1 MB' },
+      { quality: 'HD 1080p', kind: 'video', url: 'https://media.w3.org/2010/05/sintel/trailer.mp4', label: 'MP4 1080p demo', size: '4.3 MB' },
+      { quality: 'SD 720p', kind: 'video', url: 'https://media.w3.org/2010/05/bunny/trailer.mp4', label: 'MP4 720p demo' },
       { quality: 'Thumbnail', kind: 'image', url: 'https://picsum.photos/seed/ig' + seed.length + '/640/640', label: 'JPG Cover' }] };
   }
   app.post('/csnap/api/fetch', async (req, res) => {
@@ -136,11 +136,12 @@ module.exports = function register(app) {
     const fn = req.query.filename || 'csnap.mp4';
     if (!fileUrl) return res.status(400).send('url required');
     try {
-      const r = await ffetch(fileUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, 20000);
+      const r = await ffetch(fileUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, 30000);
       if (!r.ok) return res.status(502).send('fetch fail');
       res.setHeader('Content-Type', r.headers.get('content-type') || 'application/octet-stream');
       res.setHeader('Content-Disposition', 'attachment; filename="' + String(fn).replace(/"/g, '') + '"');
-      res.send(Buffer.from(await r.arrayBuffer()));
+      const { Readable } = require('stream');
+      Readable.fromWeb(r.body).pipe(res);
     } catch (e) { res.status(500).send('proxy err ' + e.message); }
   });
 
