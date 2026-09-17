@@ -37,7 +37,7 @@ function setInputs(s){
   $('#slotTop').value=(s.adsenseSlots&&s.adsenseSlots.top)||'';
   $('#slotInline').value=(s.adsenseSlots&&s.adsenseSlots.inline)||'';
   $('#slotFooter').value=(s.adsenseSlots&&s.adsenseSlots.footer)||'';
-  const set=(id,b)=>{if(!b)return;$('#'+id).value=b.img||'';$('#'+id+'Url').value=b.url||'';$('#'+id+'Alt').value=b.alt||'Iklan';preview(id,b.img);};
+  const set=(id,b)=>{if(!b)return;$('#'+id+'Img').value=b.img||'';$('#'+id+'Url').value=b.url||'';$('#'+id+'Alt').value=b.alt||'Iklan';preview(id,b.img);};
   set('bTop',s.banners&&s.banners.top);set('bInline',s.banners&&s.banners.inline);set('bFooter',s.banners&&s.banners.footer);
 }
 function preview(id,img){
