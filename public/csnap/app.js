@@ -15,11 +15,11 @@ en:{navIg:'Instagram',navTt:'TikTok',navYt:'YouTube',navFb:'Facebook',pill:'Free
 let lang='id';
 let AD_CONFIG={
   adsenseClient:'',
-  adsenseSlots:{top:'',inline:'',footer:''},
+  adsenseSlots:{desktop:'',mobile:''},
+  codes:{desktop:'',mobile:''},
   banners:{
-    top:{img:'',url:'',alt:'Iklan'},
-    inline:{img:'',url:'',alt:'Iklan'},
-    footer:{img:'',url:'',alt:'Iklan'}
+    desktop:{img:'',url:'',alt:'Iklan'},
+    mobile:{img:'',url:'',alt:'Iklan'}
   }
 };
 async function initAds(){
@@ -29,44 +29,60 @@ async function initAds(){
     if(c){
       AD_CONFIG={
         adsenseClient:(c.adsenseClient||'').trim(),
-        adsenseSlots:{top:((c.adsenseSlots&&c.adsenseSlots.top)||'').trim(),inline:((c.adsenseSlots&&c.adsenseSlots.inline)||'').trim(),footer:((c.adsenseSlots&&c.adsenseSlots.footer)||'').trim()},
+        adsenseSlots:{desktop:((c.adsenseSlots&&c.adsenseSlots.desktop)||'').trim(),mobile:((c.adsenseSlots&&c.adsenseSlots.mobile)||'').trim()},
+        codes:{desktop:(c.codes&&c.codes.desktop)||'',mobile:(c.codes&&c.codes.mobile)||''},
         banners:{
-          top:(c.banners&&c.banners.top)||{img:'',url:'',alt:'Iklan'},
-          inline:(c.banners&&c.banners.inline)||{img:'',url:'',alt:'Iklan'},
-          footer:(c.banners&&c.banners.footer)||{img:'',url:'',alt:'Iklan'}
+          desktop:(c.banners&&c.banners.desktop)||{img:'',url:'',alt:'Iklan'},
+          mobile:(c.banners&&c.banners.mobile)||{img:'',url:'',alt:'Iklan'}
         }
       };
     }
   }catch(e){
-    AD_CONFIG={adsenseClient:'',adsenseSlots:{top:'',inline:'',footer:''},banners:{top:{img:'',url:'',alt:'Iklan'},inline:{img:'',url:'',alt:'Iklan'},footer:{img:'',url:'',alt:'Iklan'}}};
+    AD_CONFIG={adsenseClient:'',adsenseSlots:{desktop:'',mobile:''},codes:{desktop:'',mobile:''},banners:{desktop:{img:'',url:'',alt:'Iklan'},mobile:{img:'',url:'',alt:'Iklan'}}};
   }
   loadAdSense();
   renderAds();
 }
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+let adInsertedKey=null,adInsertedSig='';
 function renderAds(){
+  const isDesktop=typeof window.matchMedia==='function'?window.matchMedia('(min-width:768px)').matches:true;
+  const key=isDesktop?'desktop':'mobile';
+  const slot=document.querySelector('[data-ad-slot="'+key+'"]');
+  const other=document.querySelector('[data-ad-slot="'+(isDesktop?'mobile':'desktop')+'"]');
+  if(other)other.innerHTML='';
+  if(!slot)return;
   const useAdSense=!!(AD_CONFIG.adsenseClient&&window.adsbygoogle);
-  document.querySelectorAll('[data-ad-slot]').forEach((slot)=>{
-    const k=slot.dataset.adSlot;
-    const slotId=AD_CONFIG.adsenseSlots[k];
-    const b=AD_CONFIG.banners[k];
-    if(useAdSense&&slotId){
-      slot.innerHTML='';
-      const ins=document.createElement('ins');
-      ins.className='adsbygoogle';
-      ins.style.display='block';
-      ins.setAttribute('data-ad-client',AD_CONFIG.adsenseClient);
-      ins.setAttribute('data-ad-slot',slotId);
-      ins.setAttribute('data-ad-format','auto');
-      ins.setAttribute('data-full-width-responsive','true');
-      slot.appendChild(ins);
-      try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
-    }else if(b&&b.img){
-      slot.innerHTML='<a class="adlink" href="'+esc(b.url||'#')+'" target="_blank" rel="noopener sponsored"><img src="'+esc(b.img)+'" alt="'+esc(b.alt||'Iklan')+'" loading="lazy"></a>';
-    }else{
-      slot.innerHTML='';
-    }
-  });
+  const slotId=AD_CONFIG.adsenseSlots[key];
+  const b=AD_CONFIG.banners[key];
+  const code=AD_CONFIG.codes[key];
+  let sig='';
+  if(code)sig='c:'+code;
+  else if(useAdSense&&slotId)sig='a:'+slotId;
+  else if(b&&b.img)sig='b:'+b.img;
+  if(!sig){slot.innerHTML='';adInsertedKey=null;return;}
+  if(adInsertedKey===key&&adInsertedSig===sig)return;
+  adInsertedKey=key;adInsertedSig=sig;
+  slot.innerHTML='';
+  if(code){
+    slot.innerHTML=code;
+  }else if(useAdSense&&slotId){
+    const ins=document.createElement('ins');
+    ins.className='adsbygoogle';
+    ins.style.display='block';
+    ins.setAttribute('data-ad-client',AD_CONFIG.adsenseClient);
+    ins.setAttribute('data-ad-slot',slotId);
+    ins.setAttribute('data-ad-format','auto');
+    ins.setAttribute('data-full-width-responsive','true');
+    slot.appendChild(ins);
+    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+  }else if(b&&b.img){
+    slot.innerHTML='<a class="adlink" href="'+esc(b.url||'#')+'" target="_blank" rel="noopener sponsored"><img src="'+esc(b.img)+'" alt="'+esc(b.alt||'Iklan')+'" loading="lazy"></a>';
+  }
+}
+if(typeof window.matchMedia==='function'){
+  const mq=window.matchMedia('(min-width:768px)');
+  if(mq.addEventListener)mq.addEventListener('change',renderAds);
 }
 function loadAdSense(){
   if(!AD_CONFIG.adsenseClient)return;

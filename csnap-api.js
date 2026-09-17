@@ -13,17 +13,21 @@ module.exports = function register(app, auth) {
   function defaultSettings() {
     return {
       adsenseClient: '',
-      adsenseSlots: { top: '', inline: '', footer: '' },
+      adsenseSlots: { desktop: '', mobile: '' },
+      codes: { desktop: '', mobile: '' },
       banners: {
-        top: { img: '', url: '', alt: 'Iklan' },
-        inline: { img: '', url: '', alt: 'Iklan' },
-        footer: { img: '', url: '', alt: 'Iklan' }
+        desktop: { img: '', url: '', alt: 'Iklan' },
+        mobile: { img: '', url: '', alt: 'Iklan' }
       }
     };
   }
   function cleanBanner(b) {
     const s = b || {};
     return { img: String(s.img || '').trim(), url: String(s.url || '').trim(), alt: String(s.alt || 'Iklan').trim() };
+  }
+  function cleanCode(c) {
+    const s = String(c || '').trim();
+    return s.length > 8000 ? s.slice(0, 8000) : s;
   }
   function getSettings() {
     try {
@@ -34,14 +38,16 @@ module.exports = function register(app, auth) {
       return {
         adsenseClient: String(raw.adsenseClient || d.adsenseClient).trim(),
         adsenseSlots: {
-          top: String((raw.adsenseSlots && raw.adsenseSlots.top) || '').trim(),
-          inline: String((raw.adsenseSlots && raw.adsenseSlots.inline) || '').trim(),
-          footer: String((raw.adsenseSlots && raw.adsenseSlots.footer) || '').trim()
+          desktop: String((raw.adsenseSlots && raw.adsenseSlots.desktop) || '').trim(),
+          mobile: String((raw.adsenseSlots && raw.adsenseSlots.mobile) || '').trim()
+        },
+        codes: {
+          desktop: cleanCode(raw.codes && raw.codes.desktop),
+          mobile: cleanCode(raw.codes && raw.codes.mobile)
         },
         banners: {
-          top: cleanBanner(raw.banners && raw.banners.top),
-          inline: cleanBanner(raw.banners && raw.banners.inline),
-          footer: cleanBanner(raw.banners && raw.banners.footer)
+          desktop: cleanBanner(raw.banners && raw.banners.desktop),
+          mobile: cleanBanner(raw.banners && raw.banners.mobile)
         }
       };
     } catch (e) { return defaultSettings(); }
@@ -62,14 +68,16 @@ module.exports = function register(app, auth) {
     const s = {
       adsenseClient: String(b.adsenseClient != null ? b.adsenseClient : d.adsenseClient).trim(),
       adsenseSlots: {
-        top: String((b.adsenseSlots && b.adsenseSlots.top != null) ? b.adsenseSlots.top : (d.adsenseSlots && d.adsenseSlots.top)).trim(),
-        inline: String((b.adsenseSlots && b.adsenseSlots.inline != null) ? b.adsenseSlots.inline : (d.adsenseSlots && d.adsenseSlots.inline)).trim(),
-        footer: String((b.adsenseSlots && b.adsenseSlots.footer != null) ? b.adsenseSlots.footer : (d.adsenseSlots && d.adsenseSlots.footer)).trim()
+        desktop: String((b.adsenseSlots && b.adsenseSlots.desktop != null) ? b.adsenseSlots.desktop : (d.adsenseSlots && d.adsenseSlots.desktop)).trim(),
+        mobile: String((b.adsenseSlots && b.adsenseSlots.mobile != null) ? b.adsenseSlots.mobile : (d.adsenseSlots && d.adsenseSlots.mobile)).trim()
+      },
+      codes: {
+        desktop: cleanCode((b.codes && b.codes.desktop != null) ? b.codes.desktop : (d.codes && d.codes.desktop)),
+        mobile: cleanCode((b.codes && b.codes.mobile != null) ? b.codes.mobile : (d.codes && d.codes.mobile))
       },
       banners: {
-        top: cleanBanner((b.banners && b.banners.top) || d.banners.top),
-        inline: cleanBanner((b.banners && b.banners.inline) || d.banners.inline),
-        footer: cleanBanner((b.banners && b.banners.footer) || d.banners.footer)
+        desktop: cleanBanner((b.banners && b.banners.desktop) || d.banners.desktop),
+        mobile: cleanBanner((b.banners && b.banners.mobile) || d.banners.mobile)
       }
     };
     saveSettings(s);
