@@ -201,7 +201,7 @@ app.post('/api/auth/change-password', requireAuth, (req, res) => {
 // ==================== CSNAP: Multi-platform Downloader (publik) ====
 
 // ==================== CSNAP: Multi-platform Downloader (publik, via csnap-api.js) ====
-require('./csnap-api')(app);
+require('./csnap-api')(app, { requireAuth, getSession });
 
 
 // Semua API pengelolaan wajib login (redirect /abc tetap publik)
@@ -615,3 +615,5 @@ db.init()
     console.error('Failed to initialize database:', err);
     process.exit(1);
   });
+
+module.exports = { app, requireAuth, getSession };

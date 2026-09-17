@@ -175,12 +175,12 @@ Aplikasi publik di `/csnap/` — download video/foto dari Instagram, TikTok, You
 
 ### Pasang Iklan di CSNAP
 
-Konfigurasi di `public/csnap/app.js` → `AD_CONFIG` (3 slot: `top`, `inline`, `footer`):
+Buka **`https://<host>/csnap/setting`** (wajib login admin) — simpan konfigurasi di server (3 slot: `top`, `inline`, `footer`):
 
-1. **Google AdSense** (halaman harus lolos review AdSense): isi `adsenseClient` (`ca-pub-...`) dan `adsenseSlots` dengan ID slot per posisi (`ca-pub-...`/`NNNNNNNNNN`). Skrip `adsbygoogle` otomatis dimuat.
-2. **Banner custom** (fallback, tanpa approval): isi `banners.top/inline/footer` dengan `img`, `url`, `alt`. Banner tampil selama `adsenseClient` kosong.
+1. **Google AdSense** (halaman harus lolos review AdSense): isi **Client ID** (`ca-pub-...`) dan **ID slot** per posisi. Skrip `adsbygoogle` dimuat otomatis saat Client ID terisi.
+2. **Banner custom** (fallback, tanpa approval): isi **URL gambar**, **URL tujuan**, dan **alt** per posisi. Banner tampil selama Client ID kosong.
 
-Slot kosong secara otomatis tidak menampilkan apa pun.
+Slot kosong tidak menampilkan apa pun. Konfigurasi disimpan server-side di tabel `config` (key `csnap_settings`). Halaman CSNAP memuatnya secara publik via `GET /csnap/api/config`.
 
 ## Cara Penggunaan
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSNAP — Pengaturan</title><link rel="stylesheet" href="/csnap/styles.css"></head><body>
+<header class="top"><div class="topin">
+<div class="logo">⚡ <b>CSNAP</b><span style="font-size:11px;border:1px solid #243056;border-radius:99px;padding:3px 8px;color:#9aa7c7">Pengaturan</span></div>
+<div class="lang"><a class="btn ghost" href="/csnap/" style="text-decoration:none">← Buka CSNAP</a></div>
+</div></header>
+<div class="wrap">
+<div class="dlbox sform">
+<h2>Pengaturan CSNAP</h2>
+<p style="color:#9aa7c7">Konfigurasi iklan disimpan di server dan langsung dipakai halaman CSNAP.</p>
+<div id="msg"></div>
+<label>Google AdSense — Client ID</label>
+<input id="adsenseClient" placeholder="ca-pub-XXXXXXXX — kosongkan utk pakai banner custom">
+<h3>Slot AdSense (ID unit)</h3>
+<div class="g3">
+<div><label>Atas</label><input id="slotTop" placeholder="ID unit"></div>
+<div><label>Tengah</label><input id="slotInline" placeholder="ID unit"></div>
+<div><label>Bawah</label><input id="slotFooter" placeholder="ID unit"></div>
+</div>
+<h3>Banner Custom (fallback)</h3>
+<div class="banners">
+<div class="banner"><h4>▲ Atas</h4><input id="bTopImg" placeholder="URL gambar banner"><input id="bTopUrl" placeholder="URL tujuan klik"><input id="bTopAlt" placeholder="Teks alt / caption"><div class="preview" id="pvTop"></div></div>
+<div class="banner"><h4>◤ Tengah</h4><input id="bInlineImg" placeholder="URL gambar banner"><input id="bInlineUrl" placeholder="URL tujuan klik"><input id="bInlineAlt" placeholder="Teks alt / caption"><div class="preview" id="pvInline"></div></div>
+<div class="banner"><h4>▼ Bawah</h4><input id="bFooterImg" placeholder="URL gambar banner"><input id="bFooterUrl" placeholder="URL tujuan klik"><input id="bFooterAlt" placeholder="Teks alt / caption"><div class="preview" id="pvFooter"></div></div>
+</div>
+<div class="row" style="gap:10px">
+<button class="btn" id="save">💾 Simpan</button>
+<button class="btn ghost" id="reset">Reset ke default</button>
+</div>
+</div></div>
+<script>
+const $=s=>document.querySelector(s);
+const msgEl=$('#msg');
+function msg(t,c){msgEl.textContent=t;msgEl.className=c||'ok';}
+function setInputs(s){
+  $('#adsenseClient').value=s.adsenseClient||'';
+  $('#slotTop').value=(s.adsenseSlots&&s.adsenseSlots.top)||'';
+  $('#slotInline').value=(s.adsenseSlots&&s.adsenseSlots.inline)||'';
+  $('#slotFooter').value=(s.adsenseSlots&&s.adsenseSlots.footer)||'';
+  const set=(id,b)=>{if(!b)return;$('#'+id).value=b.img||'';$('#'+id+'Url').value=b.url||'';$('#'+id+'Alt').value=b.alt||'Iklan';preview(id,b.img);};
+  set('bTop',s.banners&&s.banners.top);set('bInline',s.banners&&s.banners.inline);set('bFooter',s.banners&&s.banners.footer);
+}
+function preview(id,img){
+  const p=$('#pv'+id.replace('b',''));
+  if(p){p.innerHTML=img?'<img src="'+img+'" onerror="this.style.display=\'none\'">':'<small>belum ada gambar</small>';}
+}
+async function load(){
+  try{
+    const r=await fetch('/csnap/api/settings',{credentials:'same-origin'});
+    if(r.status===401){msg('Sesi berakhir — arahkan ke login…','err');setTimeout(()=>{location.href='/login';},1200);return;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    setInputs(await r.json());
+  }catch(e){msg('Gagal memuat: '+e.message,'err');}
+}
+async function save(){
+  const p={adsenseClient:$('#adsenseClient').value.trim(),
+    adsenseSlots:{top:$('#slotTop').value.trim(),inline:$('#slotInline').value.trim(),footer:$('#slotFooter').value.trim()},
+    banners:{
+      top:pick('bTop'),inline:pick('bInline'),footer:pick('bFooter')}};
+  try{
+    const r=await fetch('/csnap/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(p)});
+    if(r.status===401){msg('Sesi berakhir — arahkan ke login…','err');setTimeout(()=>{location.href='/login';},1200);return;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    if(j.ok){msg('Tersimpan ✓','ok');setInputs(j.settings);}
+  }catch(e){msg('Gagal simpan: '+e.message,'err');}
+}
+function pick(x){return{img:$('#'+x+'Img').value.trim(),url:$('#'+x+'Url').value.trim(),alt:$('#'+x+'Alt').value.trim()||'Iklan'};}
+async function resetAll(){
+  if(!confirm('Hapus semua pengaturan iklan?'))return;
+  try{
+    const r=await fetch('/csnap/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({adsenseClient:'',adsenseSlots:{top:'',inline:'',footer:''},banners:{top:{img:'',url:'',alt:'Iklan'},inline:{img:'',url:'',alt:'Iklan'},footer:{img:'',url:'',alt:'Iklan'}}})});
+    if(r.status===401){msg('Sesi berakhir — arahkan ke login…','err');setTimeout(()=>{location.href='/login';},1200);return;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    msg('Di-reset ke default ✓','ok');load();
+  }catch(e){msg('Gagal reset: '+e.message,'err');}
+}
+$('#save').onclick=save;
+$('#reset').onclick=resetAll;
+['bTopImg','bInlineImg','bFooterImg'].forEach(id=>$('#'+id).addEventListener('input',e=>preview(id.replace('Img',''),e.target.value.trim())));
+load();
+</script></body></html>

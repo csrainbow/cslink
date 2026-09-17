@@ -2,10 +2,86 @@
 const express = require('express');
 const crypto = require('crypto');
 
-module.exports = function register(app) {
+module.exports = function register(app, auth) {
+  const db = require('./database');
+  const { requireAuth, getSession } = auth || {};
   const path = require('path');
+  const SETTINGS_KEY = 'csnap_settings';
   app.use('/csnap', express.static(path.join(__dirname, 'public', 'csnap')));
   app.get('/csnap', (req, res) => res.sendFile(path.join(__dirname, 'public', 'csnap', 'index.html')));
+
+  function defaultSettings() {
+    return {
+      adsenseClient: '',
+      adsenseSlots: { top: '', inline: '', footer: '' },
+      banners: {
+        top: { img: '', url: '', alt: 'Iklan' },
+        inline: { img: '', url: '', alt: 'Iklan' },
+        footer: { img: '', url: '', alt: 'Iklan' }
+      }
+    };
+  }
+  function cleanBanner(b) {
+    const s = b || {};
+    return { img: String(s.img || '').trim(), url: String(s.url || '').trim(), alt: String(s.alt || 'Iklan').trim() };
+  }
+  function getSettings() {
+    try {
+      const row = db.prepare('SELECT value FROM config WHERE key = ?').get(SETTINGS_KEY);
+      if (!row) return defaultSettings();
+      const raw = JSON.parse(row.value);
+      const d = defaultSettings();
+      return {
+        adsenseClient: String(raw.adsenseClient || d.adsenseClient).trim(),
+        adsenseSlots: {
+          top: String((raw.adsenseSlots && raw.adsenseSlots.top) || '').trim(),
+          inline: String((raw.adsenseSlots && raw.adsenseSlots.inline) || '').trim(),
+          footer: String((raw.adsenseSlots && raw.adsenseSlots.footer) || '').trim()
+        },
+        banners: {
+          top: cleanBanner(raw.banners && raw.banners.top),
+          inline: cleanBanner(raw.banners && raw.banners.inline),
+          footer: cleanBanner(raw.banners && raw.banners.footer)
+        }
+      };
+    } catch (e) { return defaultSettings(); }
+  }
+  function saveSettings(s) {
+    db.prepare('INSERT INTO config (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+      .run(SETTINGS_KEY, JSON.stringify(s));
+  }
+
+  // Konfigurasi publik untuk runtime app (tampil di halaman, bukan rahasia)
+  app.get('/csnap/api/config', (req, res) => res.json(getSettings()));
+
+  // Pengaturan (hak admin / sesi login)
+  app.get('/csnap/api/settings', requireAuth, (req, res) => res.json(getSettings()));
+  app.put('/csnap/api/settings', requireAuth, (req, res) => {
+    const b = req.body || {};
+    const d = getSettings();
+    const s = {
+      adsenseClient: String(b.adsenseClient != null ? b.adsenseClient : d.adsenseClient).trim(),
+      adsenseSlots: {
+        top: String((b.adsenseSlots && b.adsenseSlots.top != null) ? b.adsenseSlots.top : (d.adsenseSlots && d.adsenseSlots.top)).trim(),
+        inline: String((b.adsenseSlots && b.adsenseSlots.inline != null) ? b.adsenseSlots.inline : (d.adsenseSlots && d.adsenseSlots.inline)).trim(),
+        footer: String((b.adsenseSlots && b.adsenseSlots.footer != null) ? b.adsenseSlots.footer : (d.adsenseSlots && d.adsenseSlots.footer)).trim()
+      },
+      banners: {
+        top: cleanBanner((b.banners && b.banners.top) || d.banners.top),
+        inline: cleanBanner((b.banners && b.banners.inline) || d.banners.inline),
+        footer: cleanBanner((b.banners && b.banners.footer) || d.banners.footer)
+      }
+    };
+    saveSettings(s);
+    res.json({ ok: true, settings: s });
+  });
+
+  // Halaman setting (wajib login; redirect ke /login bila belum)
+  app.get('/csnap/setting', (req, res) => {
+    if (getSession && !getSession(req)) return res.redirect('/login');
+    res.sendFile(path.join(__dirname, 'public', 'csnap', 'setting.html'));
+  });
+  app.get('/csnap/settings', (req, res) => res.redirect('/csnap/setting'));
 
   function detect(url) {
     if (/instagram\.com|instagr\.am/i.test(url)) return 'instagram';

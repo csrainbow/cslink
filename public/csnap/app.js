@@ -13,36 +13,58 @@ const STR={
 id:{navIg:'Instagram',navTt:'TikTok',navYt:'YouTube',navFb:'Facebook',pill:'Gratis • Tanpa Watermark • HD 1080p',h1a:'Instagram',h1b:'Downloader',sub:'Download Reels, Foto, Video, Story & IGTV HD. Tempel link, klik Download — selesai 3 detik.',hint:'Contoh link:',s1t:'Cara Download — 3 Langkah',s1p:'Semudah copy-paste.',st1t:'Salin Link',st1p:'Buka IG > titik tiga > Salin Tautan.',st2t:'Tempel Link',st2p:'Tempel link lalu tekan Download.',st3t:'Simpan File',st3p:'Pilih kualitas HD/SD.',go:'⬇ Download',ph:'Tempel link Instagram di sini…',loading:'Mengambil media…',err:'Gagal: ',dl:'Download',prev:'Preview',open:'Buka'},
 en:{navIg:'Instagram',navTt:'TikTok',navYt:'YouTube',navFb:'Facebook',pill:'Free • No Watermark • HD 1080p',h1a:'Instagram',h1b:'Downloader',sub:'Download Reels, Photos, Videos, Stories & IGTV in HD. Paste link, hit Download — done in 3s.',hint:'Example:',s1t:'How to Download — 3 Steps',s1p:'Easy copy-paste.',st1t:'Copy Link',st1p:'Open IG > three dots > Copy Link.',st2t:'Paste Link',st2p:'Paste link then press Download.',st3t:'Save File',st3p:'Pick HD/SD quality.',go:'⬇ Download',ph:'Paste Instagram link here…',loading:'Fetching media…',err:'Failed: ',dl:'Download',prev:'Preview',open:'Open'}};
 let lang='id';
-const AD_CONFIG={
-  adsenseClient:'',  // isi 'ca-pub-XXXXXXXX' utk aktifkan Google AdSense (semua slot)
-  adsenseSlots:{top:'',inline:'',footer:''},  // ID unit AdSense per slot
-  banners:{ // fallback bila adSenseClient kosong
+let AD_CONFIG={
+  adsenseClient:'',
+  adsenseSlots:{top:'',inline:'',footer:''},
+  banners:{
     top:{img:'',url:'',alt:'Iklan'},
     inline:{img:'',url:'',alt:'Iklan'},
     footer:{img:'',url:'',alt:'Iklan'}
   }
 };
+async function initAds(){
+  try{
+    const r=await fetch('/csnap/api/config');
+    const c=await r.json();
+    if(c){
+      AD_CONFIG={
+        adsenseClient:(c.adsenseClient||'').trim(),
+        adsenseSlots:{top:((c.adsenseSlots&&c.adsenseSlots.top)||'').trim(),inline:((c.adsenseSlots&&c.adsenseSlots.inline)||'').trim(),footer:((c.adsenseSlots&&c.adsenseSlots.footer)||'').trim()},
+        banners:{
+          top:(c.banners&&c.banners.top)||{img:'',url:'',alt:'Iklan'},
+          inline:(c.banners&&c.banners.inline)||{img:'',url:'',alt:'Iklan'},
+          footer:(c.banners&&c.banners.footer)||{img:'',url:'',alt:'Iklan'}
+        }
+      };
+    }
+  }catch(e){
+    AD_CONFIG={adsenseClient:'',adsenseSlots:{top:'',inline:'',footer:''},banners:{top:{img:'',url:'',alt:'Iklan'},inline:{img:'',url:'',alt:'Iklan'},footer:{img:'',url:'',alt:'Iklan'}}};
+  }
+  loadAdSense();
+  renderAds();
+}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function renderAds(){
   const useAdSense=!!(AD_CONFIG.adsenseClient&&window.adsbygoogle);
   document.querySelectorAll('[data-ad-slot]').forEach((slot)=>{
     const k=slot.dataset.adSlot;
-    if(useAdSense&&AD_CONFIG.adsenseSlots[k]){
+    const slotId=AD_CONFIG.adsenseSlots[k];
+    const b=AD_CONFIG.banners[k];
+    if(useAdSense&&slotId){
       slot.innerHTML='';
       const ins=document.createElement('ins');
       ins.className='adsbygoogle';
       ins.style.display='block';
       ins.setAttribute('data-ad-client',AD_CONFIG.adsenseClient);
-      ins.setAttribute('data-ad-slot',AD_CONFIG.adsenseSlots[k]);
+      ins.setAttribute('data-ad-slot',slotId);
       ins.setAttribute('data-ad-format','auto');
       ins.setAttribute('data-full-width-responsive','true');
       slot.appendChild(ins);
       try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+    }else if(b&&b.img){
+      slot.innerHTML='<a class="adlink" href="'+esc(b.url||'#')+'" target="_blank" rel="noopener sponsored"><img src="'+esc(b.img)+'" alt="'+esc(b.alt||'Iklan')+'" loading="lazy"></a>';
     }else{
-      const b=AD_CONFIG.banners[k];
-      if(b&&b.img){
-        slot.innerHTML='<a class="adlink" href="'+esc(b.url||'#')+'" target="_blank" rel="noopener sponsored"><img src="'+esc(b.img)+'" alt="'+esc(b.alt||'Iklan')+'" loading="lazy"></a>';
-      }
+      slot.innerHTML='';
     }
   });
 }
@@ -99,5 +121,4 @@ resEl.classList.add('show');resEl.scrollIntoView({behavior:'smooth',block:'neare
 }
 window.dl=(u,fn)=>{window.location.href='/csnap/api/proxy?url='+u+'&filename='+encodeURIComponent(fn);};
 setLang('id');
-loadAdSense();
-renderAds();
+initAds();
