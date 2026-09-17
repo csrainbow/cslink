@@ -165,6 +165,23 @@ Semua endpoint `*` wajib login (cookie sesi). `/api/auth/*`, `/login`, dan redir
 | GET | `/api/qr/:code` | Generate QR Code\* |
 | GET | `/api/stats` | Statistik keseluruhan\* |
 
+## CSNAP (Media Downloader)
+
+Aplikasi publik di `/csnap/` — download video/foto dari Instagram, TikTok, YouTube, dan Facebook, tersedia bilingual (ID/EN). Menggunakan server **Cobalt API** untuk mengambil file asli:
+
+- Deploy Cobalt: `docker run -d --name cobalt --restart unless-stopped -p 127.0.0.1:9000:9000 -e API_URL=http://localhost:9000 ghcr.io/imputnet/cobalt:latest`
+- Set `COBALT_API=http://127.0.0.1:9000/` di `.env`, lalu `systemctl restart cslink`.
+- Tanpa Cobalt (atau provider memblokir bot), CSNAP menampilkan mode demo dengan file contoh.
+
+### Pasang Iklan di CSNAP
+
+Konfigurasi di `public/csnap/app.js` → `AD_CONFIG` (3 slot: `top`, `inline`, `footer`):
+
+1. **Google AdSense** (halaman harus lolos review AdSense): isi `adsenseClient` (`ca-pub-...`) dan `adsenseSlots` dengan ID slot per posisi (`ca-pub-...`/`NNNNNNNNNN`). Skrip `adsbygoogle` otomatis dimuat.
+2. **Banner custom** (fallback, tanpa approval): isi `banners.top/inline/footer` dengan `img`, `url`, `alt`. Banner tampil selama `adsenseClient` kosong.
+
+Slot kosong secara otomatis tidak menampilkan apa pun.
+
 ## Cara Penggunaan
 
 1. **Perpendek URL**: Tempel URL panjang di kolom input, klik "Perpendek"
@@ -178,6 +195,7 @@ Semua endpoint `*` wajib login (cookie sesi). `/api/auth/*`, `/login`, dan redir
 ```
 ├── server.js          # Server utama & API
 ├── database.js        # Setup SQLite database
+├── csnap-api.js       # Route publik CSNAP (fetch + proxy download + iklan)
 ├── install.sh         # One-click installer (curl | bash)
 ├── package.json       # Konfigurasi proyek
 ├── .env.example       # Template environment variables
@@ -185,7 +203,8 @@ Semua endpoint `*` wajib login (cookie sesi). `/api/auth/*`, `/login`, dan redir
 │   ├── index.html     # HTML utama (dashboard)
 │   ├── login.html     # Halaman login / setup admin
 │   ├── styles.css     # CSS styles
-│   └── script.js      # JavaScript frontend
+│   ├── script.js      # JavaScript frontend
+│   └── csnap/         # Aplikasi CSNAP (index.html, app.js, styles.css)
 └── data/              # Database files (auto-generated)
 ```
 

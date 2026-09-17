@@ -46,5 +46,8 @@ section.block{max-width:1080px;margin:34px auto;padding:0 18px}section.block h2{
 table{width:100%;border-collapse:collapse;background:var(--card);font-size:14px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left}th{background:#0f1530}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:14px}summary{cursor:pointer;font-weight:700}details p{color:var(--mut)}
 footer{border-top:1px solid var(--line);margin-top:40px;padding:26px;text-align:center;color:var(--mut);font-size:13px}
+.ads{margin:16px auto;max-width:760px}
+.ads .adlink{display:block;border-radius:12px;overflow:hidden}
+.ads .adlink img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px}
 .spin{width:18px;height:18px;border:3px solid #fff3;border-top-color:#fff;border-radius:50%;display:inline-block;animation:sp 1s linear infinite;margin-right:8px;vertical-align:-4px}@keyframes sp{to{transform:rotate(360deg)}}
 @media(max-width:760px){nav.links{display:none}.row{flex-direction:column}.steps,.grid6{grid-template-columns:1fr}}

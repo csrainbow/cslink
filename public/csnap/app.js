@@ -13,6 +13,49 @@ const STR={
 id:{navIg:'Instagram',navTt:'TikTok',navYt:'YouTube',navFb:'Facebook',pill:'Gratis • Tanpa Watermark • HD 1080p',h1a:'Instagram',h1b:'Downloader',sub:'Download Reels, Foto, Video, Story & IGTV HD. Tempel link, klik Download — selesai 3 detik.',hint:'Contoh link:',s1t:'Cara Download — 3 Langkah',s1p:'Semudah copy-paste.',st1t:'Salin Link',st1p:'Buka IG > titik tiga > Salin Tautan.',st2t:'Tempel Link',st2p:'Tempel link lalu tekan Download.',st3t:'Simpan File',st3p:'Pilih kualitas HD/SD.',go:'⬇ Download',ph:'Tempel link Instagram di sini…',loading:'Mengambil media…',err:'Gagal: ',dl:'Download',prev:'Preview',open:'Buka'},
 en:{navIg:'Instagram',navTt:'TikTok',navYt:'YouTube',navFb:'Facebook',pill:'Free • No Watermark • HD 1080p',h1a:'Instagram',h1b:'Downloader',sub:'Download Reels, Photos, Videos, Stories & IGTV in HD. Paste link, hit Download — done in 3s.',hint:'Example:',s1t:'How to Download — 3 Steps',s1p:'Easy copy-paste.',st1t:'Copy Link',st1p:'Open IG > three dots > Copy Link.',st2t:'Paste Link',st2p:'Paste link then press Download.',st3t:'Save File',st3p:'Pick HD/SD quality.',go:'⬇ Download',ph:'Paste Instagram link here…',loading:'Fetching media…',err:'Failed: ',dl:'Download',prev:'Preview',open:'Open'}};
 let lang='id';
+const AD_CONFIG={
+  adsenseClient:'',  // isi 'ca-pub-XXXXXXXX' utk aktifkan Google AdSense (semua slot)
+  adsenseSlots:{top:'',inline:'',footer:''},  // ID unit AdSense per slot
+  banners:{ // fallback bila adSenseClient kosong
+    top:{img:'',url:'',alt:'Iklan'},
+    inline:{img:'',url:'',alt:'Iklan'},
+    footer:{img:'',url:'',alt:'Iklan'}
+  }
+};
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderAds(){
+  const useAdSense=!!(AD_CONFIG.adsenseClient&&window.adsbygoogle);
+  document.querySelectorAll('[data-ad-slot]').forEach((slot)=>{
+    const k=slot.dataset.adSlot;
+    if(useAdSense&&AD_CONFIG.adsenseSlots[k]){
+      slot.innerHTML='';
+      const ins=document.createElement('ins');
+      ins.className='adsbygoogle';
+      ins.style.display='block';
+      ins.setAttribute('data-ad-client',AD_CONFIG.adsenseClient);
+      ins.setAttribute('data-ad-slot',AD_CONFIG.adsenseSlots[k]);
+      ins.setAttribute('data-ad-format','auto');
+      ins.setAttribute('data-full-width-responsive','true');
+      slot.appendChild(ins);
+      try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+    }else{
+      const b=AD_CONFIG.banners[k];
+      if(b&&b.img){
+        slot.innerHTML='<a class="adlink" href="'+esc(b.url||'#')+'" target="_blank" rel="noopener sponsored"><img src="'+esc(b.img)+'" alt="'+esc(b.alt||'Iklan')+'" loading="lazy"></a>';
+      }
+    }
+  });
+}
+function loadAdSense(){
+  if(!AD_CONFIG.adsenseClient)return;
+  const base='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+AD_CONFIG.adsenseClient;
+  const s=document.createElement('script');
+  s.async=true;
+  s.crossOrigin='anonymous';
+  s.src=base;
+  s.onload=renderAds;
+  document.head.appendChild(s);
+}
 function setLang(l){lang=l;const d=STR[l];document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.dataset.i18n;if(d[k])e.textContent=d[k];});goBtn.textContent=d.go;$('#btnId').classList.toggle('on',l==='id');$('#btnEn').classList.toggle('on',l==='en');setPlatform(platform,true);}
 $('#btnId').onclick=()=>setLang('id');$('#btnEn').onclick=()=>setLang('en');
 function detectPlatform(u){for(const k in PLATFORMS){if(PLATFORMS[k].dom.test(u))return k;}return null;}
@@ -48,7 +91,6 @@ render(j);setStatus('✓ '+(j.demo?'Mode demo aktif — info asli bila tersedia'
 }catch(e){setStatus(STR[lang].err+e.message,'err');}
 goBtn.disabled=false;goBtn.textContent=STR[lang].go;
 }
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function render(j){
 const tag=j.demo?'<span class="demoTag">DEMO</span>':'';
 const rows=j.medias.map((m,i)=>`<div class="qitem"><div><div class="q">${esc(m.quality)}</div><small>${esc(m.label||m.kind)}${m.size?' • '+esc(m.size):''}</small></div><div class="sp"></div><a class="dl" href="${esc(m.url)}" target="_blank" rel="noopener">${STR[lang].open}</a><button class="dl ${i===0?'pri':''}" onclick="dl('${encodeURIComponent(m.url)}','${platform}-${esc(j.shortcode||'media')}${(m.kind||'video')==='image'?'.jpg':(m.kind==='audio'?'.mp3':'.mp4')}')">${STR[lang].dl}</button></div>`).join('');
@@ -57,3 +99,5 @@ resEl.classList.add('show');resEl.scrollIntoView({behavior:'smooth',block:'neare
 }
 window.dl=(u,fn)=>{window.location.href='/csnap/api/proxy?url='+u+'&filename='+encodeURIComponent(fn);};
 setLang('id');
+loadAdSense();
+renderAds();
