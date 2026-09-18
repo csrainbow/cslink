@@ -185,6 +185,12 @@ Urutan prioritas tiap slot: **kode iklan (script/HTML)** â†’ **banner manual** â
 
 Slot kosong tidak menampilkan apa pun. Konfigurasi disimpan server-side di tabel `config` (key `csnap_settings`). Halaman CSNAP memuatnya secara publik via `GET /csnap/api/config`.
 
+#### Interstitial iklan 5 detik
+
+- **Link pendek CSLINK** (`/:code`): setiap klik menampilkan halaman iklan dengan hitung mundur 5 detik lalu otomatis dialihkan ke tujuan. Iklan (unit AdSense dari `csnap_settings`) dimuat bila Client ID terisi; tanpa konfigurasi tetap menunggu 5 detik.
+- **Download CSNAP**: tombol Download mengarah ke `/csnap/api/ad` (validasi `url` wajib `http(s)://`), jeda 5 detik, lalu menuju `/csnap/api/proxy` internal (aman dari open redirect).
+- Halaman interstitial: `public/ad.html` (placeholder `__AD_DEST__` diisi server via `renderAdPage()`).
+
 ## Cara Penggunaan
 
 1. **Perpendek URL**: Tempel URL panjang di kolom input, klik "Perpendek"

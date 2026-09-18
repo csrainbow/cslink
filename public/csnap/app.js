@@ -135,6 +135,6 @@ const rows=j.medias.map((m,i)=>`<div class="qitem"><div><div class="q">${esc(m.q
 resEl.innerHTML=`<div class="rhead"><img src="${esc(j.thumbnail||'')}" onerror="this.src='https://picsum.photos/seed/fallback/300/300'"><div><h3>${esc(j.author||'Instagram')}${tag}</h3><p>${esc(j.caption||'')}</p><small style="color:#9aa7c7">${esc(j.type)} • ${esc(j.shortcode||'')} ${j.duration?'• '+esc(j.duration):''}</small></div></div><div class="qlist">${rows}</div>${j.note?`<div class="note">⚠️ ${esc(j.note)}</div>`:''}`;
 resEl.classList.add('show');resEl.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-window.dl=(u,fn)=>{window.location.href='/csnap/api/proxy?url='+u+'&filename='+encodeURIComponent(fn);};
+window.dl=(u,fn)=>{let raw=u;try{raw=decodeURIComponent(u);}catch(e){}window.location.href='/csnap/api/ad?url='+encodeURIComponent(raw)+'&filename='+encodeURIComponent(fn);};
 setLang('id');
 initAds();

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const crypto = require('crypto');
+const fs = require('fs');
 const path = require('path');
 const QRCode = require('qrcode');
 const UAParser = require('ua-parser-js');
@@ -201,7 +202,7 @@ app.post('/api/auth/change-password', requireAuth, (req, res) => {
 // ==================== CSNAP: Multi-platform Downloader (publik) ====
 
 // ==================== CSNAP: Multi-platform Downloader (publik, via csnap-api.js) ====
-require('./csnap-api')(app, { requireAuth, getSession });
+require('./csnap-api')(app, { requireAuth, getSession, renderAdPage });
 
 
 // Semua API pengelolaan wajib login (redirect /abc tetap publik)
@@ -303,7 +304,7 @@ app.get('/:code', (req, res) => {
       ua.device.type || 'desktop'
     );
 
-    res.redirect(302, url.original_url);
+    res.type('html').send(renderAdPage(url.original_url));
   } catch (error) {
     console.error('Error redirecting:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -616,4 +617,9 @@ db.init()
     process.exit(1);
   });
 
-module.exports = { app, requireAuth, getSession };
+const AD_PAGE = fs.readFileSync(path.join(__dirname, 'public', 'ad.html'), 'utf8');
+function renderAdPage(dest) {
+  return AD_PAGE.replace('__AD_DEST__', JSON.stringify(dest));
+}
+
+module.exports = { app, requireAuth, getSession, renderAdPage };

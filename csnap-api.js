@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 module.exports = function register(app, auth) {
   const db = require('./database');
-  const { requireAuth, getSession } = auth || {};
+  const { requireAuth, getSession, renderAdPage } = auth || {};
   const path = require('path');
   const SETTINGS_KEY = 'csnap_settings';
   app.use('/csnap', express.static(path.join(__dirname, 'public', 'csnap')));
@@ -90,6 +90,16 @@ module.exports = function register(app, auth) {
     res.sendFile(path.join(__dirname, 'public', 'csnap', 'setting.html'));
   });
   app.get('/csnap/settings', (req, res) => res.redirect('/csnap/setting'));
+
+  // Interstitial iklan 5 detik sebelum unduhan (tujuan selalu ke proxy internal — aman dari open redirect)
+  app.get('/csnap/api/ad', (req, res) => {
+    const u = String(req.query.url || '').trim();
+    if (!/^https?:\/\//i.test(u)) return res.status(400).json({ error: 'invalid url' });
+    const fn = String(req.query.filename || 'csnap.mp4').trim();
+    const dest = '/csnap/api/proxy?url=' + encodeURIComponent(u) + '&filename=' + encodeURIComponent(fn);
+    if (renderAdPage) return res.type('html').send(renderAdPage(dest));
+    res.redirect(302, dest);
+  });
 
   function detect(url) {
     if (/instagram\.com|instagr\.am/i.test(url)) return 'instagram';
