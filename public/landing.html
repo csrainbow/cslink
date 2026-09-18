@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSLINK — Percepat URL, Pantau Klik</title>
+<meta name="description" content="CSLINK: layanan pemendek URL gratis dengan statistik klik real-time. Ubah link panjang menjadi pendek untuk Instagram, TikTok, X, WhatsApp, dan media sosial lainnya. Powered by Percetakan Rainbow.">
+<meta name="keywords" content="short url, pemendek link, url shortener, link pendek, cslink, analytics">
+<meta name="google-adsense-account" content="ca-pub-8595163342864825">
+<meta property="og:title" content="CSLINK — Percepat URL, Pantau Klik">
+<meta property="og:description" content="Pemendek URL gratis dengan statistik klik dan QR code. Percetakan Rainbow.">
+<meta property="og:type" content="website">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; line-height: 1.6; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 64px; }
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .brand-icon { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #22d3ee, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px; font-weight: 800; }
+  .brand-name { font-size: 22px; font-weight: 800; color: #fff; }
+  .brand-tagline { font-size: 13px; color: #94a3b8; }
+  .hero h1 { font-size: 34px; line-height: 1.2; color: #fff; margin-bottom: 12px; }
+  .hero h1 span { background: linear-gradient(90deg, #22d3ee, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p { color: #cbd5e1; margin-bottom: 24px; }
+  .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+  .form { display: flex; gap: 10px; flex-wrap: wrap; }
+  .form input { flex: 1 1 220px; padding: 13px 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; font-size: 15px; outline: none; }
+  .form input:focus { border-color: #22d3ee; }
+  .form button { padding: 13px 22px; border: 0; border-radius: 10px; background: linear-gradient(135deg, #22d3ee, #818cf8); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .result { margin-top: 14px; font-size: 14px; word-break: break-all; }
+  .result a { color: #22d3ee; }
+  .result.err { color: #fda4af; }
+  .feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .feat { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 12px; padding: 16px; }
+  .feat h3 { font-size: 16px; color: #fff; margin-bottom: 6px; }
+  .feat p { font-size: 13.5px; color: #94a3b8; }
+  h2 { font-size: 20px; color: #fff; margin-bottom: 16px; }
+  .faq details { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 10px; padding: 13px 16px; margin-bottom: 10px; }
+  .faq summary { font-weight: 600; color: #e2e8f0; cursor: pointer; }
+  .faq p { font-size: 14px; color: #94a3b8; margin-top: 8px; }
+  footer { text-align: center; font-size: 13px; color: #64748b; margin-top: 36px; }
+  footer a { color: #94a3b8; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-icon">CS</div>
+    <div>
+      <div class="brand-name">CSLINK</div>
+      <div class="brand-tagline">Powered By Percetakan Rainbow</div>
+    </div>
+  </div>
+
+  <section class="hero card">
+    <h1>Ubah URL Panjang jadi <span>Link Pendek</span> + Statistik Klik</h1>
+    <p>CSLINK adalah layanan pemendek link gratis untuk Instagram, TikTok, X, Facebook, WhatsApp, dan kebutuhan bisnis Anda. Setiap tautan dilengkapi analitik klik real-time dan QR code.</p>
+    <form class="form" id="shorten-form">
+      <input type="url" id="shorten-url" placeholder="Tempel link panjang di sini… (https://)" required>
+      <button type="submit">Pendekkan</button>
+    </form>
+    <div class="result hidden" id="result"></div>
+  </section>
+
+  <h2>Fitur</h2>
+  <div class="feats">
+    <div class="feat"><h3>Statistik Klik</h3><p>Pantau jumlah klik, lokasi, dan perangkat setiap link secara real-time.</p></div>
+    <div class="feat"><h3>Link Kustom</h3><p>Buat nama pendek sesuai keinginan, misal cslink.web.id/penawaran.</p></div>
+    <div class="feat"><h3>QR Code</h3><p>Setiap link bisa langsung diunduh sebagai QR untuk dicetak.</p></div>
+    <div class="feat"><h3>Gratis & Tanpa Daftar</h3><p>Gunakan langsung tanpa akun. Aman untuk spam dan penipuan terverifikasi tunggal.</p></div>
+  </div>
+
+  <h2>FAQ</h2>
+  <div class="faq">
+    <details open><summary>Apakah CSLINK gratis?</summary><p>Ya, pemendekan URL gratis untuk kebutuhan personal dan bisnis.</p></details>
+    <details><summary>Apakah perlu mendaftar?</summary><p>Tidak. Anda bisa langsung memendekkan link tanpa akun.</p></details>
+    <details><summary>Statistik klik apa saja yang tersedia?</summary><p>Jumlah klik, perangkat, browser, dan referrer, ditampilkan dalam dashboard.</p></details>
+    <details><summary>Untuk apa CSLINK cocok?</summary><p>Promosi media sosial, bio Instagram, WhatsApp, cetak QR, dan kampanye iklan.</p></details>
+  </div>
+
+  <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/login">Admin</a></footer>
+</div>
+<script>
+  document.getElementById('shorten-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const url = document.getElementById('shorten-url').value.trim();
+    const res = document.getElementById('result');
+    if (!/^https?:\/\//i.test(url)) { res.textContent = 'Masukkan URL yang valid (mulai dengan http:// atau https://)'; res.className = 'result err'; return; }
+    try {
+      const data = await fetch('/api/shorten', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ url }) }).then(r=>r.json());
+      if (data.short_url) {
+        res.className = 'result';
+        res.innerHTML = 'Berhasil! Buat link pendek Anda: <a href="' + data.short_url + '">' + data.short_url + '</a>';
+      } else {
+        res.textContent = data.error || 'Gagal memendekkan link.';
+        res.className = 'result err';
+      }
+    } catch(err) {
+      res.textContent = 'Terjadi kesalahan. Coba lagi.';
+      res.className = 'result err';
+    }
+  });
+</script>
+</body>
+</html>

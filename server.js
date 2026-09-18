@@ -117,7 +117,12 @@ function requireAuth(req, res, next) {
 }
 
 app.get('/', (req, res) => {
-  if (!getSession(req)) return res.redirect('/login');
+  if (!getSession(req)) {
+    if (process.env.PUBLIC_HOME === 'true') {
+      return res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+    }
+    return res.redirect('/login');
+  }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
