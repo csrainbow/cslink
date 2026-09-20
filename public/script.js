@@ -1069,4 +1069,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadQRSettings();
     initSettings();
     loadUser();
+    loadPaymentConfig();
+    loadOrders();
 });
