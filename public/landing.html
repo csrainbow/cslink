@@ -7,103 +7,155 @@
 <meta name="description" content="CSLINK: layanan pemendek URL gratis dengan statistik klik real-time. Ubah link panjang menjadi pendek untuk Instagram, TikTok, X, WhatsApp, dan media sosial lainnya. Powered by Percetakan Rainbow.">
 <meta name="keywords" content="short url, pemendek link, url shortener, link pendek, cslink, analytics">
 <meta name="google-adsense-account" content="ca-pub-8595163342864825">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-33CSGGEP7N');
-</script>
 <meta property="og:title" content="CSLINK — Percepat URL, Pantau Klik">
 <meta property="og:description" content="Pemendek URL gratis dengan statistik klik dan QR code. Percetakan Rainbow.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://cslink.web.id/">
+<meta name="robots" content="index, follow">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; line-height: 1.6; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 64px; }
-  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-  .brand-icon { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #22d3ee, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px; font-weight: 800; }
-  .brand-name { font-size: 22px; font-weight: 800; color: #fff; }
-  .brand-tagline { font-size: 13px; color: #94a3b8; }
-  .hero h1 { font-size: 34px; line-height: 1.2; color: #fff; margin-bottom: 12px; }
-  .hero h1 span { background: linear-gradient(90deg, #22d3ee, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hero p { color: #cbd5e1; margin-bottom: 24px; }
-  .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
-  .form { display: flex; gap: 10px; flex-wrap: wrap; }
-  .form input { flex: 1 1 220px; padding: 13px 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; font-size: 15px; outline: none; }
-  .form input:focus { border-color: #22d3ee; }
-  .form button { padding: 13px 22px; border: 0; border-radius: 10px; background: linear-gradient(135deg, #22d3ee, #818cf8); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; }
-  .result { margin-top: 14px; font-size: 14px; word-break: break-all; }
-  .result a { color: #22d3ee; }
-  .result.err { color: #fda4af; }
-  .feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
-  .feat { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 12px; padding: 16px; }
-  .feat h3 { font-size: 16px; color: #fff; margin-bottom: 6px; }
-  .feat p { font-size: 13.5px; color: #94a3b8; }
-  h2 { font-size: 20px; color: #fff; margin-bottom: 16px; }
-  .faq details { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 10px; padding: 13px 16px; margin-bottom: 10px; }
-  .faq summary { font-weight: 600; color: #e2e8f0; cursor: pointer; }
-  .faq p { font-size: 14px; color: #94a3b8; margin-top: 8px; }
-  footer { text-align: center; font-size: 13px; color: #64748b; margin-top: 36px; }
-  footer a { color: #94a3b8; text-decoration: none; }
+  :root{--bg0:#050814;--bg1:#0a0f26;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.08);--line:rgba(148,184,255,.16);--txt:#e7eeff;--mut:#8fa1ce;--mut2:#6b7ca6;--cyan:#22d3ee;--vio:#818cf8;--mag:#e879f9;--grad:linear-gradient(120deg,#22d3ee,#818cf8 50%,#e879f9);--fd:'Space Grotesk',Inter,system-ui,sans-serif;--fb:'Inter',system-ui,Arial,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fb);background:radial-gradient(1100px 620px at 12% -8%,rgba(129,140,248,.18),transparent 60%),radial-gradient(900px 600px at 90% 8%,rgba(34,211,238,.13),transparent 55%),linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg0));background-attachment:fixed;color:var(--txt);line-height:1.6;min-height:100vh;overflow-x:hidden}
+  .bg-orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5}
+  .orb-1{width:480px;height:480px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(129,140,248,.55),transparent 70%);animation:drift 22s ease-in-out infinite}
+  .orb-2{width:420px;height:420px;right:-120px;top:18%;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%);animation:drift 26s ease-in-out infinite reverse}
+  .orb-3{width:520px;height:520px;left:28%;bottom:-220px;background:radial-gradient(circle,rgba(232,121,249,.4),transparent 70%);animation:drift 30s ease-in-out infinite}
+  .orb-4{width:220px;height:220px;left:70%;top:55%;background:radial-gradient(circle,rgba(251,113,133,.32),transparent 70%);animation:drift 20s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(40px,-30px,0) scale(1.08)}66%{transform:translate3d(-30px,24px,0) scale(.95)}}
+  .grid-overlay{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(148,184,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(148,184,255,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 78%);mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 78%)}
+  .wrap{max-width:860px;margin:0 auto;padding:30px 20px 64px;position:relative;z-index:1}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:30px;animation:fadeUp .5s ease both}
+  .brand-icon{width:50px;height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);background-size:180% 180%;animation:gradShift 6s ease infinite;box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
+  .brand-name{font-family:var(--fd);font-size:23px;font-weight:700;letter-spacing:2px;color:#fff}
+  .brand-tagline{font-size:13px;color:var(--mut)}
+  .hero{text-align:center;padding:26px 0 20px;animation:fadeUp .6s ease both}
+  .hero h1{font-family:var(--fd);font-size:clamp(30px,5.4vw,48px);line-height:1.15;font-weight:700;color:#fff}
+  .hero h1 span{background:var(--grad);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradShift 6s ease infinite}
+  .hero p{color:var(--mut);font-size:clamp(14px,2.2vw,17px);margin:16px auto 0;max-width:640px}
+  @keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .card{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(10px);box-shadow:0 34px 70px -40px rgba(2,8,40,.95);position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.8),rgba(232,121,249,.8),transparent)}
+  .tool-card{padding:26px;margin-bottom:22px;animation:fadeUp .7s ease both}
+  .tool-card label{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:600;color:var(--txt);margin-bottom:12px;font-size:15px}
+  .tool-card label i{color:var(--cyan)}
+  .form{display:flex;gap:10px;flex-wrap:wrap}
+  .form input{flex:1 1 250px;padding:14px 16px;border-radius:12px;border:1px solid rgba(148,184,255,.16);background:rgba(10,15,38,.6);color:#fff;font-size:15px;outline:none;transition:border-color .18s,box-shadow .18s}
+  .form input:focus{border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.14)}
+  .form input::placeholder{color:var(--mut2)}
+  .form button{padding:14px 24px;border:0;border-radius:12px;background:var(--grad);background-size:180% 180%;color:#fff;font-family:var(--fd);font-weight:600;font-size:15px;cursor:pointer;animation:gradShift 6s ease infinite;box-shadow:0 14px 32px -14px rgba(34,211,238,.8);transition:transform .18s}
+  .form button:hover{transform:translateY(-2px)}
+  .result{margin-top:14px;font-size:14px;word-break:break-all}
+  .result a{color:var(--cyan)}
+  .result.err{color:#fda4af}
+  .h2{font-family:var(--fd);font-size:21px;color:#fff;margin:28px 0 14px;display:flex;align-items:center;gap:10px}
+  .h2 i{color:var(--cyan)}
+  .feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:6px}
+  .feat{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:16px;padding:18px;transition:transform .2s,border-color .2s,box-shadow .2s;animation:fadeUp .7s ease both}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.45);box-shadow:0 18px 40px -22px rgba(34,211,238,.5)}
+  .feat .ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--grad);margin-bottom:12px;box-shadow:0 10px 24px -10px rgba(34,211,238,.8)}
+  .feat h3{font-family:var(--fd);font-size:15.5px;color:#fff;margin-bottom:6px}
+  .feat p{font-size:13.5px;color:var(--mut);margin:0}
+  .faq details{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:10px;transition:border-color .2s}
+  .faq details:hover{border-color:rgba(34,211,238,.4)}
+  .faq summary{font-family:var(--fd);font-weight:600;color:#e7eeff;cursor:pointer;display:flex;align-items:center;gap:10px}
+  .faq summary::before{content:'▸';color:var(--cyan);transition:transform .2s}
+  .faq details[open] summary::before{transform:rotate(90deg)}
+  .faq p{font-size:14px;color:var(--mut);margin-top:10px;padding-left:22px}
+  .cta{background:linear-gradient(160deg,rgba(34,211,238,.1),rgba(129,140,248,.1));border:1px solid rgba(34,211,238,.35);border-radius:18px;padding:24px;margin-top:28px;text-align:center;animation:fadeUp .8s ease both}
+  .cta h3{font-family:var(--fd);color:#fff;font-size:18px;margin-bottom:8px}
+  .cta p{color:var(--mut);font-size:14px;margin-bottom:14px}
+  .cta a{display:inline-block;padding:12px 22px;border-radius:12px;background:var(--grad);background-size:180% 180%;color:#fff;font-family:var(--fd);font-weight:600;text-decoration:none;animation:gradShift 6s ease infinite;box-shadow:0 14px 32px -14px rgba(34,211,238,.8);transition:transform .18s}
+  .cta a:hover{transform:translateY(-2px)}
+  footer{text-align:center;font-size:13px;color:var(--mut2);margin-top:38px;animation:fadeUp .9s ease both}
+  footer a{color:var(--mut);text-decoration:none}
+  footer a:hover{color:var(--cyan)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  ::selection{background:rgba(34,211,238,.3);color:#fff}
+  ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg1)}::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#23407a,#2b2f66);border-radius:99px;border:2px solid var(--bg1)}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="brand">
-    <div class="brand-icon">CS</div>
-    <div>
-      <div class="brand-name">CSLINK</div>
-      <div class="brand-tagline">Powered By Percetakan Rainbow</div>
+  <div class="bg-orbs">
+    <span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span><span class="orb orb-4"></span>
+  </div>
+  <div class="grid-overlay"></div>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-icon">CS</div>
+      <div>
+        <div class="brand-name">CSLINK</div>
+        <div class="brand-tagline">Powered By Percetakan Rainbow</div>
+      </div>
     </div>
+
+    <section class="hero">
+      <h1>Ubah URL Panjang jadi <span>Link Pendek</span> + Statistik Klik</h1>
+      <p>CSLINK adalah layanan pemendek link gratis untuk Instagram, TikTok, X, Facebook, WhatsApp, dan kebutuhan bisnis Anda. Setiap tautan dilengkapi analitik klik real-time dan QR code.</p>
+    </section>
+
+    <div class="tool-card card">
+      <label><i class="fas fa-scissors"></i> Pangkas URL Sekarang</label>
+      <form class="form" id="shorten-form">
+        <input type="url" id="shorten-url" placeholder="Tempel link panjang di sini… (https://)" required>
+        <button type="submit">Pendekkan</button>
+      </form>
+      <div class="result" id="result"></div>
+    </div>
+
+    <h2 class="h2"><i class="fas fa-bolt"></i> Fitur Canggih</h2>
+    <div class="feats">
+      <div class="feat"><div class="ic"><i class="fas fa-chart-line"></i></div><h3>Statistik Klik</h3><p>Pantau jumlah klik, lokasi, dan perangkat setiap link secara real-time.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-tag"></i></div><h3>Link Kustom</h3><p>Buat nama pendek sesuai keinginan, misal cslink.web.id/penawaran.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-qrcode"></i></div><h3>QR Code</h3><p>Setiap link bisa langsung diunduh sebagai QR untuk dicetak.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-infinity"></i></div><h3>Gratis & Tanpa Daftar</h3><p>Gunakan langsung tanpa akun untuk kebutuhan pribadi maupun bisnis.</p></div>
+    </div>
+
+    <h2 class="h2"><i class="fas fa-question-circle"></i> FAQ</h2>
+    <div class="faq">
+      <details open><summary>Apakah CSLINK gratis?</summary><p>Ya, pemendekan URL gratis untuk kebutuhan personal dan bisnis.</p></details>
+      <details><summary>Apakah perlu mendaftar?</summary><p>Tidak. Anda bisa langsung memendekkan link tanpa akun.</p></details>
+      <details><summary>Statistik klik apa saja yang tersedia?</summary><p>Jumlah klik, perangkat, browser, dan referrer, ditampilkan dalam dashboard.</p></details>
+      <details><summary>Untuk apa CSLINK cocok?</summary><p>Promosi media sosial, bio Instagram, WhatsApp, cetak QR, dan kampanye iklan.</p></details>
+    </div>
+
+    <div class="cta">
+      <h3>Kelola link dengan dashboard futuristik</h3>
+      <p>Analitik per link, QR code custom, ekspor CSV, dan banyak lagi.</p>
+      <a href="/login">Masuk ke Dashboard</a>
+    </div>
+
+    <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/login">Admin</a></footer>
   </div>
 
-  <section class="hero card">
-    <h1>Ubah URL Panjang jadi <span>Link Pendek</span> + Statistik Klik</h1>
-    <p>CSLINK adalah layanan pemendek link gratis untuk Instagram, TikTok, X, Facebook, WhatsApp, dan kebutuhan bisnis Anda. Setiap tautan dilengkapi analitik klik real-time dan QR code.</p>
-    <form class="form" id="shorten-form">
-      <input type="url" id="shorten-url" placeholder="Tempel link panjang di sini… (https://)" required>
-      <button type="submit">Pendekkan</button>
-    </form>
-    <div class="result hidden" id="result"></div>
-  </section>
-
-  <h2>Fitur</h2>
-  <div class="feats">
-    <div class="feat"><h3>Statistik Klik</h3><p>Pantau jumlah klik, lokasi, dan perangkat setiap link secara real-time.</p></div>
-    <div class="feat"><h3>Link Kustom</h3><p>Buat nama pendek sesuai keinginan, misal cslink.web.id/penawaran.</p></div>
-    <div class="feat"><h3>QR Code</h3><p>Setiap link bisa langsung diunduh sebagai QR untuk dicetak.</p></div>
-    <div class="feat"><h3>Gratis & Tanpa Daftar</h3><p>Gunakan langsung tanpa akun. Aman untuk spam dan penipuan terverifikasi tunggal.</p></div>
-  </div>
-
-  <h2>FAQ</h2>
-  <div class="faq">
-    <details open><summary>Apakah CSLINK gratis?</summary><p>Ya, pemendekan URL gratis untuk kebutuhan personal dan bisnis.</p></details>
-    <details><summary>Apakah perlu mendaftar?</summary><p>Tidak. Anda bisa langsung memendekkan link tanpa akun.</p></details>
-    <details><summary>Statistik klik apa saja yang tersedia?</summary><p>Jumlah klik, perangkat, browser, dan referrer, ditampilkan dalam dashboard.</p></details>
-    <details><summary>Untuk apa CSLINK cocok?</summary><p>Promosi media sosial, bio Instagram, WhatsApp, cetak QR, dan kampanye iklan.</p></details>
-  </div>
-
-  <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/login">Admin</a></footer>
-</div>
 <script>
   document.getElementById('shorten-form').addEventListener('submit', async function(e){
     e.preventDefault();
     const url = document.getElementById('shorten-url').value.trim();
     const res = document.getElementById('result');
-    if (!/^https?:\/\//i.test(url)) { res.textContent = 'Masukkan URL yang valid (mulai dengan http:// atau https://)'; res.className = 'result err'; return; }
+    res.className = 'result';
+    if (!/^https?:\/\//i.test(url)) { res.textContent = 'Masukkan URL yang valid (mulai dengan http:// atau https://)'; res.className += ' err'; return; }
+    res.textContent = 'Memproses…';
     try {
-      const data = await fetch('/api/shorten', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ url }) }).then(r=>r.json());
+      const r = await fetch('/api/shorten', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ url }) });
+      const data = await r.json();
       if (data.short_url) {
-        res.className = 'result';
         res.innerHTML = 'Berhasil! Buat link pendek Anda: <a href="' + data.short_url + '">' + data.short_url + '</a>';
       } else {
         res.textContent = data.error || 'Gagal memendekkan link.';
-        res.className = 'result err';
+        res.className += ' err';
       }
     } catch(err) {
       res.textContent = 'Terjadi kesalahan. Coba lagi.';
-      res.className = 'result err';
+      res.className += ' err';
     }
   });
 </script>

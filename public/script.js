@@ -176,16 +176,84 @@ closeResultBtn.addEventListener('click', function() {
     expiresSelect.value = '';
 });
 
+// ======== Copy short link (baris tabel) ========
+window.copyLink = async function(code) {
+    const shortUrl = window.location.origin + '/' + code;
+    try {
+        await navigator.clipboard.writeText(shortUrl);
+        showToast('Link disalin: /' + code);
+    } catch (err) {
+        const ta = document.createElement('textarea');
+        ta.value = shortUrl;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Link disalin: /' + code);
+    }
+};
+
+// ======== Ekspor CSV ========
+function exportCSV(filename, rows) {
+    if (!rows.length) { showToast('Tidak ada data untuk diekspor', 'error'); return; }
+    const csv = rows.map(r => r.map(c => {
+        const s = String(c == null ? '' : c);
+        return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(';')).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    showToast('CSV berhasil diunduh');
+}
+
+document.getElementById('export-links').addEventListener('click', async function() {
+    try {
+        const res = await authFetch('/api/urls?page=1&limit=100000');
+        const data = await res.json();
+        const rows = [['Kode', 'URL Pendek', 'URL Asli', 'Klik', 'Dibuat', 'Status']];
+        (data.urls || []).forEach(u => rows.push([u.short_code, location.origin + '/' + u.short_code, u.original_url, u.click_count || 0, u.created_at, u.is_active ? 'Aktif' : 'Nonaktif']));
+        exportCSV('cslink-links-' + new Date().toISOString().slice(0, 10) + '.csv', rows);
+    } catch (e) { showToast('Gagal mengekspor link', 'error'); }
+});
+
+document.getElementById('export-analytics').addEventListener('click', function() {
+    if (!analyticsAllLinks.length) { showToast('Tidak ada data untuk diekspor', 'error'); return; }
+    const rows = [['Kode', 'URL Pendek', 'URL Asli', 'Total Klik', 'Mobile', 'Desktop', 'Tablet']];
+    analyticsAllLinks.forEach(u => rows.push(['/' + u.short_code, location.origin + '/' + u.short_code, u.original_url, u.total_clicks, u.mobile, u.desktop, u.tablet]));
+    exportCSV('cslink-analitik-' + new Date().toISOString().slice(0, 10) + '.csv', rows);
+});
+
+// ======== Stat counter animasi ========
+function animateCounter(el, target) {
+    const start = parseInt(el.dataset.value || '0', 10);
+    const end = parseInt(target || 0, 10);
+    const dur = 800;
+    const t0 = performance.now();
+    function step(t) {
+        const p = Math.min(1, (t - t0) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(start + (end - start) * eased).toLocaleString('id-ID');
+        if (p < 1) requestAnimationFrame(step);
+    }
+    el.dataset.value = end;
+    requestAnimationFrame(step);
+}
+
 // ======== Load Stats ========
 async function loadStats() {
     try {
         const response = await authFetch('/api/stats');
         const data = await response.json();
-        
-        document.getElementById('stat-urls').textContent = data.total_urls || 0;
-        document.getElementById('stat-clicks').textContent = data.total_clicks || 0;
-        document.getElementById('stat-today').textContent = data.today_clicks || 0;
-        document.getElementById('stat-active').textContent = data.active_urls || 0;
+
+        animateCounter(document.getElementById('stat-urls'), data.total_urls || 0);
+        animateCounter(document.getElementById('stat-clicks'), data.total_clicks || 0);
+        animateCounter(document.getElementById('stat-today'), data.today_clicks || 0);
+        animateCounter(document.getElementById('stat-active'), data.active_urls || 0);
     } catch (error) {
         console.error('Failed to load stats:', error);
     }
@@ -243,6 +311,7 @@ function renderLinks(urls) {
             </td>
             <td>
                 <div class="action-buttons">
+                    <button class="action-btn" title="Salin" onclick="copyLink('${url.short_code}')"><i class="fas fa-copy"></i></button>
                     <button class="action-btn" title="Analitik" onclick="showAnalytics('${url.short_code}')"><i class="fas fa-chart-line"></i></button>
                     <button class="action-btn" title="QR Code" onclick="showQR('${url.short_code}')"><i class="fas fa-qrcode"></i></button>
                     <button class="action-btn" title="Toggle" onclick="toggleURL('${url.short_code}')"><i class="fas fa-power-off"></i></button>
