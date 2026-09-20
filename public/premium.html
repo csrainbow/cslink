@@ -64,8 +64,9 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 const $=id=>document.getElementById(id);
 fetch('/api/member/me').then(r=>r.json()).then(d=>{
   if(!d.id){$('auth').style.display='block';$('plan-now').textContent='Belum masuk';return;}
-  if(d.premium){$('plan-now').textContent='Premium aktif';document.querySelector('.card').innerHTML='<div style="text-align:center;padding:20px 0"><p style="font-size:18px;font-weight:700">🎉 Anda sudah Premium</p><p class="note" style="margin-top:8px">Aktif hingga '+d.premium_until.split(' ')[0]+'</p><a href="/member" class="back">Buka Dashboard →</a></div>';return;}
-  $('plan-now').textContent='Halo, '+d.name;
+  if(d.premium && !d.renew_needed){$('plan-now').textContent='Premium aktif';document.querySelector('.card').innerHTML='<div style="text-align:center;padding:20px 0"><p style="font-size:18px;font-weight:700">🎉 Anda sudah Premium</p><p class="note" style="margin-top:8px">Aktif hingga '+d.premium_until.slice(0,10)+'</p><a href="/member" class="back">Buka Dashboard →</a></div>';return;}
+  $('plan-now').textContent=(d.premium?'Perpanjang · ':'')+'Halo, '+d.name;
+  if(d.premium && d.renew_needed){$('pay').innerHTML='<i class="fas fa-crown"></i> Perpanjang Sekarang <span class="mini" style="font-size:12px">(sisa '+d.days_left+' hari)</span>';}
   $('pay').style.display='block';
 });
 $('pay').addEventListener('click',async()=>{

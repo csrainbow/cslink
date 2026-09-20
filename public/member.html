@@ -59,6 +59,13 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
   .h2 i{color:var(--cyan)}
   .quota-wrap{background:rgba(10,15,38,.5);border-radius:10px;padding:3px;margin-top:8px}
   .quota-bar{height:8px;border-radius:8px;background:var(--grad);transition:width .4s}
+  .renew{display:none;margin-bottom:18px;padding:18px 20px;border-radius:18px;background:linear-gradient(160deg,rgba(251,191,36,.14),rgba(251,113,133,.1));border:1px solid rgba(251,191,36,.45);align-items:center;gap:14px;flex-wrap:wrap;position:relative;overflow:hidden;animation:fadeUp .5s ease both}
+  .renew.show{display:flex}
+  .renew .ric{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;background:linear-gradient(120deg,#f59e0b,#ef4444);flex:0 0 auto}
+  .renew .rt{flex:1;min-width:200px}
+  .renew .rt b{font-family:var(--fd);color:#fffbeb;font-size:15px}
+  .renew .rt p{color:#fde68a;font-size:13px;margin-top:2px}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -70,6 +77,15 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       <div class="spacer"></div>
       <a class="btn prem" href="/premium" id="prem-btn" style="display:none"><i class="fas fa-crown"></i> Upgrade Premium</a>
       <button class="btn danger" id="logout"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+    </div>
+
+    <div class="renew" id="renew-banner">
+      <div class="ric"><i class="fas fa-hourglass-half"></i></div>
+      <div class="rt">
+        <b id="renew-title">Premium hampir berakhir</b>
+        <p id="renew-sub">Perpanjang sekarang agar fitur Premium tetap aktif.</p>
+      </div>
+      <button class="btn" id="renew-btn" style="background:linear-gradient(120deg,#f59e0b,#ef4444);border:0;color:#fff;font-weight:700"><i class="fas fa-crown"></i> Perpanjang Premium</button>
     </div>
 
     <div class="card">
@@ -131,7 +147,14 @@ async function loadMe(){
     $('prem-btn').style.display=vip?'none':'inline-flex';
     $('plan-badge').textContent=vip?'Premium':'Free';
     $('plan-badge').className='pbadge '+(vip?'vip':'free');
-    if(vip){$('vip-until').textContent='Aktif hingga: '+d.premium_until.split(' ')[0];$('fcustom').innerHTML='<i class="fas fa-check"></i> Kode kustom';$('fexpire').innerHTML='<i class="fas fa-check"></i> Link kedaluwarsa';$('fnoads').innerHTML='<i class="fas fa-check"></i> Tanpa iklan interstitial';}
+    if(vip){$('vip-until').textContent='Aktif hingga: '+d.premium_until.slice(0,10);$('fcustom').innerHTML='<i class="fas fa-check"></i> Kode kustom';$('fexpire').innerHTML='<i class="fas fa-check"></i> Link kedaluwarsa';$('fnoads').innerHTML='<i class="fas fa-check"></i> Tanpa iklan interstitial';}
+    if(d.renew_needed){
+      const rb=$('renew-banner');rb.classList.add('show');
+      $('renew-title').textContent=d.premium?'Premium hampir berakhir':'Premium telah berakhir';
+      $('renew-sub').textContent=d.premium
+        ?'Sisa '+d.days_left+' hari lagi (hingga '+d.premium_until.slice(0,10)+'). Perpanjang agar tetap aktif.'
+        :'Hingga '+d.premium_until.slice(0,10)+'. Perpanjang sekarang untuk mengaktifkan kembali fitur Premium.';
+    }
     $('quota-label').textContent='Jatah pengguna baru: '+d.free_slots+' dari 5 link gratis di sistem. Ajak teman mendaftar untuk menambah kuota Anda.';
     $('quota-bar').style.width=Math.min(100,(d.free_slots/5)*100)+'%';
   }catch(e){location.href='/member/login';}
@@ -175,6 +198,17 @@ $('shorten-form').addEventListener('submit',async e=>{
 });
 
 $('logout').addEventListener('click',async()=>{await fetch('/api/member/logout',{method:'POST'});location.href='/';});
+
+$('renew-btn').addEventListener('click',async()=>{
+  const btn=$('renew-btn');btn.disabled=true;btn.style.opacity=.6;
+  try{
+    const r=await fetch('/api/order/create',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(d.order_id){location.href='/payment?order='+d.order_id;return;}
+    alert(d.error||'Gagal membuat pesanan perpanjangan');
+  }catch(e){alert('Terjadi kesalahan.');}
+  btn.disabled=false;btn.style.opacity=1;
+});
 
 loadMe().then(loadLinks);
 </script>

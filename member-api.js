@@ -5,9 +5,17 @@ const mail = require('./mail');
 const MEMBER_COOKIE = 'cslink_member';
 const MEMBER_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const FREE_LIMIT = 5;
+const RENEW_REMIND_DAYS = 7;
+
+function daysLeftUntil(until) {
+  if (!until) return null;
+  const t = new Date(until).getTime();
+  if (isNaN(t)) return null;
+  return Math.ceil((t - Date.now()) / 86400000);
+}
 
 module.exports = function register(app, auth) {
-  const { db, hashPassword, timingSafeEqualHex, BASE_URL, requireAuth } = auth;
+  const { db, getConfig, setConfig, hashPassword, timingSafeEqualHex, BASE_URL, requireAuth } = auth;
 
   function nowISO() {
     return new Date().toISOString().slice(0, 19);
@@ -130,13 +138,36 @@ module.exports = function register(app, auth) {
   });
 
   // ---------- Profil ----------
+  function planInfo(u) {
+    const daysLeft = daysLeftUntil(u && u.premium_until);
+    const premium = isPremium(u);
+    return {
+      premium,
+      premium_until: u ? u.premium_until : null,
+      days_left: daysLeft === null ? null : Math.max(0, daysLeft),
+      renew_needed: !!u && !!u.premium_until && (daysLeft !== null) && (!premium || daysLeft <= RENEW_REMIND_DAYS)
+    };
+  }
+
+  function maybeRemindRenew(u) {
+    if (!u || !u.premium_until) return;
+    const daysLeft = daysLeftUntil(u.premium_until);
+    if (daysLeft === null || daysLeft > RENEW_REMIND_DAYS) return;
+    const guard = `renew_note:${u.id}:${u.premium_until}`;
+    if (getConfig(guard)) return;
+    mail.sendRenewReminder(u.email, u.name, daysLeft, u.premium_until).then(() => {
+      setConfig(guard, new Date().toISOString());
+    });
+  }
+
   app.get('/api/member/me', requireMember, (req, res) => {
     const u = req.member;
     const orderCount = db.prepare('SELECT COUNT(*) as c FROM orders WHERE user_id = ?').get(u.id);
+    maybeRemindRenew(u);
     res.json({
       id: u.id, name: u.name, email: u.email, phone: u.phone,
-      verified: u.verified, premium: isPremium(u), premium_until: u.premium_until,
-      free_slots: nextFreeUser(), order_count: orderCount.c
+      verified: u.verified, free_slots: nextFreeUser(), order_count: orderCount.c,
+      ...planInfo(u)
     });
   });
 

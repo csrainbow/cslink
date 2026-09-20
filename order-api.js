@@ -17,8 +17,18 @@ module.exports = function register(app, auth) {
   const rupiah = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
 
   function planOf(user) {
+    let daysLeft = null;
+    if (user && user.premium_until) {
+      const t = new Date(user.premium_until).getTime();
+      if (!isNaN(t)) daysLeft = Math.ceil((t - Date.now()) / 86400000);
+    }
     const premium = !!user && !!user.premium_until && new Date(user.premium_until).getTime() >= Date.now();
-    return { premium, premium_until: user ? user.premium_until : null };
+    return {
+      premium,
+      premium_until: user ? user.premium_until : null,
+      days_left: daysLeft === null ? null : Math.max(0, daysLeft),
+      renew_needed: !!user && !!user.premium_until && daysLeft !== null && (!premium || daysLeft <= 7)
+    };
   }
 
   // hitung tagihan: base + fee 0,7% + kode unik (menjadikan total unik)
@@ -143,7 +153,9 @@ Saya sudah membayar via QRIS. Mohon verifikasi dan aktifkan premium.
     if (!u) return res.status(400).json({ error: 'Pengguna tidak ditemukan' });
 
     const nowStr = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const until = new Date(Date.now() + cfg.days() * 24 * 60 * 60 * 1000);
+    // Perpanjangan dihitung dari tanggal aktif saat ini (bila masih berlaku), bukan dari hari ini
+    const base = (u.premium_until && new Date(u.premium_until).getTime() > Date.now()) ? new Date(u.premium_until) : new Date();
+    const until = new Date(base.getTime() + cfg.days() * 24 * 60 * 60 * 1000);
     const untilStr = until.toISOString().slice(0, 19).replace('T', ' ');
     db.prepare('UPDATE orders SET status = ?, activated_at = ?, activated_by = ? WHERE id = ?')
       .run('paid', nowStr, req.user || 'admin', o.id);
