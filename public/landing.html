@@ -75,6 +75,11 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
   .cta p{color:var(--mut);font-size:14px;margin-bottom:14px}
   .cta a{display:inline-block;padding:12px 22px;border-radius:12px;background:var(--grad);background-size:180% 180%;color:#fff;font-family:var(--fd);font-weight:600;text-decoration:none;animation:gradShift 6s ease infinite;box-shadow:0 14px 32px -14px rgba(34,211,238,.8);transition:transform .18s}
   .cta a:hover{transform:translateY(-2px)}
+  .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .cta-actions a.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);animation:none;box-shadow:none}
+  .cta-actions a.ghost:hover{color:#fff;border-color:rgba(34,211,238,.5)}
+  .csnap-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(232,121,249,.12);border:1px solid rgba(232,121,249,.4);color:#f5d0fe;font-size:13px;font-weight:600;text-decoration:none;transition:all .18s}
+  .csnap-badge:hover{background:rgba(232,121,249,.22);box-shadow:0 0 24px -8px rgba(232,121,249,.7)}
   footer{text-align:center;font-size:13px;color:var(--mut2);margin-top:38px;animation:fadeUp .9s ease both}
   footer a{color:var(--mut);text-decoration:none}
   footer a:hover{color:var(--cyan)}
@@ -95,6 +100,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
         <div class="brand-name">CSLINK</div>
         <div class="brand-tagline">Powered By Percetakan Rainbow</div>
       </div>
+      <a class="csnap-badge" href="/csnap/" style="margin-left:auto"><i class="fas fa-bolt"></i> CSNAP — Downloader HD</a>
     </div>
 
     <section class="hero">
@@ -128,12 +134,15 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
     </div>
 
     <div class="cta">
-      <h3>Kelola link dengan dashboard futuristik</h3>
-      <p>Analitik per link, QR code custom, ekspor CSV, dan banyak lagi.</p>
-      <a href="/login">Masuk ke Dashboard</a>
+      <h3>Dua alat gratis dari CSLINK</h3>
+      <p>Pendekkan link atau unduh video/foto medsos tanpa login — semua langsung bisa.</p>
+      <div class="cta-actions">
+        <a href="/csnap/"><i class="fas fa-bolt"></i> Buka CSNAP</a>
+        <a class="ghost" href="/login"><i class="fas fa-sign-in-alt"></i> Masuk ke Dashboard</a>
+      </div>
     </div>
 
-    <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/login">Admin</a></footer>
+    <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/csnap/">CSNAP</a> · <a href="/login">Admin</a></footer>
   </div>
 
 <script>
