@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitur — CSLINK</title>
+<meta name="description" content="Fitur CSLINK: statistik klik real-time, link kustom, QR code, link kedaluwarsa, dan bebas iklan untuk pengguna Premium.">
+<meta name="google-adsense-account" content="ca-pub-8595163342864825">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{--bg0:#050814;--bg1:#0a0f26;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.08);--line:rgba(148,184,255,.16);--txt:#e7eeff;--mut:#8fa1ce;--mut2:#6b7ca6;--cyan:#22d3ee;--vio:#818cf8;--mag:#e879f9;--grad:linear-gradient(120deg,#22d3ee,#818cf8 50%,#e879f9);--fd:'Space Grotesk',Inter,system-ui,sans-serif;--fb:'Inter',system-ui,Arial,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fb);background:radial-gradient(1100px 620px at 12% -8%,rgba(129,140,248,.18),transparent 60%),radial-gradient(900px 600px at 90% 8%,rgba(34,211,238,.13),transparent 55%),linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg0));background-attachment:fixed;color:var(--txt);line-height:1.6;min-height:100vh;overflow-x:hidden}
+  .bg-orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5}
+  .orb-1{width:480px;height:480px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(129,140,248,.55),transparent 70%)}
+  .orb-2{width:420px;height:420px;right:-120px;top:18%;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%)}
+  .orb-3{width:520px;height:520px;left:28%;bottom:-220px;background:radial-gradient(circle,rgba(232,121,249,.4),transparent 70%)}
+  .wrap{max-width:860px;margin:0 auto;padding:30px 20px 64px;position:relative;z-index:1}
+  .brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:30px;animation:fadeUp .5s ease both}
+  .brand-icon{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
+  .brand-name{font-family:var(--fd);font-size:22px;font-weight:700;letter-spacing:2px;color:#fff}
+  .brand-tagline{font-size:13px;color:var(--mut)}
+  .nav{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-left:auto}
+  .nav a{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:10px;color:var(--mut);font-size:13.5px;font-weight:600;text-decoration:none;transition:all .15s}
+  .nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
+  .nav .csnap-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(232,121,249,.12);border:1px solid rgba(232,121,249,.4);color:#f5d0fe;font-size:13px;font-weight:600;text-decoration:none}
+  .nav .csnap-badge:hover{background:rgba(232,121,249,.22)}
+  .hero{text-align:center;padding:10px 0 24px;animation:fadeUp .6s ease both}
+  .hero h1{font-family:var(--fd);font-size:clamp(26px,4.6vw,40px);line-height:1.15;font-weight:700;color:#fff}
+  .hero h1 span{background:var(--grad);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradShift 6s ease infinite}
+  .hero p{color:var(--mut);font-size:clamp(14px,2.2vw,16px);margin:12px auto 0;max-width:620px}
+  @keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .feat{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:16px;padding:18px;transition:transform .2s,border-color .2s,box-shadow .2s;animation:fadeUp .7s ease both}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.45);box-shadow:0 18px 40px -22px rgba(34,211,238,.5)}
+  .feat .ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--grad);margin-bottom:12px;box-shadow:0 10px 24px -10px rgba(34,211,238,.8)}
+  .feat h3{font-family:var(--fd);font-size:15.5px;color:#fff;margin-bottom:6px}
+  .feat p{font-size:13.5px;color:var(--mut);margin:0}
+  .cta{background:linear-gradient(160deg,rgba(34,211,238,.1),rgba(129,140,248,.1));border:1px solid rgba(34,211,238,.35);border-radius:18px;padding:24px;margin-top:28px;text-align:center;animation:fadeUp .8s ease both}
+  .cta h3{font-family:var(--fd);color:#fff;font-size:18px;margin-bottom:8px}
+  .cta p{color:var(--mut);font-size:14px;margin-bottom:14px}
+  .cta a{display:inline-block;padding:12px 22px;border-radius:12px;background:var(--grad);background-size:180% 180%;color:#fff;font-family:var(--fd);font-weight:600;text-decoration:none;animation:gradShift 6s ease infinite;box-shadow:0 14px 32px -14px rgba(34,211,238,.8);transition:transform .18s}
+  .cta a:hover{transform:translateY(-2px)}
+  .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .cta-actions a.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);animation:none;box-shadow:none}
+  .cta-actions a.ghost:hover{color:#fff;border-color:rgba(34,211,238,.5)}
+  .adbox{min-height:110px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(148,184,255,.14);border-radius:16px;margin:20px 0;overflow:hidden;background:rgba(10,15,38,.35)}
+  .adbox.ready{border:none;background:none}
+  .adbox ins{display:block}
+  footer{text-align:center;font-size:13px;color:var(--mut2);margin-top:38px;animation:fadeUp .9s ease both}
+  footer a{color:var(--mut);text-decoration:none}
+  footer a:hover{color:var(--cyan)}
+  footer .sep{opacity:.4;margin:0 6px}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  ::selection{background:rgba(34,211,238,.3);color:#fff}
+</style>
+</head>
+<body>
+  <div class="bg-orbs"><span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span></div>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-icon">CS</div>
+      <div>
+        <div class="brand-name">CSLINK</div>
+        <div class="brand-tagline">Powered By Percetakan Rainbow</div>
+      </div>
+      <div class="nav">
+        <a href="/"><i class="fas fa-home"></i> Beranda</a>
+        <a href="/premium"><i class="fas fa-crown"></i> Premium</a>
+        <a href="/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+        <a href="/member/login"><i class="fas fa-user"></i> Masuk</a>
+        <a class="csnap-badge" href="/csnap/"><i class="fas fa-bolt"></i> CSNAP</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <h1>Fitur <span>CSLINK</span></h1>
+      <p>Semua yang Anda butuhkan untuk memendekkan link, melacak klik, dan membagikan tautan dengan profesional.</p>
+    </section>
+
+    <div class="feats">
+      <div class="feat"><div class="ic"><i class="fas fa-chart-line"></i></div><h3>Statistik Klik</h3><p>Pantau jumlah klik, lokasi negara, perangkat, dan browser tiap link secara real-time.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-tag"></i></div><h3>Link Kustom</h3><p>Buat nama pendek sesuai keinginan, misal cslink.web.id/penawaran.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-qrcode"></i></div><h3>QR Code</h3><p>Setiap link bisa langsung diunduh sebagai QR untuk dicetak atau dipajang.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-infinity"></i></div><h3>Gratis & Tanpa Daftar</h3><p>5 link langsung tanpa akun. Akun gratis untuk dashboard pribadi; Premium untuk tanpa batas.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-crown"></i></div><h3>Premium Unlimited</h3><p>Link tanpa batas, kode kustom, link kedaluwarsa, dan pengunjung bebas iklan interstitial.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-hourglass-half"></i></div><h3>Link Kedaluwarsa</h3><p>Atur masa aktif link 1 jam sampai 30 hari untuk kampanye terbatas waktu.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-shield-alt"></i></div><h3>Tanpa Iklan Interstitial</h3><p>Pengguna Premium: pengunjung link Anda langsung sampai ke tujuan tanpa halaman iklan.</p></div>
+      <div class="feat"><div class="ic"><i class="fas fa-life-ring"></i></div><h3>Dukungan Prioritas</h3><p>Member Premium dilayani langsung oleh admin Percetakan Rainbow.</p></div>
+    </div>
+
+    <div class="cta">
+      <h3>Coba sekarang — gratis</h3>
+      <p>Pendekkan link langsung tanpa daftar, atau buat akun untuk dashboard pribadi.</p>
+      <div class="cta-actions">
+        <a href="/"><i class="fas fa-scissors"></i> Pendekkan Link</a>
+        <a class="ghost" href="/premium"><i class="fas fa-crown"></i> Lihat Premium</a>
+      </div>
+    </div>
+
+    <div class="adbox" id="landing-ad-1"><span style="font-size:12px;color:var(--mut2)">Iklan</span></div>
+
+    <footer><a href="/">Beranda</a><span class="sep">·</span><a href="/premium">Premium</a><span class="sep">·</span><a href="/faq">FAQ</a><span class="sep">·</span><a href="/csnap/">CSNAP</a><span class="sep">·</span><a href="/member/login">Masuk</a><span class="sep">·</span><a href="/register">Daftar</a><br>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a></footer>
+  </div>
+
+<script src="/adblock.js"></script>
+<script>
+  (async function renderAds(){
+    let free = true;
+    try { const m = await (await fetch('/api/member/me')).json(); if (m && m.premium) free = false; } catch(e){}
+    if (free) { try { const s = await (await fetch('/api/auth/status')).json(); if (s.authenticated) free = false; } catch(e){} }
+    if (!free) { document.querySelectorAll('.adbox').forEach(b => b.remove()); return; }
+    let client = '', slot = '';
+    try { const c = await (await fetch('/csnap/api/config')).json(); client = (c.adsenseClient || '').trim(); slot = ((c.adsenseSlots && (c.adsenseSlots.desktop || c.adsenseSlots.mobile)) || '').trim(); } catch(e){}
+    if (!client) return;
+    const s = document.createElement('script'); s.async = true;
+    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(client);
+    s.crossOrigin = 'anonymous'; document.head.appendChild(s);
+    document.querySelectorAll('.adbox').forEach(box => {
+      const ins = document.createElement('ins'); ins.className = 'adsbygoogle'; ins.style.display = 'block';
+      ins.setAttribute('data-ad-client', client); ins.setAttribute('data-ad-format', 'auto'); ins.setAttribute('data-full-width-responsive', 'true');
+      if (slot) ins.setAttribute('data-ad-slot', slot);
+      box.innerHTML = ''; box.classList.add('ready'); box.appendChild(ins);
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
+    });
+    if (window.__csAdblock) window.__csAdblock.detect(function(blocked){ if (blocked) window.__csAdblock.banner(); });
+  })();
+</script>
+</body>
+</html>

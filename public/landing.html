@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSLINK — Percepat URL, Pantau Klik</title>
+<title>CSLINK — Perpendek URL, Pantau Klik</title>
 <meta name="description" content="CSLINK: layanan pemendek URL gratis dengan statistik klik real-time. Ubah link panjang menjadi pendek untuk Instagram, TikTok, X, WhatsApp, dan media sosial lainnya. Powered by Percetakan Rainbow.">
 <meta name="keywords" content="short url, pemendek link, url shortener, link pendek, cslink, analytics">
 <meta name="google-adsense-account" content="ca-pub-8595163342864825">
-<meta property="og:title" content="CSLINK — Percepat URL, Pantau Klik">
+<meta property="og:title" content="CSLINK — Perpendek URL, Pantau Klik">
 <meta property="og:description" content="Pemendek URL gratis dengan statistik klik dan QR code. Percetakan Rainbow.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cslink.web.id/">
@@ -33,10 +33,15 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
   @keyframes drift{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(40px,-30px,0) scale(1.08)}66%{transform:translate3d(-30px,24px,0) scale(.95)}}
   .grid-overlay{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(148,184,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(148,184,255,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 78%);mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 78%)}
   .wrap{max-width:860px;margin:0 auto;padding:30px 20px 64px;position:relative;z-index:1}
-  .brand{display:flex;align-items:center;gap:12px;margin-bottom:30px;animation:fadeUp .5s ease both}
-  .brand-icon{width:50px;height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);background-size:180% 180%;animation:gradShift 6s ease infinite;box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
-  .brand-name{font-family:var(--fd);font-size:23px;font-weight:700;letter-spacing:2px;color:#fff}
+  .brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:30px;animation:fadeUp .5s ease both}
+  .brand-icon{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);background-size:180% 180%;animation:gradShift 6s ease infinite;box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
+  .brand-name{font-family:var(--fd);font-size:22px;font-weight:700;letter-spacing:2px;color:#fff}
   .brand-tagline{font-size:13px;color:var(--mut)}
+  .nav{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-left:auto}
+  .nav a{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:10px;color:var(--mut);font-size:13.5px;font-weight:600;text-decoration:none;transition:all .15s}
+  .nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
+  .nav .csnap-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(232,121,249,.12);border:1px solid rgba(232,121,249,.4);color:#f5d0fe;font-size:13px;font-weight:600;text-decoration:none;transition:all .18s}
+  .nav .csnap-badge:hover{background:rgba(232,121,249,.22);box-shadow:0 0 24px -8px rgba(232,121,249,.7)}
   .hero{text-align:center;padding:26px 0 20px;animation:fadeUp .6s ease both}
   .hero h1{font-family:var(--fd);font-size:clamp(30px,5.4vw,48px);line-height:1.15;font-weight:700;color:#fff}
   .hero h1 span{background:var(--grad);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradShift 6s ease infinite}
@@ -44,7 +49,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
   @keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
   .card{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(10px);box-shadow:0 34px 70px -40px rgba(2,8,40,.95);position:relative;overflow:hidden}
   .card::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.8),rgba(232,121,249,.8),transparent)}
-  .tool-card{padding:26px;margin-bottom:22px;animation:fadeUp .7s ease both}
+  .tool-card{padding:26px;animation:fadeUp .7s ease both}
   .tool-card label{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:600;color:var(--txt);margin-bottom:12px;font-size:15px}
   .tool-card label i{color:var(--cyan)}
   .form{display:flex;gap:10px;flex-wrap:wrap}
@@ -78,14 +83,13 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
   .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
   .cta-actions a.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);animation:none;box-shadow:none}
   .cta-actions a.ghost:hover{color:#fff;border-color:rgba(34,211,238,.5)}
-  .csnap-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(232,121,249,.12);border:1px solid rgba(232,121,249,.4);color:#f5d0fe;font-size:13px;font-weight:600;text-decoration:none;transition:all .18s}
-  .csnap-badge:hover{background:rgba(232,121,249,.22);box-shadow:0 0 24px -8px rgba(232,121,249,.7)}
   .adbox{min-height:110px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(148,184,255,.14);border-radius:16px;margin:20px 0;overflow:hidden;background:rgba(10,15,38,.35)}
   .adbox.ready{border:none;background:none}
   .adbox ins{display:block}
   footer{text-align:center;font-size:13px;color:var(--mut2);margin-top:38px;animation:fadeUp .9s ease both}
   footer a{color:var(--mut);text-decoration:none}
   footer a:hover{color:var(--cyan)}
+  footer .sep{opacity:.4;margin:0 6px}
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
   ::selection{background:rgba(34,211,238,.3);color:#fff}
   ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg1)}::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#23407a,#2b2f66);border-radius:99px;border:2px solid var(--bg1)}
@@ -103,7 +107,13 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
         <div class="brand-name">CSLINK</div>
         <div class="brand-tagline">Powered By Percetakan Rainbow</div>
       </div>
-      <a class="csnap-badge" href="/csnap/" style="margin-left:auto"><i class="fas fa-bolt"></i> CSNAP — Downloader HD</a>
+      <div class="nav">
+        <a href="/fitur"><i class="fas fa-gem"></i> Fitur</a>
+        <a href="/premium"><i class="fas fa-crown"></i> Premium</a>
+        <a href="/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+        <a href="/member/login"><i class="fas fa-user"></i> Masuk</a>
+        <a class="csnap-badge" href="/csnap/"><i class="fas fa-bolt"></i> CSNAP — Downloader HD</a>
+      </div>
     </div>
 
     <section class="hero">
@@ -122,45 +132,9 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
     </div>
 
     <div class="adbox" id="landing-ad-1"><span style="font-size:12px;color:var(--mut2)">Iklan</span></div>
-
-    <h2 class="h2"><i class="fas fa-bolt"></i> Fitur Canggih</h2>
-    <div class="feats">
-      <div class="feat"><div class="ic"><i class="fas fa-chart-line"></i></div><h3>Statistik Klik</h3><p>Pantau jumlah klik, lokasi, dan perangkat setiap link secara real-time.</p></div>
-      <div class="feat"><div class="ic"><i class="fas fa-tag"></i></div><h3>Link Kustom</h3><p>Buat nama pendek sesuai keinginan, misal cslink.web.id/penawaran.</p></div>
-      <div class="feat"><div class="ic"><i class="fas fa-qrcode"></i></div><h3>QR Code</h3><p>Setiap link bisa langsung diunduh sebagai QR untuk dicetak.</p></div>
-      <div class="feat"><div class="ic"><i class="fas fa-infinity"></i></div><h3>Gratis & Tanpa Daftar</h3><p>5 link langsung tanpa akun. Akun gratis untuk dashboard pribadi; Premium untuk tanpa batas.</p></div>
-</div>
-
-    <h2 class="h2"><i class="fas fa-crown"></i> Upgrade Premium</h2>
-    <div class="cta" style="margin-top:0">
-      <h3>CSLINK Premium Rp 250.000/bulan</h3>
-      <p>Unlimited link, kode kustom, link kedaluwarsa, dan pengunjung Anda bebas iklan.</p>
-      <div class="cta-actions">
-        <a href="/premium"><i class="fas fa-crown"></i> Lihat Premium</a>
-        <a class="ghost" href="/member/login"><i class="fas fa-user"></i> Masuk Akun</a>
-      </div>
-    </div>
-
-    <h2 class="h2"><i class="fas fa-question-circle"></i> FAQ</h2>
-    <div class="faq">
-      <details open><summary>Apakah CSLINK gratis?</summary><p>Ya, 5 link pertama gratis tanpa daftar. Buat akun gratis untuk dashboard pribadi, atau upgrade Premium untuk link tanpa batas dan tanpa iklan.</p></details>
-      <details><summary>Apakah perlu mendaftar?</summary><p>Tidak harus. Tanpa akun Anda bisa langsung memendekkan 5 link per perangkat. Daftar akun gratis untuk mengelola link di dashboard Anda.</p></details>
-      <details><summary>Statistik klik apa saja yang tersedia?</summary><p>Jumlah klik, perangkat, browser, dan referrer, ditampilkan dalam dashboard.</p></details>
-      <details><summary>Untuk apa CSLINK cocok?</summary><p>Promosi media sosial, bio Instagram, WhatsApp, cetak QR, dan kampanye iklan.</p></details>
-    </div>
-
-    <div class="cta">
-      <h3>Dua alat gratis dari CSLINK</h3>
-      <p>Pendekkan link atau unduh video/foto medsos tanpa login — semua langsung bisa.</p>
-      <div class="cta-actions">
-        <a href="/csnap/"><i class="fas fa-bolt"></i> Buka CSNAP</a>
-        <a class="ghost" href="/login"><i class="fas fa-sign-in-alt"></i> Masuk ke Dashboard</a>
-      </div>
-    </div>
-
     <div class="adbox" id="landing-ad-2"><span style="font-size:12px;color:var(--mut2)">Iklan</span></div>
 
-    <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/csnap/">CSNAP</a> · <a href="/login">Admin</a></footer>
+    <footer><a href="/fitur">Fitur</a><span class="sep">·</span><a href="/premium">Premium</a><span class="sep">·</span><a href="/faq">FAQ</a><span class="sep">·</span><a href="/csnap/">CSNAP</a><span class="sep">·</span><a href="/member/login">Masuk</a><span class="sep">·</span><a href="/register">Daftar</a><br>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a></footer>
   </div>
 
 <script src="/adblock.js"></script>

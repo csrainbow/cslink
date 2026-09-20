@@ -214,6 +214,8 @@ app.get('/member/login', (req, res) => res.sendFile(path.join(__dirname, 'public
 app.get('/member', (req, res) => res.sendFile(path.join(__dirname, 'public', 'member.html')));
 app.get('/premium', (req, res) => res.sendFile(path.join(__dirname, 'public', 'premium.html')));
 app.get('/payment', (req, res) => res.sendFile(path.join(__dirname, 'public', 'payment.html')));
+app.get('/fitur', (req, res) => res.sendFile(path.join(__dirname, 'public', 'fitur.html')));
+app.get('/faq', (req, res) => res.sendFile(path.join(__dirname, 'public', 'faq.html')));
 
 app.get('/api/auth/status', (req, res) => {
   const session = getSession(req);
