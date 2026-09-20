@@ -119,13 +119,26 @@ async function initDatabase() {
       activated_by TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+  CREATE TABLE IF NOT EXISTS ip_info (
+      ip TEXT PRIMARY KEY,
+      country TEXT,
+      country_code TEXT,
+      fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   db.run('CREATE INDEX IF NOT EXISTS idx_urls_short_code ON urls(short_code);');
   db.run('CREATE INDEX IF NOT EXISTS idx_clicks_url_id ON clicks(url_id);');
   db.run('CREATE INDEX IF NOT EXISTS idx_clicks_clicked_at ON clicks(clicked_at);');
+  db.run('CREATE INDEX IF NOT EXISTS idx_clicks_country ON clicks(country);');
   db.run('CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);');
   db.run('CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id);');
+
+  // migrasi kolom country_code di clicks (tabel lama belum punya)
+  const cols = db.exec("PRAGMA table_info(clicks)")[0];
+  if (cols && !cols.values.some(v => v[1] === 'country_code')) {
+    db.run('ALTER TABLE clicks ADD COLUMN country_code TEXT');
+  }
 
   saveDatabase();
 }

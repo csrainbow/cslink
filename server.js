@@ -74,6 +74,84 @@ function timingSafeEqualHex(a, b) {
   return crypto.timingSafeEqual(ba, bb);
 }
 
+function uaLabel(name, version) {
+  if (!name) return 'Unknown';
+  const major = parseInt(String(version).split('.')[0], 10);
+  return major ? `${name} ${major}` : String(name);
+}
+
+// Migrasi sekali: isi browser/os yang sebelumnya 'Unknown' dari user_agent mentah yang tersimpan
+function backfillClickUA() {
+  if (getConfig('ua_backfill_v1')) return;
+  const rows = db.prepare(`SELECT id, user_agent FROM clicks WHERE browser = 'Unknown' OR os = 'Unknown'`).all();
+  const upd = db.prepare('UPDATE clicks SET browser = ?, os = ? WHERE id = ?');
+  let changed = 0;
+  for (const r of rows) {
+    if (!r.user_agent) continue;
+    const info = new UAParser(r.user_agent).getResult();
+    const b = uaLabel(info.browser.name, info.browser.version);
+    const o = uaLabel(info.os.name, info.os.version);
+    if (b !== 'Unknown' || o !== 'Unknown') {
+      upd.run(b, o, r.id);
+      changed++;
+    }
+  }
+  setConfig('ua_backfill_v1', String(changed));
+  if (changed) console.log(`[ua] backfill ${changed} click rows dari user-agent tersimpan`);
+}
+
+// Geo-IP: cache per IP + antrean latar belakang (tidak memblokir redirect)
+const GEO_API = process.env.GEO_API_BASE || 'https://ipwho.is';
+
+function visitorIp(req) {
+  const fwd = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'];
+  return String(fwd ? String(fwd).split(',')[0].trim() : (req.ip || req.connection.remoteAddress || ''));
+}
+
+function cachedIpInfo(ip) {
+  return ip ? db.prepare('SELECT country, country_code FROM ip_info WHERE ip = ?').get(ip) : null;
+}
+
+const geoQueue = [];
+let geoBusy = false;
+
+async function lookupGeo(ip) {
+  const ctrl = AbortSignal.timeout(4000);
+  const res = await fetch(`${GEO_API}/${encodeURIComponent(ip)}`, { signal: ctrl });
+  const j = await res.json();
+  if (!j || j.success === false || !j.country) return null;
+  return { country: String(j.country), country_code: String(j.country_code || '??').toLowerCase() };
+}
+
+function runGeoQueue() {
+  if (geoBusy || !geoQueue.length) return;
+  geoBusy = true;
+  const ip = geoQueue.shift();
+  lookupGeo(ip)
+    .then(info => {
+      if (info) {
+        db.prepare('INSERT INTO ip_info (ip, country, country_code) VALUES (?, ?, ?) ON CONFLICT(ip) DO UPDATE SET country = excluded.country, country_code = excluded.country_code, fetched_at = CURRENT_TIMESTAMP')
+          .run(ip, info.country, info.country_code);
+        db.prepare("UPDATE clicks SET country = ?, country_code = ? WHERE ip_address = ? AND (country IS NULL OR country = '')")
+          .run(info.country, info.country_code, ip);
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      geoBusy = false;
+      if (geoQueue.length) setTimeout(runGeoQueue, 150);
+    });
+}
+
+function trackGeo(ip) {
+  if (!ip) return null;
+  const cached = cachedIpInfo(ip);
+  if (cached) return cached;
+  geoQueue.push(ip);
+  if (!geoBusy) setTimeout(runGeoQueue, 0);
+  return null;
+}
+
 function setupRequired() {
   return !getConfig('admin_pass_hash');
 }
@@ -358,18 +436,22 @@ app.get('/:code', (req, res) => {
 
     const parser = new UAParser(req.headers['user-agent']);
     const ua = parser.getResult();
+    const ip = visitorIp(req);
+    const geo = trackGeo(ip);
 
     db.prepare(`
-      INSERT INTO clicks (url_id, ip_address, user_agent, referer, browser, os, device)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO clicks (url_id, ip_address, user_agent, referer, browser, os, device, country, country_code)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       url.id,
-      req.ip || req.connection.remoteAddress,
+      ip,
       req.headers['user-agent'] || null,
       req.headers['referer'] || null,
-      ua.browser.name || 'Unknown',
-      ua.os.name || 'Unknown',
-      ua.device.type || 'desktop'
+      uaLabel(ua.browser.name, ua.browser.version),
+      uaLabel(ua.os.name, ua.os.version),
+      req.headers['user-agent'] ? (ua.device.type || 'desktop') : 'Unknown',
+      geo ? geo.country : '',
+      geo ? geo.country_code : ''
     );
 
     // Bebas iklan: link milik akun premium, pemilik link, pengunjung premium, atau admin
@@ -589,6 +671,17 @@ app.get('/api/analytics/:code', (req, res) => {
       ORDER BY count DESC
     `).all(url.id);
 
+    const clicksByCountry = db.prepare(`
+      SELECT
+        CASE WHEN country IS NULL OR country = '' THEN 'Unknown' ELSE country END as country,
+        CASE WHEN country IS NULL OR country = '' THEN '' ELSE LOWER(COALESCE(country_code, '')) END as country_code,
+        COUNT(*) as count
+      FROM clicks WHERE url_id = ?
+      GROUP BY country, country_code
+      ORDER BY count DESC
+      LIMIT 15
+    `).all(url.id);
+
     const recentClicks = db.prepare(`
       SELECT * FROM clicks WHERE url_id = ?
       ORDER BY clicked_at DESC
@@ -603,6 +696,7 @@ app.get('/api/analytics/:code', (req, res) => {
         clicks_by_browser: clicksByBrowser,
         clicks_by_os: clicksByOS,
         clicks_by_device: clicksByDevice,
+        clicks_by_country: clicksByCountry,
         recent_clicks: recentClicks
       }
     });
@@ -691,6 +785,7 @@ app.get('/api/stats', (req, res) => {
 
 db.init()
   .then(() => {
+    backfillClickUA();
     app.listen(PORT, () => {
       console.log(`
   ╔══════════════════════════════════════╗

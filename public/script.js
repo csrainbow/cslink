@@ -494,12 +494,17 @@ function renderAnalytics(data, container) {
 
     const totalBrowser = analytics.clicks_by_browser.reduce((sum, b) => sum + b.count, 0) || 1;
     const totalOS = analytics.clicks_by_os.reduce((sum, o) => sum + o.count, 0) || 1;
+    const totalCountry = analytics.clicks_by_country.reduce((sum, c) => sum + c.count, 0) || 1;
     const maxDay = Math.max(...analytics.clicks_by_day.map(d => d.count), 1);
     const deviceCount = device => analytics.clicks_by_device.find(d => d.device === device)?.count || 0;
 
     const dayBars = analytics.clicks_by_day.length
         ? analytics.clicks_by_day.map(d => `
-            <div class="day-bar" style="height: ${(d.count / maxDay) * 100}%" title="${d.date}: ${d.count} klik"></div>
+            <div class="day-col" title="${d.date}: ${d.count} klik">
+                <div class="day-bar" style="height: ${Math.max((d.count / maxDay) * 100, 3)}%"></div>
+                <span class="day-num">${d.count}</span>
+                <span class="day-date">${formatShortDate(d.date)}</span>
+            </div>
         `).join('')
         : '<p class="no-data">Belum ada klik</p>';
 
@@ -512,28 +517,51 @@ function renderAnalytics(data, container) {
 
     const bars = (list, total) => list.length
         ? `<div class="bar-chart">
-            ${list.slice(0, 5).map(item => `
+            ${list.slice(0, 8).map(item => {
+                const raw = item.browser || item.os;
+                const label = raw === 'Unknown' ? 'Bot / Lainnya' : raw;
+                const pct = Math.round((item.count / total) * 100);
+                return `
                 <div class="bar-row">
-                    <span class="bar-label">${item.browser || item.os}</span>
+                    <span class="bar-label">${escapeHtml(label)}</span>
                     <div class="bar-track">
-                        <div class="bar-fill" style="width: ${(item.count / total) * 100}%">
+                        <div class="bar-fill" style="width: ${pct}%">
                             <span class="bar-value">${item.count}</span>
                         </div>
                     </div>
-                </div>
-            `).join('')}
+                    <span class="bar-pct">${pct}%</span>
+                </div>`;
+            }).join('')}
         </div>`
+        : '<p class="no-data">Belum ada data</p>';
+
+    const countryRows = analytics.clicks_by_country.length
+        ? analytics.clicks_by_country.slice(0, 8).map(c => {
+            const label = c.country === 'Unknown' ? 'Lokal / Lainnya' : c.country;
+            const pct = Math.round((c.count / totalCountry) * 100);
+            return `
+            <div class="bar-row">
+                <span class="bar-label">${flagEmoji(c.country_code)} ${escapeHtml(label)}</span>
+                <div class="bar-track">
+                    <div class="bar-fill" style="width: ${pct}%">
+                        <span class="bar-value">${c.count}</span>
+                    </div>
+                </div>
+                <span class="bar-pct">${pct}%</span>
+            </div>`;
+        }).join('')
         : '<p class="no-data">Belum ada data</p>';
 
     const recentRows = analytics.recent_clicks.length
         ? analytics.recent_clicks.slice(0, 10).map(c => `
             <tr>
-                <td class="recent-main"><i class="fas fa-globe recent-icon"></i>${c.browser} <span class="recent-sep">/</span> ${c.os}</td>
-                <td><span class="device-chip ${c.device}">${c.device}</span></td>
+                <td class="recent-main"><i class="fas fa-globe recent-icon"></i>${escapeHtml(c.browser)} <span class="recent-sep">/</span> ${escapeHtml(c.os)}</td>
+                <td><span class="device-chip ${escapeHtml(c.device)}">${escapeHtml(c.device)}</span></td>
                 <td class="recent-ip">${c.ip_address || '&ndash;'}</td>
+                <td class="recent-country">${flagEmoji(c.country_code)} ${c.country && c.country !== '' ? escapeHtml(c.country) : '&ndash;'}</td>
                 <td class="recent-date">${formatDate(c.clicked_at)}</td>
             </tr>`).join('')
-        : '<tr><td colspan="4" class="empty-row">Belum ada klik</td></tr>';
+        : '<tr><td colspan="5" class="empty-row">Belum ada klik</td></tr>';
 
     const content = `
         <div class="analytics-detail-head">
@@ -580,6 +608,11 @@ function renderAnalytics(data, container) {
             </div>
         </div>
 
+        <div class="analytics-card country-card">
+            <h3><i class="fas fa-map-marked-alt"></i> Lokasi Pengunjung</h3>
+            <div class="bar-chart">${countryRows}</div>
+        </div>
+
         <div class="links-table-wrapper recent-table">
             <table class="links-table">
                 <thead>
@@ -587,6 +620,7 @@ function renderAnalytics(data, container) {
                         <th>Klik Terbaru</th>
                         <th>Device</th>
                         <th>IP</th>
+                        <th>Negara</th>
                         <th>Waktu</th>
                     </tr>
                 </thead>
@@ -718,12 +752,23 @@ function formatDate(dateString) {
 function formatDateWithTime(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString.replace(' ', 'T'));
-    return date.toLocaleString('id-ID', { 
-        day: 'numeric', 
-        month: 'short', 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    return date.toLocaleString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
     });
+}
+
+function formatShortDate(s) {
+    if (!s) return '-';
+    const d = new Date(s.replace(' ', 'T'));
+    return d.getDate() + '/' + (d.getMonth() + 1);
+}
+
+function flagEmoji(cc) {
+    if (!cc || cc === '??' || cc === '') return '';
+    return String(cc).toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)));
 }
 
 function truncate(str, length) {
