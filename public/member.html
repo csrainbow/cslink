@@ -137,6 +137,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       <div class="msg" id="lmsg"></div>
     </div>
   </div>
+<script src="/adblock.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 let me=null;
@@ -155,6 +156,7 @@ async function renderAd(){
   if(slot)ins.setAttribute('data-ad-slot',slot);
   box.innerHTML='';box.classList.add('ready');box.appendChild(ins);
   try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+  if(window.__csAdblock)window.__csAdblock.detect(function(blocked){if(blocked)window.__csAdblock.banner();});
 }
 
 async function loadMe(){

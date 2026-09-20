@@ -32,13 +32,33 @@ footer{padding:18px;text-align:center;color:var(--mut);font-size:12px}
 </div>
 <div class="sp"></div>
 <footer>© 2026 CSLINK — Powered By Percetakan Rainbow</footer>
+<script src="/adblock.js"></script>
 <script>
 window.__AD={dest:__AD_DEST__};
-const SEC=__AD_SECONDS__;const AUTO=__AD_AUTO__;let left=SEC;
+const SEC=__AD_SECONDS__;const AUTO=__AD_AUTO__;
 const el=document.getElementById('sec'),ring=document.getElementById('ring'),go=document.getElementById('go');
+let iv=null;
 function updateRing(){const deg=(SEC-left)/SEC*360;ring.style.background='conic-gradient(#7c3aed '+deg+'deg,#243056 '+deg+'deg)';}
-updateRing();
-const iv=setInterval(()=>{left=Math.max(0,left-1);el.textContent=left;ring.dataset.sec=left;updateRing();if(left<=0){clearInterval(iv);if(AUTO){window.location.href=__AD.dest;}else{el.textContent='Siap!';go.style.display='inline-block';}}},1000);
+function tick(){
+  left=Math.max(0,left-1);el.textContent=left;ring.dataset.sec=left;updateRing();
+  if(left<=0){clearInterval(iv);iv=null;if(AUTO){window.location.href=__AD.dest;}else{el.textContent='Siap!';go.style.display='inline-block';}}
+}
+function startCountdown(){if(iv)return;left=SEC;el.textContent=left;ring.dataset.sec=left;updateRing();iv=setInterval(tick,1000);}
 go.addEventListener('click',()=>{go.disabled=true;window.location.href=__AD.dest;});
+(function(){
+  function check(){
+    if (window.__csAdblock) __csAdblock.detect(function(blocked){
+      if(blocked){__csAdblock.blocker(function(){check();});}
+      else{__csAdblock.unblock();startCountdown();}
+    });
+    else startCountdown();
+  }
+  (async function(){
+    let client='';
+    try{const c=await(await fetch('/csnap/api/config')).json();client=(c&&c.adsenseClient)||'';}catch(e){}
+    if(!client){startCountdown();return;}
+    check();
+  })();
+})();
 (async()=>{const slot=document.getElementById('adslot');try{const r=await fetch('/csnap/api/config');const c=await r.json();const client=(c&&c.adsenseClient)||'';if(!client){slot.innerHTML='<span>Mengalihkan…</span>';return;}slot.innerHTML='';slot.style.border='none';const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(client);s.crossOrigin='anonymous';s.onerror=()=>{slot.style.display='none';};document.head.appendChild(s);const slotId=(c.adsenseSlots&&(c.adsenseSlots.desktop||c.adsenseSlots.mobile))||'';const ins=document.createElement('ins');ins.className='adsbygoogle';ins.style.display='block';ins.setAttribute('data-ad-client',client);if(slotId){ins.setAttribute('data-ad-slot',slotId);}ins.setAttribute('data-ad-format','auto');ins.setAttribute('data-full-width-responsive','true');slot.appendChild(ins);try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}}catch(e){slot.innerHTML='<span>Mengalihkan…</span>';}})();
 </script></body></html>

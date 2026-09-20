@@ -163,6 +163,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
     <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/csnap/">CSNAP</a> · <a href="/login">Admin</a></footer>
   </div>
 
+<script src="/adblock.js"></script>
 <script>
   (async function renderAds(){
     let free = true;
@@ -182,6 +183,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       box.innerHTML = ''; box.classList.add('ready'); box.appendChild(ins);
       try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
     });
+    if (window.__csAdblock) window.__csAdblock.detect(function(blocked){ if (blocked) window.__csAdblock.banner(); });
   })();
 
   document.getElementById('shorten-form').addEventListener('submit', async function(e){
