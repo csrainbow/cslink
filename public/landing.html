@@ -80,6 +80,9 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
   .cta-actions a.ghost:hover{color:#fff;border-color:rgba(34,211,238,.5)}
   .csnap-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(232,121,249,.12);border:1px solid rgba(232,121,249,.4);color:#f5d0fe;font-size:13px;font-weight:600;text-decoration:none;transition:all .18s}
   .csnap-badge:hover{background:rgba(232,121,249,.22);box-shadow:0 0 24px -8px rgba(232,121,249,.7)}
+  .adbox{min-height:110px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(148,184,255,.14);border-radius:16px;margin:20px 0;overflow:hidden;background:rgba(10,15,38,.35)}
+  .adbox.ready{border:none;background:none}
+  .adbox ins{display:block}
   footer{text-align:center;font-size:13px;color:var(--mut2);margin-top:38px;animation:fadeUp .9s ease both}
   footer a{color:var(--mut);text-decoration:none}
   footer a:hover{color:var(--cyan)}
@@ -118,6 +121,8 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       <div class="result mut" style="margin-top:6px;font-size:12.5px">5 link gratis tanpa daftar per perangkat. <a href="/register" style="color:var(--cyan)">Daftar akun gratis</a> atau <a href="/premium" style="color:var(--mag)">Upgrade Premium</a> untuk lebih.</div>
     </div>
 
+    <div class="adbox" id="landing-ad-1"><span style="font-size:12px;color:var(--mut2)">Iklan</span></div>
+
     <h2 class="h2"><i class="fas fa-bolt"></i> Fitur Canggih</h2>
     <div class="feats">
       <div class="feat"><div class="ic"><i class="fas fa-chart-line"></i></div><h3>Statistik Klik</h3><p>Pantau jumlah klik, lokasi, dan perangkat setiap link secara real-time.</p></div>
@@ -153,10 +158,32 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       </div>
     </div>
 
+    <div class="adbox" id="landing-ad-2"><span style="font-size:12px;color:var(--mut2)">Iklan</span></div>
+
     <footer>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a> · <a href="/csnap/">CSNAP</a> · <a href="/login">Admin</a></footer>
   </div>
 
 <script>
+  (async function renderAds(){
+    let free = true;
+    try { const m = await (await fetch('/api/member/me')).json(); if (m && m.premium) free = false; } catch(e){}
+    if (free) { try { const s = await (await fetch('/api/auth/status')).json(); if (s.authenticated) free = false; } catch(e){} }
+    if (!free) { document.querySelectorAll('.adbox').forEach(b => b.remove()); return; }
+    let client = '', slot = '';
+    try { const c = await (await fetch('/csnap/api/config')).json(); client = (c.adsenseClient || '').trim(); slot = ((c.adsenseSlots && (c.adsenseSlots.desktop || c.adsenseSlots.mobile)) || '').trim(); } catch(e){}
+    if (!client) return;
+    const s = document.createElement('script'); s.async = true;
+    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(client);
+    s.crossOrigin = 'anonymous'; document.head.appendChild(s);
+    document.querySelectorAll('.adbox').forEach(box => {
+      const ins = document.createElement('ins'); ins.className = 'adsbygoogle'; ins.style.display = 'block';
+      ins.setAttribute('data-ad-client', client); ins.setAttribute('data-ad-format', 'auto'); ins.setAttribute('data-full-width-responsive', 'true');
+      if (slot) ins.setAttribute('data-ad-slot', slot);
+      box.innerHTML = ''; box.classList.add('ready'); box.appendChild(ins);
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
+    });
+  })();
+
   document.getElementById('shorten-form').addEventListener('submit', async function(e){
     e.preventDefault();
     const url = document.getElementById('shorten-url').value.trim();

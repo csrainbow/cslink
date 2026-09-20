@@ -372,13 +372,25 @@ app.get('/:code', (req, res) => {
       ua.device.type || 'desktop'
     );
 
-    // Link buatan akun premium → lewatkan interstitial (tanpa iklan)
+    // Bebas iklan: link milik akun premium, pemilik link, pengunjung premium, atau admin
+    let skipAd = false;
     if (url.created_by && url.created_by.startsWith('user:')) {
-      const owner = db.prepare('SELECT premium_until FROM users WHERE id = ?').get(url.created_by.slice(5));
-      if (owner && owner.premium_until && new Date(owner.premium_until).getTime() >= Date.now()) {
-        return res.redirect(url.original_url);
-      }
+      const ownerId = url.created_by.slice(5);
+      const owner = db.prepare('SELECT premium_until FROM users WHERE id = ?').get(ownerId);
+      if (owner && owner.premium_until && new Date(owner.premium_until).getTime() >= Date.now()) skipAd = true;
+      const viewerSes = memberApi.getMemberSession(req);
+      if (viewerSes && String(viewerSes.user_id) === ownerId) skipAd = true;
     }
+    if (!skipAd) {
+      const viewerSes = memberApi.getMemberSession(req);
+      if (viewerSes) {
+        const viewer = db.prepare('SELECT premium_until, role FROM users WHERE id = ?').get(viewerSes.user_id);
+        if (viewer && viewer.role !== 'user') skipAd = true;
+        if (viewer && viewer.premium_until && new Date(viewer.premium_until).getTime() >= Date.now()) skipAd = true;
+      }
+      if (getSession(req)) skipAd = true;
+    }
+    if (skipAd) return res.redirect(url.original_url);
 
     res.type('html').send(renderAdPage(url.original_url, { seconds: 10, auto: false }));
   } catch (error) {
