@@ -370,8 +370,8 @@ app.post('/api/shorten', (req, res) => {
         }
       }
 
-      const stmt = db.prepare('INSERT INTO urls (original_url, short_code, title, expires_at) VALUES (?, ?, ?, ?)');
-      const result = stmt.run(url, shortCode, title || null, expiresAt ? expiresAt.toISOString() : null);
+      const stmt = db.prepare('INSERT INTO urls (original_url, short_code, title, expires_at, created_by) VALUES (?, ?, ?, ?, ?)');
+      const result = stmt.run(url, shortCode, title || null, expiresAt ? expiresAt.toISOString() : null, 'admin');
 
       return res.json({
         id: result.lastInsertRowid,
@@ -474,7 +474,9 @@ app.get('/:code', (req, res) => {
     }
     if (skipAd) return res.redirect(url.original_url);
 
-    res.type('html').send(renderAdPage(url.original_url, { seconds: 10, auto: false }));
+    // Link buatan super admin: iklan penuh 5 detik + auto lanjut
+    const adminAd = url.created_by === 'admin';
+    res.type('html').send(renderAdPage(url.original_url, adminAd ? { seconds: 5, auto: true } : { seconds: 10, auto: false }));
   } catch (error) {
     console.error('Error redirecting:', error);
     res.status(500).json({ error: 'Internal server error' });
