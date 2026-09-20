@@ -5,6 +5,7 @@ const mail = require('./mail');
 const MEMBER_COOKIE = 'cslink_member';
 const MEMBER_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const FREE_LIMIT = 5;
+const FREE_LINK_LIMIT = 5;
 const RENEW_REMIND_DAYS = 7;
 
 function daysLeftUntil(until) {
@@ -56,11 +57,6 @@ module.exports = function register(app, auth) {
   const isPremium = u => !!u && u.premium_until && new Date(u.premium_until).getTime() >= Date.now();
 
   const isFreeMember = u => !!u && u.verified === 1 && !isPremium(u);
-
-  function nextFreeUser() {
-    const row = db.prepare('SELECT COUNT(*) as c FROM users WHERE verified = 1').get();
-    return (row.c || 0) + 1;
-  }
 
   // ---------- Registrasi ----------
   app.post('/api/member/register', (req, res) => {
@@ -163,10 +159,13 @@ module.exports = function register(app, auth) {
   app.get('/api/member/me', requireMember, (req, res) => {
     const u = req.member;
     const orderCount = db.prepare('SELECT COUNT(*) as c FROM orders WHERE user_id = ?').get(u.id);
+    const used = db.prepare('SELECT COUNT(*) as c FROM urls WHERE created_by = ?').get(`user:${u.id}`);
+    const freeLimit = canFull(u) ? null : FREE_LINK_LIMIT;
     maybeRemindRenew(u);
     res.json({
       id: u.id, name: u.name, email: u.email, phone: u.phone,
-      verified: u.verified, free_slots: nextFreeUser(), order_count: orderCount.c,
+      verified: u.verified, order_count: orderCount.c,
+      free_used: used.c, free_limit: freeLimit, free_slots: freeLimit === null ? null : Math.max(0, freeLimit - used.c),
       ...planInfo(u)
     });
   });
@@ -195,6 +194,13 @@ module.exports = function register(app, auth) {
     try { const u = new URL(clean); if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error(); } catch (e) { return res.status(400).json({ error: 'URL tidak valid' }); }
     if (!canFull(user) && customCode) return res.status(403).json({ error: 'Kode kustom khusus Premium' });
     if (!canFull(user) && expiresIn) return res.status(403).json({ error: 'Kedaluwarsa khusus Premium' });
+
+    if (!canFull(user)) {
+      const used = db.prepare('SELECT COUNT(*) as c FROM urls WHERE created_by = ?').get(ownerBy(user)).c;
+      if (used >= FREE_LINK_LIMIT) {
+        return res.status(403).json({ error: `Batas ${FREE_LINK_LIMIT} link gratis tercapai. Hapus link lama untuk mendapat slot, atau Upgrade Premium.` });
+      }
+    }
 
     let shortCode = String(customCode || '').trim();
     if (!shortCode) { shortCode = genCode(7); }

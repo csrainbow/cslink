@@ -176,8 +176,15 @@ async function loadMe(){
         ?'Sisa '+d.days_left+' hari lagi (hingga '+d.premium_until.slice(0,10)+'). Perpanjang agar tetap aktif.'
         :'Hingga '+d.premium_until.slice(0,10)+'. Perpanjang sekarang untuk mengaktifkan kembali fitur Premium.';
     }
-    $('quota-label').textContent='Jatah pengguna baru: '+d.free_slots+' dari 5 link gratis di sistem. Ajak teman mendaftar untuk menambah kuota Anda.';
-    $('quota-bar').style.width=Math.min(100,(d.free_slots/5)*100)+'%';
+    if(d.premium){
+      $('quota-label').textContent='Paket Premium: link tanpa batas & pengunjung bebas iklan.';
+      $('quota-bar').style.width='100%';
+    } else {
+      const used=d.free_used, lim=d.free_limit||5;
+      const full=used>=lim;
+      $('quota-label').innerHTML='Slot link gratis: <b>'+used+' / '+lim+'</b> dipakai.'+(full?' Hapus link lama atau <a href="/premium" style="color:var(--mag)">Upgrade Premium</a> untuk menambah slot.':'');
+      $('quota-bar').style.width=Math.min(100,(used/lim)*100)+'%';
+    }
     renderAd();
   }catch(e){location.href='/member/login';}
 }
