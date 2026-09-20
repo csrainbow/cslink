@@ -50,15 +50,15 @@ module.exports = function register(app, auth) {
   }
 
   function orderMessage(prefix, o, u) {
-    return `${prefix} CSLINK
-ID Pesanan #${o.id}
-Nama: ${u.name}
-Email: ${u.email}
-WA: ${u.phone}
+    const time = o.created_at ? o.created_at.replace('T', ' ').slice(0, 16) : '';
+    return `${prefix} (CSLINK)
+No. Pesanan: ${o.id}
+Dari: ${u.name} | ${u.email} | WA ${u.phone}
 Paket: CSLINK Premium 1 Bulan
-Tagihan: ${rupiah(o.amount)} (${rupiah(o.base)} + fee ${rupiah(o.service_fee)} + kode unik ${o.kode_unik})
-Bayar ke QRIS, lalu balas pesan ini dengan bukti transfer.
-- Admin Percetakan Rainbow`;
+Nominal: ${rupiah(o.amount)} = ${rupiah(o.base)} + fee ${rupiah(o.service_fee)} + kode unik ${o.kode_unik}
+Waktu: ${time}
+Saya sudah membayar via QRIS. Mohon verifikasi dan aktifkan premium.
+- CSLINK Support`;
   }
 
   // ---------- Buat order (member) ----------
@@ -142,19 +142,22 @@ Bayar ke QRIS, lalu balas pesan ini dengan bukti transfer.
     const u = db.prepare('SELECT * FROM users WHERE id = ?').get(o.user_id);
     if (!u) return res.status(400).json({ error: 'Pengguna tidak ditemukan' });
 
+    const nowStr = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const until = new Date(Date.now() + cfg.days() * 24 * 60 * 60 * 1000);
+    const untilStr = until.toISOString().slice(0, 19).replace('T', ' ');
     db.prepare('UPDATE orders SET status = ?, activated_at = ?, activated_by = ? WHERE id = ?')
-      .run('paid', new Date().toISOString().slice(0, 19), req.user || 'admin', o.id);
-    db.prepare('UPDATE users SET premium_until = ? WHERE id = ?').run(until.toISOString().slice(0, 19), o.user_id);
+      .run('paid', nowStr, req.user || 'admin', o.id);
+    db.prepare('UPDATE users SET premium_until = ? WHERE id = ?').run(untilStr, o.user_id);
 
-    const receipt = `PEMBAYARAN DITERIMA ✅ CSLINK Premium 1 bulan aktif.
-ID Pesanan #${o.id}
+    const receipt = `PEMBAYARAN DITERIMA ✅ — CSLINK Premium 1 Bulan AKTIF.
+Kode Pesanan: ${o.id}
 Nama: ${u.name}
-Aktif hingga: ${until.toISOString()}
+Aktif hingga: ${untilStr}
+Nikmati link tanpa batas & tanpa iklan.
 Terima kasih — Percetakan Rainbow.`;
     const sent = await sendWa(u.phone, receipt);
 
-    res.json({ ok: true, premium_until: until.toISOString(), wa_sent: sent.ok, wa_error: sent.ok ? undefined : sent.error });
+    res.json({ ok: true, premium_until: untilStr, wa_sent: sent.ok, wa_error: sent.ok ? undefined : sent.error });
   });
 
   // ---------- Status premium (untuk halaman member) ----------
