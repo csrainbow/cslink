@@ -140,6 +140,12 @@ async function initDatabase() {
     db.run('ALTER TABLE clicks ADD COLUMN country_code TEXT');
   }
 
+  // migrasi kolom wa_notify di orders (tandai notif WA otomatis ke admin)
+  const ocols = db.exec("PRAGMA table_info(orders)")[0];
+  if (ocols && !ocols.values.some(v => v[1] === 'wa_notify')) {
+    db.run('ALTER TABLE orders ADD COLUMN wa_notify INTEGER DEFAULT 0');
+  }
+
   saveDatabase();
 }
 

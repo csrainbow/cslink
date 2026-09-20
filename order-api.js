@@ -71,16 +71,37 @@ Saya sudah membayar via QRIS. Mohon verifikasi dan aktifkan premium.
 - CSLINK Support`;
   }
 
-  // ---------- Buat order (member) ----------
-  app.post('/api/order/create', requireMember, (req, res) => {
+  function newOrderMessage(o, u) {
+    const time = o.created_at ? o.created_at.replace('T', ' ').slice(0, 16) : '';
+    return `PESANAN BARU 🆕 (CSLINK)
+No. Pesanan: ${o.id}
+Dari: ${u.name} | ${u.email} | WA ${u.phone}
+Paket: CSLINK Premium 1 Bulan
+Nominal: ${rupiah(o.amount)} = ${rupiah(o.base_amount)} + fee ${rupiah(o.service_fee)} + kode unik ${o.kode_unik}
+Waktu: ${time}
+Status: Menunggu pembayaran via QRIS.
+Mohon cek dan tunggu konfirmasi dari member.
+- CSLINK Support`;
+  }
+
+  // ---------- Buat order (member), autocor notif WA ke admin ----------
+  app.post('/api/order/create', requireMember, async (req, res) => {
     const u = req.member;
     const { base, fee, kode_unik, amount } = computeAmount();
     const row = db.prepare(`INSERT INTO orders (user_id, plan, base_amount, service_fee, kode_unik, amount, status) VALUES (?,?,?,?,?,?,?)`)
       .run(u.id, 'premium-1m', base, fee, kode_unik, amount, 'pending');
     const o = db.prepare('SELECT * FROM orders WHERE id = ?').get(row.lastInsertRowid);
+
+    // Kirim notif WA otomatis ke admin (fire-and-forget, tidak memblokir respons)
+    const adminPhone = cfg.waAdmin();
+    sendWa(adminPhone, newOrderMessage(o, u)).then(s => {
+      if (s.ok) db.prepare('UPDATE orders SET wa_notify = 1 WHERE id = ?').run(o.id);
+      else console.log(`[wa] notif pesanan ${o.id} gagal:`, s.error);
+    });
+
     res.json({
       ok: true, order_id: o.id, amount: o.amount, base: o.base_amount, fee: o.service_fee, kode_unik: o.kode_unik,
-      price_label: rupiah(o.amount), qris_image: cfg.qrisImage(), status: o.status
+      price_label: rupiah(o.amount), qris_image: cfg.qrisImage(), status: o.status, notify: 'queued'
     });
   });
 
