@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Akun Gratis — CSLINK</title>
+<meta name="google-adsense-account" content="ca-pub-8595163342864825">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{--bg0:#050814;--bg1:#0a0f26;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.08);--line:rgba(148,184,255,.16);--txt:#e7eeff;--mut:#8fa1ce;--mut2:#6b7ca6;--cyan:#22d3ee;--vio:#818cf8;--mag:#e879f9;--grad:linear-gradient(120deg,#22d3ee,#818cf8 50%,#e879f9);--fd:'Space Grotesk',Inter,system-ui,sans-serif;--fb:'Inter',system-ui,Arial,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fb);background:radial-gradient(1100px 620px at 12% -8%,rgba(129,140,248,.18),transparent 60%),radial-gradient(900px 600px at 90% 8%,rgba(34,211,238,.13),transparent 55%),linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg0));background-attachment:fixed;color:var(--txt);min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+  .bg-orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5}
+  .orb-1{width:480px;height:480px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(129,140,248,.55),transparent 70%)}
+  .orb-2{width:420px;height:420px;right:-120px;top:18%;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%)}
+  .orb-3{width:520px;height:520px;left:28%;bottom:-220px;background:radial-gradient(circle,rgba(232,121,249,.4),transparent 70%)}
+  .wrap{max-width:440px;margin:auto;padding:40px 20px;width:100%}
+  .brand{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:26px}
+  .brand-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
+  .brand-name{font-family:var(--fd);font-size:21px;font-weight:700;letter-spacing:2px;color:#fff}
+  .card{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(10px);padding:26px;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.8),rgba(232,121,249,.8),transparent)}
+  h1{font-family:var(--fd);font-size:21px;color:#fff;text-align:center;margin-bottom:4px}
+  .sub{text-align:center;color:var(--mut);font-size:13.5px;margin-bottom:20px}
+  label{display:block;font-size:13px;color:var(--mut);margin:14px 0 6px;font-weight:500}
+  label i{color:var(--cyan);margin-right:6px}
+  input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(148,184,255,.16);background:rgba(10,15,38,.6);color:#fff;font-size:14px;outline:none;transition:border-color .18s,box-shadow .18s}
+  input:focus{border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.14)}
+  button{width:100%;margin-top:20px;padding:13px;border:0;border-radius:12px;background:var(--grad);color:#fff;font-family:var(--fd);font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 14px 32px -14px rgba(34,211,238,.8);transition:transform .18s}
+  button:hover{transform:translateY(-2px)}
+  .msg{margin-top:14px;font-size:13.5px;text-align:center;word-break:break-word}
+  .msg.ok{color:#6ee7b7}.msg.err{color:#fda4af}
+  .verify-box{display:none;margin-top:18px;padding-top:18px;border-top:1px dashed var(--line)}
+  .verify-box.show{display:block}
+  .foot{text-align:center;margin-top:18px;font-size:13.5px;color:var(--mut2)}
+  .foot a{color:var(--cyan);text-decoration:none}
+  .score{margin-top:10px;font-size:12.5px;color:var(--mut2);height:16px}
+</style>
+</head>
+<body>
+  <div class="bg-orbs"><span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span></div>
+  <div class="wrap">
+    <div class="brand"><div class="brand-icon">CS</div><div class="brand-name">CSLINK</div></div>
+    <div class="card">
+      <h1>Buat Akun Gratis</h1>
+      <p class="sub">Dapatkan 5 link + dashboard khusus. <a href="/premium" style="color:var(--mag)">Upgrade Premium</a> untuk fitur tanpa batas.</p>
+      <form id="reg-form">
+        <label><i class="fas fa-user"></i>Nama Lengkap</label>
+        <input type="text" id="name" placeholder="cth: Budi Santoso" autocomplete="name" required>
+        <label><i class="fas fa-envelope"></i>Email</label>
+        <input type="email" id="email" placeholder="nama@email.com" autocomplete="email" required>
+        <label><i class="fas fa-phone-alt"></i>No. HP / WhatsApp</label>
+        <input type="tel" id="phone" placeholder="0812xxxxxxx" autocomplete="tel" required>
+        <label><i class="fas fa-lock"></i>Password</label>
+        <input type="password" id="password" placeholder="Minimal 6 karakter" autocomplete="new-password" required>
+        <div class="score" id="pwscore"></div>
+        <button type="submit" id="reg-btn">Daftar</button>
+        <div class="msg" id="msg"></div>
+      </form>
+      <div class="verify-box" id="verify-box">
+        <form id="verify-form">
+          <label><i class="fas fa-key"></i>Kode Verifikasi (dikirim ke email Anda)</label>
+          <input type="text" id="code" placeholder="6 digit" inputmode="numeric" maxlength="6" required>
+          <button type="submit" id="verify-btn">Verifikasi</button>
+          <p style="margin-top:10px;font-size:12.5px;text-align:center" class="sub"><a href="#" id="resend" style="color:var(--cyan)">Kirim ulang kode</a></p>
+          <div class="msg" id="vmsg"></div>
+        </form>
+      </div>
+      <div class="foot">Sudah punya akun? <a href="/member/login">Masuk di sini</a></div>
+    </div>
+  </div>
+<script>
+const $=id=>document.getElementById(id);
+let lastEmail='';
+$('password').addEventListener('input',()=>{const v=$('password').value.length;const s=$('pwscore');if(v===0)s.textContent='';else if(v<6)s.textContent='Password terlalu pendek';else s.textContent='Kekuatan password: OK';});
+$('reg-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const m=$('msg');m.className='msg';m.textContent='Mendaftar…';
+  try{
+    const r=await fetch('/api/member/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,email:$('email').value,phone:$('phone').value,password:$('password').value})});
+    const d=await r.json();
+    if(!d.ok){m.textContent=d.error||'Gagal mendaftar';m.className+=' err';return;}
+    m.textContent=d.dev?'Akun dibuat. (mode dev) Kode verifikasi untuk '+d.email+' ada di log server. Masukkan di bawah.':'Akun dibuat! Masukkan kode verifikasi dari email '+d.email+'.';
+    m.className+=' ok';
+    lastEmail=d.email;
+    $('verify-box').classList.add('show');
+    $('code').focus();
+  }catch(err){m.textContent='Terjadi kesalahan. Coba lagi.';m.className+=' err';}
+});
+$('verify-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const m=$('vmsg');m.className='msg';m.textContent='Memverifikasi…';
+  try{
+    const r=await fetch('/api/member/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:$('code').value})});
+    const d=await r.json();
+    if(!d.ok){m.textContent=d.error||'Kode salah';m.className+=' err';return;}
+    location.href='/member';
+  }catch(err){m.textContent='Terjadi kesalahan.';m.className+=' err';}
+});
+$('resend').addEventListener('click',async e=>{
+  e.preventDefault();
+  const m=$('vmsg');m.className='msg';m.textContent='Mengirim ulang kode…';
+  try{const r=await fetch('/api/member/verify/resend',{method:'POST'});const d=await r.json();m.textContent=d.ok?'Kode baru terkirim.':'Gagal.';m.className+=' ok';}catch(err){m.textContent='Gagal.';m.className+=' err';}
+});
+</script>
+</body>
+</html>

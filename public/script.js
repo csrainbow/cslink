@@ -976,6 +976,93 @@ document.getElementById('change-password-btn').addEventListener('click', async f
     }
 });
 
+// ======== Pesanan & Premium (admin) ========
+async function loadPaymentConfig() {
+    try {
+        const response = await authFetch('/api/admin/payment-config');
+        if (!response.ok) return;
+        const d = await response.json();
+        document.getElementById('pay-qris').value = d.qris_image || '';
+        document.getElementById('pay-wa').value = d.wa_admin || '';
+        document.getElementById('pay-price').value = d.premium_price || 250000;
+        document.getElementById('pay-fee').value = d.service_fee_pct ?? 0.7;
+        document.getElementById('pay-days').value = d.premium_days || 30;
+    } catch (e) {}
+}
+
+document.getElementById('save-payment-settings').addEventListener('click', async function() {
+    const body = {
+        qris_image: document.getElementById('pay-qris').value.trim(),
+        wa_admin: document.getElementById('pay-wa').value.trim(),
+        premium_price: parseInt(document.getElementById('pay-price').value, 10),
+        service_fee_pct: parseFloat(document.getElementById('pay-fee').value),
+        premium_days: parseInt(document.getElementById('pay-days').value, 10)
+    };
+    try {
+        const response = await authFetch('/api/admin/payment-config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const d = await response.json();
+        if (!response.ok) throw new Error(d.error || 'Gagal menyimpan');
+        showToast('Pengaturan pembayaran disimpan');
+    } catch (e) { showToast(e.message, 'error'); }
+});
+
+const rupiah = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+
+async function loadOrders() {
+    const box = document.getElementById('orders-list');
+    box.innerHTML = '<p class="section-description">Memuat…</p>';
+    try {
+        const response = await authFetch('/api/admin/orders');
+        if (!response.ok) throw new Error();
+        const { orders } = await response.json();
+        const members = await (await authFetch('/api/admin/member-count')).json().catch(() => ({}));
+
+        if (orders && orders.length) {
+            document.getElementById('stat-members').textContent = members.members ?? '-';
+            document.getElementById('stat-pending').textContent = orders.filter(o => o.status === 'pending').length;
+            document.getElementById('stat-paid').textContent = rupiah(orders.filter(o => o.status === 'paid').reduce((a, b) => a + (b.amount || 0), 0));
+        }
+
+        if (!orders || !orders.length) {
+            box.innerHTML = '<p class="section-description">Belum ada pesanan.</p>';
+            return;
+        }
+        box.innerHTML = orders.map(o => `
+            <div class="settings-group" style="border-bottom:1px dashed rgba(148,184,255,.16);padding-bottom:12px;margin-bottom:12px">
+                <label style="font-size:13px">#${o.id} · ${o.name} · <span style="color:#8fa1ce">${o.email}</span></label>
+                <div style="font-size:12.5px;color:#8fa1ce">${o.created_at ? o.created_at.replace('T', ' ').slice(0, 16) : ''} · WA ${o.phone || '-'} · ${(o.wa_sent ? 'konfirmasi tdk ' : '')}${o.wa_sent ? 'terkirim' : ''}</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap">
+                    <span style="font-weight:700">${o.price_label}</span>
+                    <span class="status-badge">${o.status}</span>
+                    ${o.status === 'pending' ? `<button class="btn btn-primary" style="padding:8px 14px;font-size:12.5px" data-activate="${o.id}"><i class="fas fa-check-circle"></i> Aktifkan Premium</button>` : '<span class="status-badge" style="background:rgba(110,231,183,.12);color:#6ee7b7;border:1px solid rgba(110,231,183,.3)">AKTIF</span>'}
+                </div>
+            </div>`).join('');
+
+        box.querySelectorAll('[data-activate]').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.dataset.activate;
+                if (!confirm('Aktifkan premium untuk pesanan #' + id + ' ini?')) return;
+                this.disabled = true; this.innerHTML = 'Memproses…';
+                try {
+                    const r = await authFetch('/api/admin/orders/' + id + '/activate', { method: 'POST' });
+                    const d = await r.json();
+                    if (!r.ok) throw new Error(d.error || 'Gagal');
+                    showToast('Premium diaktifkan' + (d.wa_sent ? ' & konfirmasi WA terkirim.' : ' (WA gagal: ' + (d.wa_error || 'gateway off') + ')'));
+                } catch (e) { showToast(e.message, 'error'); }
+                loadOrders();
+            });
+        });
+    } catch (e) {
+        box.innerHTML = '<p class="section-description">Gagal memuat pesanan.</p>';
+    }
+}
+
+document.getElementById('refresh-orders').addEventListener('click', loadOrders);
+
 // ======== Initialize ========
 document.addEventListener('DOMContentLoaded', function() {
     loadStats();

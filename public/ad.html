@@ -15,6 +15,8 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 .dl{display:flex;flex-direction:column;align-items:center;gap:10px;margin:22px 0}
 .ring{width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--p1) 0deg,var(--line) 0deg);position:relative}
 .ring::after{content:attr(data-sec);position:absolute;inset:8px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+.btn{display:none;margin-top:6px;padding:13px 34px;border:0;border-radius:12px;cursor:pointer;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--p1),var(--p2));box-shadow:0 8px 24px rgba(124,58,237,.35)}
+.btn:hover{filter:brightness(1.08)}
 .adslot{min-height:120px;margin:16px 0 0;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);border-radius:12px;color:var(--mut);font-size:13px;overflow:hidden}
 .sp{flex:1}
 footer{padding:18px;text-align:center;color:var(--mut);font-size:12px}
@@ -23,7 +25,8 @@ footer{padding:18px;text-align:center;color:var(--mut);font-size:12px}
  <div class="card">
   <p class="logo" style="font-size:20px;font-weight:800;margin-bottom:6px">⚡ <b>CSLINK</b></p>
   <p class="mut">Menyiapkan tujuan Anda…</p>
-  <div class="dl"><div class="ring" id="ring" data-sec="5">5</div><div class="mut">Anda akan dialihkan dalam <b id="sec">5</b> detik.</div></div>
+  <div class="dl" id="dl"><div class="ring" id="ring" data-sec="5">5</div><div class="mut">Anda akan dialihkan dalam <b id="sec">5</b> detik.</div></div>
+  <button class="btn" id="go">Lanjutkan →</button>
   <div class="adslot" id="adslot">Memuat iklan…</div>
  </div>
 </div>
@@ -31,10 +34,11 @@ footer{padding:18px;text-align:center;color:var(--mut);font-size:12px}
 <footer>© 2026 CSLINK — Powered By Percetakan Rainbow</footer>
 <script>
 window.__AD={dest:__AD_DEST__};
-const SEC=5;let left=SEC;
-const el=document.getElementById('sec'),ring=document.getElementById('ring');
+const SEC=__AD_SECONDS__;const AUTO=__AD_AUTO__;let left=SEC;
+const el=document.getElementById('sec'),ring=document.getElementById('ring'),go=document.getElementById('go');
 function updateRing(){const deg=(SEC-left)/SEC*360;ring.style.background='conic-gradient(#7c3aed '+deg+'deg,#243056 '+deg+'deg)';}
 updateRing();
-const iv=setInterval(()=>{left=Math.max(0,left-1);el.textContent=left;ring.dataset.sec=left;updateRing();if(left<=0){clearInterval(iv);window.location.href=__AD.dest;}},1000);
+const iv=setInterval(()=>{left=Math.max(0,left-1);el.textContent=left;ring.dataset.sec=left;updateRing();if(left<=0){clearInterval(iv);if(AUTO){window.location.href=__AD.dest;}else{el.textContent='Siap!';go.style.display='inline-block';}}},1000);
+go.addEventListener('click',()=>{go.disabled=true;window.location.href=__AD.dest;});
 (async()=>{const slot=document.getElementById('adslot');try{const r=await fetch('/csnap/api/config');const c=await r.json();const client=(c&&c.adsenseClient)||'';if(!client){slot.innerHTML='<span>Mengalihkan…</span>';return;}slot.innerHTML='';slot.style.border='none';const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(client);s.crossOrigin='anonymous';s.onerror=()=>{slot.style.display='none';};document.head.appendChild(s);const slotId=(c.adsenseSlots&&(c.adsenseSlots.desktop||c.adsenseSlots.mobile))||'';const ins=document.createElement('ins');ins.className='adsbygoogle';ins.style.display='block';ins.setAttribute('data-ad-client',client);if(slotId){ins.setAttribute('data-ad-slot',slotId);}ins.setAttribute('data-ad-format','auto');ins.setAttribute('data-full-width-responsive','true');slot.appendChild(ins);try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}}catch(e){slot.innerHTML='<span>Mengalihkan…</span>';}})();
 </script></body></html>

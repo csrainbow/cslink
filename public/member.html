@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Saya — CSLINK</title>
+<meta name="google-adsense-account" content="ca-pub-8595163342864825">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{--bg0:#050814;--bg1:#0a0f26;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.08);--line:rgba(148,184,255,.16);--txt:#e7eeff;--mut:#8fa1ce;--mut2:#6b7ca6;--cyan:#22d3ee;--vio:#818cf8;--mag:#e879f9;--grad:linear-gradient(120deg,#22d3ee,#818cf8 50%,#e879f9);--fd:'Space Grotesk',Inter,system-ui,sans-serif;--fb:'Inter',system-ui,Arial,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fb);background:radial-gradient(1100px 620px at 12% -8%,rgba(129,140,248,.18),transparent 60%),radial-gradient(900px 600px at 90% 8%,rgba(34,211,238,.13),transparent 55%),linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg0));background-attachment:fixed;color:var(--txt);line-height:1.6}
+  .bg-orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5}
+  .orb-1{width:480px;height:480px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(129,140,248,.55),transparent 70%)}
+  .orb-2{width:420px;height:420px;right:-120px;top:18%;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%)}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:26px;flex-wrap:wrap}
+  .brand-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
+  .brand-name{font-family:var(--fd);font-size:21px;font-weight:700;letter-spacing:2px;color:#fff}
+  .brand-tagline{font-size:12.5px;color:var(--mut)}
+  .spacer{margin-left:auto}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);font-family:var(--fd);font-size:13.5px;font-weight:600;text-decoration:none;cursor:pointer;transition:all .18s}
+  .btn:hover{color:#fff;border-color:rgba(34,211,238,.5)}
+  .btn.prem{background:var(--grad);border:0;color:#fff;box-shadow:0 14px 32px -14px rgba(34,211,238,.8)}
+  .btn.danger{color:#fda4af;border-color:rgba(253,164,175,.3)}
+  .card{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(10px);padding:22px;margin-bottom:18px;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.8),rgba(232,121,249,.8),transparent)}
+  .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .plan{display:flex;flex-direction:column;gap:12px}
+  .pname{font-family:var(--fd);font-size:15px;font-weight:600;color:#fff}
+  .pbadge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600}
+  .pbadge.free{background:rgba(34,211,238,.12);color:#a5f3fc;border:1px solid rgba(34,211,238,.4)}
+  .pbadge.vip{background:rgba(232,121,249,.14);color:#f5d0fe;border:1px solid rgba(232,121,249,.45)}
+  .feat{font-size:13.5px;color:var(--mut);margin:3px 0;display:flex;gap:8px;align-items:center}
+  .feat i{color:var(--cyan);width:14px}
+  .feat.no i{color:#64748b}
+  .form{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .form input,.select{flex:1 1 180px;padding:12px 14px;border-radius:12px;border:1px solid rgba(148,184,255,.16);background:rgba(10,15,38,.6);color:#fff;font-size:14px;outline:none}
+  .form input:focus{border-color:rgba(34,211,238,.65)}
+  .select{flex:0 1 150px;cursor:pointer}
+  .form button{padding:12px 22px;border:0;border-radius:12px;background:var(--grad);color:#fff;font-family:var(--fd);font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 14px 32px -14px rgba(34,211,238,.8)}
+  .msg{font-size:13.5px;word-break:break-all}
+  .msg.ok{color:#6ee7b7}.msg.err{color:#fda4af}.msg a{color:var(--cyan)}
+  .row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .row a{color:var(--cyan);text-decoration:none}
+  .mini{font-size:12px;color:var(--mut2)}
+  .ic{color:var(--mut);cursor:pointer;margin-left:8px}
+  .ic:hover{color:var(--cyan)}
+  .empty{text-align:center;color:var(--mut2);padding:22px 0;font-size:13.5px}
+  .h2{font-family:var(--fd);font-size:16px;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .h2 i{color:var(--cyan)}
+  .quota-wrap{background:rgba(10,15,38,.5);border-radius:10px;padding:3px;margin-top:8px}
+  .quota-bar{height:8px;border-radius:8px;background:var(--grad);transition:width .4s}
+</style>
+</head>
+<body>
+  <div class="bg-orbs"><span class="orb orb-1"></span><span class="orb orb-2"></span></div>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-icon">CS</div>
+      <div><div class="brand-name">CSLINK</div><div class="brand-tagline" id="welcome">Memuat profil…</div></div>
+      <div class="spacer"></div>
+      <a class="btn prem" href="/premium" id="prem-btn" style="display:none"><i class="fas fa-crown"></i> Upgrade Premium</a>
+      <button class="btn danger" id="logout"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+    </div>
+
+    <div class="card">
+      <div class="plan-grid">
+        <div class="plan">
+          <div><span class="pname">Paket Anda</span> <span class="pbadge free" id="plan-badge">Free</span></div>
+          <div class="feat"><i class="fas fa-check"></i> 5 link gratis sebagai pengguna baru</div>
+          <div class="feat no" id="fcustom"><i class="fas fa-times"></i> Kode kustom</div>
+          <div class="feat no" id="fexpire"><i class="fas fa-times"></i> Link kedaluwarsa</div>
+          <div class="feat no" id="fnoads"><i class="fas fa-times"></i> Tanpa iklan interstitial</div>
+        </div>
+        <div class="plan" id="vip-box" style="display:none">
+          <div><span class="pname">CSLINK Premium</span> <span class="pbadge vip">AKTIF</span></div>
+          <div class="feat"><i class="fas fa-check"></i> Semua fitur tanpa batas</div>
+          <div class="feat"><i class="fas fa-check"></i> Link Anda bebas iklan</div>
+          <div class="feat"><i class="fas fa-check"></i> Prioritas dukungan</div>
+          <div class="mini" id="vip-until"></div>
+        </div>
+      </div>
+      <div class="mini" id="quota-label" style="margin-top:14px"></div>
+      <div class="quota-wrap"><div class="quota-bar" id="quota-bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="h2"><i class="fas fa-scissors"></i> Buat Link Baru</div>
+      <form class="form" id="shorten-form">
+        <input type="url" id="shorten-url" placeholder="Tempel link panjang… (https://)" required>
+        <input type="text" id="custom-code" placeholder="Kode kustom (Premium)">
+        <select class="select" id="expire">
+          <option value="">Kedaluwarsa</option>
+          <option value="1h">1 jam</option>
+          <option value="24h">24 jam</option>
+          <option value="7d">7 hari</option>
+          <option value="30d">30 hari</option>
+        </select>
+        <button type="submit">Pendekkan</button>
+      </form>
+      <div class="msg" id="result"></div>
+    </div>
+
+    <div class="card">
+      <div class="h2"><i class="fas fa-link"></i> Link Saya <span class="mini" id="count-label"></span></div>
+      <div id="links"></div>
+      <div class="msg" id="lmsg"></div>
+    </div>
+  </div>
+<script>
+const $=id=>document.getElementById(id);
+let me=null;
+
+async function loadMe(){
+  try{
+    const r=await fetch('/api/member/me');const d=await r.json();
+    if(!d.id){location.href='/member/login';return;}
+    me=d;
+    $('welcome').textContent='Halo, '+d.name+' ('+d.email+')';
+    const vip=d.premium&&d.premium_until;
+    $('vip-box').style.display=vip?'flex':'none';
+    $('prem-btn').style.display=vip?'none':'inline-flex';
+    $('plan-badge').textContent=vip?'Premium':'Free';
+    $('plan-badge').className='pbadge '+(vip?'vip':'free');
+    if(vip){$('vip-until').textContent='Aktif hingga: '+d.premium_until.split(' ')[0];$('fcustom').innerHTML='<i class="fas fa-check"></i> Kode kustom';$('fexpire').innerHTML='<i class="fas fa-check"></i> Link kedaluwarsa';$('fnoads').innerHTML='<i class="fas fa-check"></i> Tanpa iklan interstitial';}
+    $('quota-label').textContent='Jatah pengguna baru: '+d.free_slots+' dari 5 link gratis di sistem. Ajak teman mendaftar untuk menambah kuota Anda.';
+    $('quota-bar').style.width=Math.min(100,(d.free_slots/5)*100)+'%';
+  }catch(e){location.href='/member/login';}
+}
+
+async function loadLinks(){
+  const box=$('links');box.innerHTML='';
+  try{
+    const r=await fetch('/api/member/urls');const d=await r.json();
+    $('count-label').textContent='('+d.urls.length+')';
+    if(!d.urls.length){box.innerHTML='<div class="empty">Belum ada link. Buat link pertama Anda di atas.</div>';return;}
+    d.urls.forEach(u=>{
+      const div=document.createElement('div');div.className='row';
+      div.innerHTML='<div>'+(u.title||u.original_url).slice(0,60)+' <span class="mini">· '+u.click_count+' klik'+(u.is_active?'':' · nonaktif')+'</span></div>'+
+        '<a href="'+u.short_url+'" target="_blank">'+u.short_url.replace(/^https?:\/\//,'')+' <i class="fas fa-external-link-alt ic"></i></a>'+
+        '<span><i class="fas fa-copy ic" title="Salin" onclick="copy(\''+u.short_url+'\')"></i> <i class="fas '+(u.is_active?'fa-eye':'fa-eye-slash')+' ic" title="Aktif/nonaktif" onclick="toggle(\''+u.short_code+'\')"></i> <i class="fas fa-trash ic" title="Hapus" onclick="del(\''+u.short_code+'\')"></i></span>';
+      box.appendChild(div);
+    });
+  }catch(e){$('lmsg').className='msg err';$('lmsg').textContent='Gagal memuat link.';}
+}
+
+window.copy=async s=>{try{await navigator.clipboard.writeText(s);}catch(e){}alert('Link tersalin: '+s);};
+window.toggle=async c=>{await fetch('/api/member/url/'+c+'/toggle',{method:'PATCH'});loadLinks();};
+window.del=async c=>{if(!confirm('Hapus link ini?'))return;await fetch('/api/member/url/'+c,{method:'DELETE'});loadLinks();};
+
+$('shorten-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const m=$('result');m.className='msg';m.textContent='Memproses…';
+  try{
+    const body={url:$('shorten-url').value};
+    if($('custom-code').value.trim())body.customCode=$('custom-code').value.trim();
+    if($('expire').value)body.expiresIn=$('expire').value;
+    const r=await fetch('/api/member/shorten',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!d.short_url){m.textContent=d.error||'Gagal';m.className+=' err';return;}
+    m.innerHTML='Berhasil! <a href="'+d.short_url+'" target="_blank">'+d.short_url+'</a>';
+    m.className+=' ok';
+    $('shorten-url').value='';$('custom-code').value='';
+    loadLinks();
+  }catch(err){m.textContent='Terjadi kesalahan.';m.className+=' err';}
+});
+
+$('logout').addEventListener('click',async()=>{await fetch('/api/member/logout',{method:'POST'});location.href='/';});
+
+loadMe().then(loadLinks);
+</script>
+</body>
+</html>

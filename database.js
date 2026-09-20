@@ -82,11 +82,50 @@ async function initDatabase() {
       expires_at TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      phone TEXT,
+      password TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      verify_code TEXT,
+      verify_expires DATETIME,
+      verified INTEGER DEFAULT 0,
+      role TEXT DEFAULT 'user',
+      premium_until DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      token TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      expires_at TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      plan TEXT DEFAULT 'premium-1m',
+      base_amount INTEGER NOT NULL,
+      service_fee INTEGER NOT NULL DEFAULT 0,
+      kode_unik INTEGER NOT NULL DEFAULT 0,
+      amount INTEGER NOT NULL,
+      status TEXT DEFAULT 'pending',
+      wa_sent INTEGER DEFAULT 0,
+      activated_at DATETIME,
+      activated_by TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   db.run('CREATE INDEX IF NOT EXISTS idx_urls_short_code ON urls(short_code);');
   db.run('CREATE INDEX IF NOT EXISTS idx_clicks_url_id ON clicks(url_id);');
   db.run('CREATE INDEX IF NOT EXISTS idx_clicks_clicked_at ON clicks(clicked_at);');
+  db.run('CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);');
+  db.run('CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id);');
 
   saveDatabase();
 }

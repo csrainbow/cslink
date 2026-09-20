@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upgrade Premium — CSLINK</title>
+<meta name="google-adsense-account" content="ca-pub-8595163342864825">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{--bg0:#050814;--bg1:#0a0f26;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.08);--line:rgba(148,184,255,.16);--txt:#e7eeff;--mut:#8fa1ce;--mut2:#6b7ca6;--cyan:#22d3ee;--vio:#818cf8;--mag:#e879f9;--grad:linear-gradient(120deg,#22d3ee,#818cf8 50%,#e879f9);--fd:'Space Grotesk',Inter,system-ui,sans-serif;--fb:'Inter',system-ui,Arial,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fb);background:radial-gradient(1100px 620px at 12% -8%,rgba(129,140,248,.18),transparent 60%),radial-gradient(900px 600px at 90% 8%,rgba(34,211,238,.13),transparent 55%),linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg0));background-attachment:fixed;color:var(--txt);line-height:1.6}
+  .bg-orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5}
+  .orb-1{width:480px;height:480px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(232,121,249,.5),transparent 70%)}
+  .orb-2{width:420px;height:420px;right:-120px;top:18%;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%)}
+  .wrap{max-width:560px;margin:0 auto;padding:34px 20px 60px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+  .brand-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
+  .brand-name{font-family:var(--fd);font-size:20px;font-weight:700;letter-spacing:2px;color:#fff}
+  .brand-tagline{font-size:12.5px;color:var(--mut)}
+  .card{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(10px);padding:26px;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.8),rgba(232,121,249,.8),transparent)}
+  .price{text-align:center;padding:6px 0 16px}
+  .price .nom{font-family:var(--fd);font-size:44px;font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .price .per{font-size:14px;color:var(--mut)}
+  .feat{font-size:14.5px;color:var(--txt);margin:12px 0;display:flex;gap:12px;align-items:flex-start}
+  .feat i{color:var(--cyan);margin-top:3px}
+  .note{font-size:12.5px;color:var(--mut2);margin-top:16px;text-align:center}
+  .btn{display:block;width:100%;text-align:center;margin-top:20px;padding:14px;border:0;border-radius:12px;background:var(--grad);color:#fff;font-family:var(--fd);font-weight:700;font-size:16px;text-decoration:none;cursor:pointer;box-shadow:0 16px 36px -14px rgba(232,121,249,.8);transition:transform .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.gray{background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--txt);box-shadow:none;font-weight:600}
+  .msg{margin-top:16px;text-align:center;font-size:13.5px}
+  .msg.err{color:#fda4af}
+  .back{display:inline-block;margin-top:18px;font-size:13.5px;color:var(--cyan);text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="bg-orbs"><span class="orb orb-1"></span><span class="orb orb-2"></span></div>
+  <div class="wrap">
+    <div class="brand"><div class="brand-icon">CS</div><div class="brand-name">CSLINK PREMIUM</div> <div class="brand-tagline" style="margin-left:auto" id="plan-now">Memuat…</div></div>
+    <div class="card">
+      <div class="price"><div class="nom" id="harga">Rp 250.000</div><div class="per">/ bulan</div></div>
+      <div class="feat"><i class="fas fa-infinity"></i><div><b>Unlimited link & kode kustom</b><br><span style="color:var(--mut);font-size:13px">Buat link tanpa batas, pilih kode pendek sendiri.</span></div></div>
+      <div class="feat"><i class="fas fa-hourglass-half"></i><div><b>Link kedaluwarsa</b><br><span style="color:var(--mut);font-size:13px">Atur masa aktif link 1 jam–30 hari.</span></div></div>
+      <div class="feat"><i class="fas fa-shield-alt"></i><div><b>Tanpa iklan interstitial</b><br><span style="color:var(--mut);font-size:13px">Pengunjung link Anda langsung sampai ke tujuan.</span></div></div>
+      <div class="feat"><i class="fas fa-chart-line"></i><div><b>Statistik klik penuh</b><br><span style="color:var(--mut);font-size:13px">Pantau pengunjung tiap link di dashboard Anda.</span></div></div>
+      <div class="feat"><i class="fas fa-life-ring"></i><div><b>Dukungan prioritas</b><br><span style="color:var(--mut);font-size:13px">Dilayani langsung admin Percetakan Rainbow.</span></div></div>
+      <div class="note">Total tagihan otomatis unik: harga + biaya layanan 0,7% + kode unik 1–249.<br>Bayar via QRIS, lalu konfirmasi otomatis lewat WhatsApp.</div>
+      <a class="btn" id="pay" style="display:none"><i class="fas fa-qrcode"></i> Bayar Sekarang</a>
+      <a class="btn gray" id="auth" style="display:none">Masuk / Daftar untuk melanjutkan</a>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div style="text-align:center"><a class="back" href="/member">← Kembali ke Dashboard</a></div>
+  </div>
+<script>
+const $=id=>document.getElementById(id);
+fetch('/api/member/me').then(r=>r.json()).then(d=>{
+  if(!d.id){$('auth').style.display='block';$('plan-now').textContent='Belum masuk';return;}
+  if(d.premium){$('plan-now').textContent='Premium aktif';document.querySelector('.card').innerHTML='<div style="text-align:center;padding:20px 0"><p style="font-size:18px;font-weight:700">🎉 Anda sudah Premium</p><p class="note" style="margin-top:8px">Aktif hingga '+d.premium_until.split(' ')[0]+'</p><a href="/member" class="back">Buka Dashboard →</a></div>';return;}
+  $('plan-now').textContent='Halo, '+d.name;
+  $('pay').style.display='block';
+});
+$('pay').addEventListener('click',async()=>{
+  const m=$('msg');m.className='msg';m.textContent='Membuat pesanan…';
+  try{
+    const r=await fetch('/api/order/create',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(!d.order_id){m.textContent=d.error||'Gagal membuat pesanan';m.className+=' err';return;}
+    location.href='/payment?order='+d.order_id;
+  }catch(e){m.textContent='Terjadi kesalahan.';m.className+=' err';}
+});
+$('auth').addEventListener('click',()=>location.href='/member/login');
+</script>
+</body>
+</html>

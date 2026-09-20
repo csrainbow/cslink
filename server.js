@@ -130,6 +130,13 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+// Halaman akun publik
+app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
+app.get('/member/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'member-login.html')));
+app.get('/member', (req, res) => res.sendFile(path.join(__dirname, 'public', 'member.html')));
+app.get('/premium', (req, res) => res.sendFile(path.join(__dirname, 'public', 'premium.html')));
+app.get('/payment', (req, res) => res.sendFile(path.join(__dirname, 'public', 'payment.html')));
+
 app.get('/api/auth/status', (req, res) => {
   const session = getSession(req);
   res.json({
@@ -207,15 +214,44 @@ app.post('/api/auth/change-password', requireAuth, (req, res) => {
 // ==================== CSNAP: Multi-platform Downloader (publik) ====
 
 // ==================== CSNAP: Multi-platform Downloader (publik, via csnap-api.js) ====
+// ==================== Member (akun publik) & Order/Premium ====================
 require('./csnap-api')(app, { requireAuth, getSession, renderAdPage });
+const MEMBER_AUTH = { db, getConfig, setConfig, hashPassword, timingSafeEqualHex, BASE_URL, requireAuth };
+const memberApi = require('./member-api')(app, MEMBER_AUTH);
+require('./order-api')(app, { ...MEMBER_AUTH, requireMember: memberApi.requireMember });
+
+const FREE_ANON_LIMIT = 5;
+const ANON_COOKIE = 'cslink_anon';
+
+function getAnonCount(req) {
+  const c = req.headers.cookie || '';
+  const m = c.split(';').map(s => s.trim()).find(s => s.startsWith(ANON_COOKIE + '='));
+  if (!m) return 0;
+  const v = parseInt(m.slice(ANON_COOKIE.length + 1), 10);
+  return isNaN(v) ? 0 : v;
+}
+
+function setAnonCount(res, n) {
+  res.setHeader('Set-Cookie', `${ANON_COOKIE}=${n}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${30 * 24 * 60 * 60}`);
+}
 
 
-// Semua API pengelolaan wajib login (redirect /abc tetap publik)
-app.use('/api', requireAuth);
+// Semua API pengelolaan wajib login admin, kecuali jalur member/order (& shorten publik)
+app.use('/api', (req, res, next) => {
+  const p = req.path;
+  if (p === '/member' || p.startsWith('/member/') || p === '/order' || p.startsWith('/order/')) return next();
+  if (p === '/shorten' && req.method === 'POST') return next();
+  return requireAuth(req, res, next);
+});
 
-// Shorten URL
+// Shorten URL — admin/API penuh; member via memberApi; anonim kuota 5
 app.post('/api/shorten', (req, res) => {
   try {
+    const memberSes = memberApi.getMemberSession(req);
+    if (memberSes) {
+      return memberApi.requireMember(req, res, () => memberApi.createUrl(req.member, req.body || {}, res));
+    }
+
     let { url, customCode, title, expiresIn } = req.body;
 
     if (!url) {
@@ -228,44 +264,71 @@ app.post('/api/shorten', (req, res) => {
       return res.status(400).json({ error: 'Invalid URL format' });
     }
 
-    let shortCode;
-    if (customCode) {
-      customCode = customCode.trim();
-      if (!/^[a-zA-Z0-9_-]+$/.test(customCode) || customCode.length < 3 || customCode.length > 20) {
-        return res.status(400).json({ error: 'Custom code must be 3-20 characters (letters, numbers, -, _)' });
+    if (getSession(req)) {
+      let shortCode;
+      if (customCode) {
+        customCode = customCode.trim();
+        if (!/^[a-zA-Z0-9_-]+$/.test(customCode) || customCode.length < 3 || customCode.length > 20) {
+          return res.status(400).json({ error: 'Custom code must be 3-20 characters (letters, numbers, -, _)' });
+        }
+
+        const existing = db.prepare('SELECT id FROM urls WHERE short_code = ?').get(customCode);
+        if (existing) {
+          return res.status(409).json({ error: 'Custom code already in use' });
+        }
+        shortCode = customCode;
+      } else {
+        shortCode = nanoid();
       }
 
-      const existing = db.prepare('SELECT id FROM urls WHERE short_code = ?').get(customCode);
-      if (existing) {
-        return res.status(409).json({ error: 'Custom code already in use' });
+      let expiresAt = null;
+      if (expiresIn) {
+        const now = new Date();
+        switch (expiresIn) {
+          case '1h': expiresAt = new Date(now.getTime() + 60 * 60 * 1000); break;
+          case '24h': expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); break;
+          case '7d': expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); break;
+          case '30d': expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); break;
+        }
       }
-      shortCode = customCode;
-    } else {
-      shortCode = nanoid();
+
+      const stmt = db.prepare('INSERT INTO urls (original_url, short_code, title, expires_at) VALUES (?, ?, ?, ?)');
+      const result = stmt.run(url, shortCode, title || null, expiresAt ? expiresAt.toISOString() : null);
+
+      return res.json({
+        id: result.lastInsertRowid,
+        original_url: url,
+        short_code: shortCode,
+        short_url: `${BASE_URL}/${shortCode}`,
+        title: title || null,
+        expires_at: expiresAt ? expiresAt.toISOString() : null,
+        created_at: new Date().toISOString(),
+        plan: 'admin'
+      });
     }
 
-    let expiresAt = null;
-    if (expiresIn) {
-      const now = new Date();
-      switch (expiresIn) {
-        case '1h': expiresAt = new Date(now.getTime() + 60 * 60 * 1000); break;
-        case '24h': expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); break;
-        case '7d': expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); break;
-        case '30d': expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); break;
-      }
+    // Anonim: hanya 5 link gratis, tanpa custom code / kedaluwarsa
+    const anonCount = getAnonCount(req);
+    if (customCode) return res.status(403).json({ error: 'Kode kustom khusus Premium (daftar akun gratis)' });
+    if (expiresIn) return res.status(403).json({ error: 'Fitur kedaluwarsa khusus Premium (daftar akun gratis)' });
+    if (anonCount >= FREE_ANON_LIMIT) {
+      return res.status(403).json({ error: `Batas ${FREE_ANON_LIMIT} link gratis tercapai. Daftar akun gratis untuk menggeser batas, atau Upgrade Premium.` });
     }
-
+    const anonToken = crypto.randomBytes(8).toString('hex');
+    const shortCode = nanoid();
     const stmt = db.prepare('INSERT INTO urls (original_url, short_code, title, expires_at) VALUES (?, ?, ?, ?)');
-    const result = stmt.run(url, shortCode, title || null, expiresAt ? expiresAt.toISOString() : null);
-
+    const result = stmt.run(url, shortCode, title || null, null);
+    setAnonCount(res, anonCount + 1);
     res.json({
       id: result.lastInsertRowid,
       original_url: url,
       short_code: shortCode,
       short_url: `${BASE_URL}/${shortCode}`,
       title: title || null,
-      expires_at: expiresAt ? expiresAt.toISOString() : null,
-      created_at: new Date().toISOString()
+      expires_at: null,
+      created_at: new Date().toISOString(),
+      plan: 'anon',
+      remaining: FREE_ANON_LIMIT - (anonCount + 1)
     });
   } catch (error) {
     console.error('Error shortening URL:', error);
@@ -309,7 +372,15 @@ app.get('/:code', (req, res) => {
       ua.device.type || 'desktop'
     );
 
-    res.type('html').send(renderAdPage(url.original_url));
+    // Link buatan akun premium → lewatkan interstitial (tanpa iklan)
+    if (url.created_by && url.created_by.startsWith('user:')) {
+      const owner = db.prepare('SELECT premium_until FROM users WHERE id = ?').get(url.created_by.slice(5));
+      if (owner && owner.premium_until && new Date(owner.premium_until).getTime() >= Date.now()) {
+        return res.redirect(url.original_url);
+      }
+    }
+
+    res.type('html').send(renderAdPage(url.original_url, { seconds: 10, auto: false }));
   } catch (error) {
     console.error('Error redirecting:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -623,8 +694,13 @@ db.init()
   });
 
 const AD_PAGE = fs.readFileSync(path.join(__dirname, 'public', 'ad.html'), 'utf8');
-function renderAdPage(dest) {
-  return AD_PAGE.replace('__AD_DEST__', JSON.stringify(dest));
+function renderAdPage(dest, opts = {}) {
+  const seconds = typeof opts.seconds === 'number' ? opts.seconds : 5;
+  const auto = opts.auto !== undefined ? !!opts.auto : true;
+  return AD_PAGE
+    .replace('__AD_DEST__', JSON.stringify(dest))
+    .replace('__AD_SECONDS__', String(seconds))
+    .replace('__AD_AUTO__', auto ? 'true' : 'false');
 }
 
-module.exports = { app, requireAuth, getSession, renderAdPage };
+module.exports = { app, requireAuth, getSession, renderAdPage, db, getConfig, setConfig, hashPassword, timingSafeEqualHex, BASE_URL };

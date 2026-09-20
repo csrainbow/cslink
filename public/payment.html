@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembayaran — CSLINK Premium</title>
+<meta name="google-adsense-account" content="ca-pub-8595163342864825">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{--bg0:#050814;--bg1:#0a0f26;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.08);--line:rgba(148,184,255,.16);--txt:#e7eeff;--mut:#8fa1ce;--mut2:#6b7ca6;--cyan:#22d3ee;--vio:#818cf8;--mag:#e879f9;--grad:linear-gradient(120deg,#22d3ee,#818cf8 50%,#e879f9);--fd:'Space Grotesk',Inter,system-ui,sans-serif;--fb:'Inter',system-ui,Arial,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fb);background:radial-gradient(1100px 620px at 12% -8%,rgba(129,140,248,.18),transparent 60%),radial-gradient(900px 600px at 90% 8%,rgba(34,211,238,.13),transparent 55%),linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg0));background-attachment:fixed;color:var(--txt);line-height:1.6}
+  .bg-orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5}
+  .orb-1{width:480px;height:480px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(129,140,248,.55),transparent 70%)}
+  .orb-2{width:420px;height:420px;right:-120px;top:18%;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%)}
+  .wrap{max-width:520px;margin:0 auto;padding:34px 20px 60px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+  .brand-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:#fff;background:var(--grad);box-shadow:0 12px 30px -10px rgba(34,211,238,.9)}
+  .brand-name{font-family:var(--fd);font-size:19px;font-weight:700;letter-spacing:2px;color:#fff}
+  .card{background:linear-gradient(160deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(10px);padding:26px;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.8),rgba(232,121,249,.8),transparent)}
+  h1{font-family:var(--fd);font-size:19px;color:#fff;text-align:center;margin-bottom:4px}
+  .sub{text-align:center;color:var(--mut);font-size:13px;margin-bottom:18px}
+  .qr{text-align:center;margin:18px 0}
+  .qr img{width:220px;height:220px;border-radius:14px;border:2px solid #fff;background:#fff;object-fit:contain}
+  .qr .ph{width:220px;height:220px;margin:0 auto;border:1px dashed var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--mut2);font-size:13px}
+  .total{text-align:center;background:rgba(10,15,38,.5);border:1px solid var(--line);border-radius:14px;padding:16px;margin:16px 0}
+  .total .lbl{font-size:12.5px;color:var(--mut2);letter-spacing:1px}
+  .total .big{font-family:var(--fd);font-size:32px;font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rtotal{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin:4px 0}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:16px;padding:14px;border:0;border-radius:12px;background:#25d366;color:#fff;font-family:var(--fd);font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;transition:transform .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.gray{background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--txt)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .msg{margin-top:14px;font-size:13.5px;text-align:center;word-break:break-word}
+  .msg.ok{color:#6ee7b7}.msg.err{color:#fda4af}
+  .steps{font-size:13px;color:var(--mut);margin-top:16px;padding-left:18px}
+  .steps li{margin:6px 0}
+  .back{display:inline-block;margin-top:18px;font-size:13px;color:var(--cyan);text-decoration:none}
+  .center{text-align:center}
+</style>
+</head>
+<body>
+  <div class="bg-orbs"><span class="orb orb-1"></span><span class="orb orb-2"></span></div>
+  <div class="wrap">
+    <div class="brand"><div class="brand-icon">CS</div><div class="brand-name">PEMBAYARAN</div></div>
+    <div class="card">
+      <h1>Bayar Tagihan Anda</h1>
+      <p class="sub" id="oid">Pesanan #—</p>
+      <div class="qr"><div class="ph" id="qrbox">Memuat QRIS…</div></div>
+      <div class="total">
+        <div class="lbl">TOTAL TAGIHAN (UNIK)</div>
+        <div class="big" id="amount">—</div>
+        <div class="rtotal"><span>Harga paket</span><span id="line-base">—</span></div>
+        <div class="rtotal"><span>Biaya layanan 0,7%</span><span id="line-fee">—</span></div>
+        <div class="rtotal"><span>Kode unik</span><span id="line-kode">—</span></div>
+      </div>
+      <div class="msg" id="msg"></div>
+      <a class="btn" id="wa-btn" style="display:none"><i class="fab fa-whatsapp"></i> Konfirmasi Pembayaran via WhatsApp</a>
+      <a class="btn gray" id="status-btn" href="/payment?check=1" style="display:none"><i class="fas fa-sync-alt"></i> Cek Status Pesanan</a>
+      <div class="msg ok" id="paid-msg" style="display:none">✔ Pembayaran diterima. Premium Anda aktif!</div>
+      <ol class="steps" id="steps">
+        <li>Scan QRIS di atas dengan aplikasi apa pun (GoPay, OVO, Dana, ShopeePay, m-Banking).</li>
+        <li>Isi nominal <b>persis sesuai total unik</b> agar otomatis dikenali.</li>
+        <li>Setelah bayar, tekan <b>Konfirmasi via WhatsApp</b> — admin akan mengaktifkan Premium Anda.</li>
+      </ol>
+    </div>
+    <div class="center"><a class="back" href="/member">← Kembali ke Dashboard</a></div>
+  </div>
+<script>
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const orderId=parseInt(params.get('order')||'0',10);
+const qs=new URLSearchParams(location.search);
+if(!orderId){$('qrbox').textContent='Pesanan tidak ditemukan.';if(qs.get('check')==='1'){$('status-btn').style.display='inline-flex';$('status-btn').textContent='Cek pesanan terakhir';}}
+load();
+async function load(){
+  if(!orderId)return;
+  try{
+    const r=await fetch('/api/order/'+orderId);const d=await r.json();
+    if(!d.order_id){$('qrbox').textContent=d.error||'Pesanan tidak ditemukan.';return;}
+    $('oid').textContent='Pesanan #'+d.order_id+' · '+d.created_at.replace('T',' ').slice(0,16);
+    $('amount').textContent=d.price_label;
+    $('line-base').textContent=d.base.toLocaleString('id-ID');
+    $('line-fee').textContent='- '+d.fee.toLocaleString('id-ID');
+    $('line-kode').textContent=d.kode_unik;
+    if(d.status==='paid'){showPaid();return;}
+    if(d.qris_image){$('qrbox').innerHTML='<img src="'+d.qris_image+'" alt="QRIS">';}
+    else{$('qrbox').textContent='QRIS belum diatur admin. Hubungi admin via tombol WA.';}
+    $('wa-btn').style.display='flex';
+    $('wa-btn').textContent=d.wa_admin?'Konfirmasi Pembayaran via WhatsApp':'Konfirmasi via WhatsApp';
+  }catch(e){$('qrbox').textContent='Gagal memuat pesanan.';}
+}
+function showPaid(){
+  document.querySelectorAll('.steps,.qr,.total,#wa-btn').forEach(el=>el.style.display='none');
+  $('paid-msg').style.display='block';
+  document.title='Pembayaran Diterima — CSLINK';
+  setTimeout(()=>location.href='/member',4000);
+}
+$('wa-btn').addEventListener('click',async()=>{
+  const btn=$('wa-btn');const m=$('msg');m.className='msg';m.textContent='Mengirim konfirmasi…';
+  btn.disabled=true;btn.style.opacity=.6;
+  try{
+    const r=await fetch('/api/order/'+orderId+'/confirm-wa',{method:'POST'});
+    const d=await r.json();
+    if(d.ok){m.textContent='Konfirmasi terkirim! Admin akan segera mengaktifkan dan balas di WhatsApp Anda.';m.className='msg ok';btn.style.display='none';$('status-btn').style.display='flex';}
+    else{m.textContent='Gagal mengirim langsung. Silakan tekan tombol lagi atau WhatsApp admin manual (beri tahu ID Pesanan '+orderId+').';m.className='msg err';btn.disabled=false;btn.style.opacity=1;}
+    addFallbackLink(d);
+  }catch(e){m.textContent='Gagal mengirim. Coba lagi.';m.className='msg err';btn.disabled=false;btn.style.opacity=1;}
+});
+async function addFallbackLink(d){
+  try{
+    const o=await (await fetch('/api/order/'+orderId)).json();
+    if(!o.wa_admin)return;
+    const wa='https://wa.me/'+o.wa_admin+'?text='+encodeURIComponent(o.wa_message);
+    if(!document.getElementById('wa-link')){const a=document.createElement('a');a.id='wa-link';a.href=wa;a.target='_blank';a.className='btn gray';a.style.marginTop='10px';a.innerHTML='<i class="fab fa-whatsapp"></i> Buka WhatsApp Manual';$('msg').after(a);}
+  }catch(e){}
+}
+</script>
+</body>
+</html>

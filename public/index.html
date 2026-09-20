@@ -38,6 +38,7 @@
                     <a href="#home" class="nav-link active" data-section="home"><i class="fas fa-home"></i> Beranda</a>
                     <a href="#links" class="nav-link" data-section="links"><i class="fas fa-list-ul"></i> Link Saya</a>
                     <a href="#analytics" class="nav-link" data-section="analytics"><i class="fas fa-chart-line"></i> Analitik</a>
+                    <a href="#orders" class="nav-link" data-section="orders"><i class="fas fa-wallet"></i> Pesanan</a>
                     <a href="/csnap/" target="_blank" rel="noopener" class="nav-link"><i class="fas fa-bolt"></i> CSNAP</a>
                     <a href="#" class="nav-link" data-section="settings"><i class="fas fa-cog"></i> Pengaturan</a>
                     <a href="#" class="nav-link" data-section="about"><i class="fas fa-info-circle"></i> Tentang</a>
@@ -298,6 +299,40 @@
                         <button class="btn btn-primary" id="preview-download"><i class="fas fa-download"></i> Unduh Contoh QR</button>
                     </div>
 
+                    <!-- Payment Settings -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-credit-card settings-card-icon"></i>
+                            <div>
+                                <h3>Pembayaran Premium (QRIS)</h3>
+                                <p>Atur harga, QRIS admin, dan nomor WhatsApp admin.</p>
+                            </div>
+                        </div>
+                        <div class="settings-form">
+                            <div class="settings-group">
+                                <label>URL Gambar QRIS</label>
+                                <input type="text" id="pay-qris" class="form-input" placeholder="https://…/qris.png">
+                            </div>
+                            <div class="settings-group">
+                                <label>Nomor WhatsApp Admin (untuk WA gateway)</label>
+                                <input type="text" id="pay-wa" class="form-input" placeholder="62812xxxxxxx">
+                            </div>
+                            <div class="settings-group">
+                                <label>Harga Premium (Rp / bulan)</label>
+                                <input type="number" id="pay-price" class="form-input" value="250000" min="1000">
+                            </div>
+                            <div class="settings-group">
+                                <label>Biaya Layanan (%)</label>
+                                <input type="number" id="pay-fee" class="form-input" value="0.7" step="0.1">
+                            </div>
+                            <div class="settings-group">
+                                <label>Masa Aktif (hari)</label>
+                                <input type="number" id="pay-days" class="form-input" value="30" min="1">
+                            </div>
+                            <button class="btn btn-primary" id="save-payment-settings"><i class="fas fa-save"></i> Simpan Pembayaran</button>
+                        </div>
+                    </div>
+
                     <!-- Password Settings -->
                     <div class="settings-card">
                         <div class="settings-card-header">
@@ -328,6 +363,57 @@
                 <div class="settings-actions">
                     <button class="btn btn-outline" id="reset-qr-settings"><i class="fas fa-undo"></i> Reset ke Default</button>
                     <button class="btn btn-primary" id="save-settings"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Orders / Premium Section -->
+        <main class="section hidden" id="orders">
+            <div class="container">
+                <div class="section-header">
+                    <h2><i class="fas fa-wallet"></i> Pesanan & Premium</h2>
+                </div>
+                <p class="section-description">Kelola langganan premium member. Terima pembayaran, cek pesanan, dan aktifkan manual.</p>
+
+                <div class="settings-grid" style="margin-bottom:22px">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-crown settings-card-icon"></i>
+                            <div>
+                                <h3>Statistik Premium</h3>
+                                <p>Rekap member & pendapatan.</p>
+                            </div>
+                        </div>
+                        <div class="settings-form">
+                            <div class="settings-group">
+                                <label>Total Member</label>
+                                <div id="stat-members" style="font-size:26px;font-weight:700">0</div>
+                            </div>
+                            <div class="settings-group">
+                                <label>Pesanan Pending</label>
+                                <div id="stat-pending" style="font-size:26px;font-weight:700">0</div>
+                            </div>
+                            <div class="settings-group">
+                                <label>Total Pemasukan (paid)</label>
+                                <div id="stat-paid" style="font-size:26px;font-weight:700">Rp 0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-list settings-card-icon"></i>
+                            <div>
+                                <h3>Pesanan Terbaru</h3>
+                                <p>Klik Aktifkan setelah pembayaran diverifikasi (cek WhatsApp/QRIS).</p>
+                            </div>
+                        </div>
+                        <div class="settings-form" id="orders-list">
+                            <p class="section-description">Memuat…</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button class="btn btn-primary" id="refresh-orders"><i class="fas fa-sync-alt"></i> Muat Ulang</button>
                 </div>
             </div>
         </main>
