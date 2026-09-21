@@ -13,6 +13,15 @@ $grossAmount = (string) ($n['gross_amount'] ?? '');
 $transactionStatus = (string) ($n['transaction_status'] ?? '');
 $signatureKey = (string) ($n['signature_key'] ?? '');
 
+// Probe konektivitas / tes dari dashboard Midtrans: jawab 200 tanpa mengubah data.
+// (Midtrans mengirim order_id "payment_notif_test_..." untuk uji URL notifikasi.)
+if ($n === [] || $orderId === '' || str_starts_with($orderId, 'payment_notif_test_')) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Allow: POST');
+    }
+    j(['status' => 'ok', 'msg' => 'endpoint aktif']);
+}
+
 // Verifikasi signature Midtrans
 $expected = hash('sha512', $orderId . $statusCode . $grossAmount . MT_SERVER_KEY);
 if ($signatureKey === '' || !hash_equals($expected, $signatureKey)) {

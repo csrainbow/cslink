@@ -30,7 +30,13 @@ if (!$rows) {
 
 $final = 0;
 foreach ($rows as $o) {
-    $r = topupExecute((int) $o['id']);
+    try {
+        $r = topupExecute((int) $o['id']);
+    } catch (Throwable $e) {
+        // Satu order gagal (mis. database sibuk sesaat) tidak boleh mematikan seluruh loop.
+        error_log('DGF poll order#' . $o['id'] . ' error: ' . $e->getMessage());
+        $r = ['status' => '', 'rc' => '', 'message' => 'error: ' . $e->getMessage()];
+    }
     printf(
         "[%s] coba ke-%d status=%s rc=%s %s\n",
         $o['ref_id'],

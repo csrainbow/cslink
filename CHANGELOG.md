@@ -4,6 +4,12 @@ Semua perubahan penting pada CSLINK dicatat di file ini.
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan proyek mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2026-09-21
+
+### Diperbaiki (lanjutan sesi yang sama)
+- **SQLite `database is locked`**: koneksi memakai `busy_timeout=30 dtk` + mode `WAL` sehingga proses web dan cron tulis-paralel tidak saling menjatuhkan; jalan cron yang gagal pada satu order tidak menghentikan order lain (try/catch per order).
+- **Probe/tes dashboard Midtrans** (`order_id=payment_notif_test_...`, body kosong, GET/HEAD): callback kini menjawab `200 {"status":"ok"}` tanpa mengubah data, sehingga URL notifikasi lolos uji validasi dashboard.
+
 ## [1.0.4] - 2026-09-21
 
 ### Diperbaiki (sub-aplikasi TopUp Games `/top-up`)
