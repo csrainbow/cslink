@@ -27,3 +27,8 @@ Thumbs.db
 # Temp
 *.bak
 *.tmp
+# game-topup: JANGAN commit kredensial asli (Digiflazz/Midtrans) / DB
+game-topup/config.local.php
+game-topup/*.db
+game-topup/data/*.db
+
