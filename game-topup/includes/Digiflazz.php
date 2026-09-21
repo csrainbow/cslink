@@ -51,6 +51,15 @@ class Digiflazz {
         ]);
     }
 
+    /** Cek saldo deposit (dipakai panel admin untuk diagnosa koneksi) */
+    public function deposit(): array {
+        return $this->http('/cek-saldo', [
+            'cmd' => 'deposit',
+            'username' => $this->username,
+            'sign' => $this->sign('depo'),
+        ]);
+    }
+
     /** Cek harga & stok produk per kategori */
     public function priceListV2(string $type = 'prepaid'): array {
         $body = [

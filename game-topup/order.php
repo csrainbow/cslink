@@ -24,6 +24,7 @@ if (!$product) {
 </div></body></html>
 <?php exit; }
 $price = (int)$product['price'];
+$isGame = product_is_game($product);
 $brand = trim((string)($product['brand'] ?? ''));
 $cat = product_category($product['name']);
 $logo = $brand !== '' ? brand_logo_url($brand) : '';
@@ -83,20 +84,23 @@ $logo = $brand !== '' ? brand_logo_url($brand) : '';
       <h3>Lengkapi Data</h3>
       <form id="topup-form">
         <input type="hidden" name="code" value="<?= htmlspecialchars($product['code']) ?>">
-        <input type="hidden" name="amount" value="<?= $price ?>">
+        <?php if ($isGame): ?>
+          <div class="field">
+            <label for="f-pid">ID Akun Game</label>
+            <input class="input" id="f-pid" type="text" name="player_id" required placeholder="Masukkan ID akun, mis. 2166515216">
+            <div class="note">ID unik akun Anda &mdash; voucher dikirim ke ID ini.</div>
+          </div>
+          <div class="field">
+            <label for="f-zone">Zona / Server <small>&middot; opsional</small></label>
+            <input class="input" id="f-zone" type="text" name="zone_id" placeholder="Contoh: 2088 (hanya untuk game yang pakai zona)">
+          </div>
+        <?php endif; ?>
         <div class="field">
-          <label for="f-pid">Nama / ID Game</label>
-          <input class="input" id="f-pid" type="text" name="player_id" required placeholder="Masukkan ID akun, mis. 2166515216">
-          <div class="note">ID unik akun Anda &mdash; voucher akan dikirim ke ID ini.</div>
-        </div>
-        <div class="field">
-          <label for="f-zone">Zona / Server <small>&middot; opsional</small></label>
-          <input class="input" id="f-zone" type="text" name="zone_id" placeholder="Contoh: 2088 (hanya untuk game yang pakai zona)">
-        </div>
-        <div class="field">
-          <label for="f-no">Nomor HP <small>&middot; untuk bukti pembelian</small></label>
-          <input class="input" id="f-no" type="text" name="customer_no" required placeholder="08xxxxxxxxxx" inputmode="numeric">
-          <div class="note">Nomor ini dipakai untuk konfirmasi bila ada kendala pengiriman.</div>
+          <label for="f-no"><?= $isGame ? 'Nomor HP' : 'Nomor Tujuan' ?> <small>&middot; <?= $isGame ? 'untuk bukti pembelian' : 'pengiriman produk' ?></small></label>
+          <input class="input" id="f-no" type="text" name="customer_no" required minlength="9" maxlength="15" placeholder="08xxxxxxxxxx" inputmode="numeric">
+          <div class="note"><?= $isGame
+            ? 'Nomor ini dipakai untuk konfirmasi bila ada kendala pengiriman.'
+            : 'Produk dikirim ke nomor ini &mdash; pastikan nomor sudah benar.' ?></div>
         </div>
         <div class="err" id="err" style="display:none"></div>
         <button type="submit" class="btn btn-primary btn-full" id="submit-btn">Bayar Rp <?= number_format($price,0,',','.') ?></button>

@@ -6,12 +6,20 @@
  */
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-$block = ['/data', '/cli', '/config.php', '/includes/'];
+$block = ['/data', '/cli', '/config', '/includes', '/.git', '/vendor'];
 foreach ($block as $b) {
     if ($b === $uri || ($b !== '/' && str_starts_with($uri, $b))) {
         http_response_code(404);
         return true;
     }
+}
+
+// Berkas backup / berkas sensitif jangan pernah diserve sebagai teks
+// (mis. config.local.php.bak, topup.db, .env, catatan *.md).
+$base = basename($uri);
+if ($base !== '' && ($base[0] === '.' || preg_match('/\.(bak|backup|save|orig|old|swp|swo|tmp|log|sql|sqlite|db|ini|env|sh|md|lock)$/i', $base))) {
+    http_response_code(404);
+    return true;
 }
 
 // File statis -> biarkan server melayani

@@ -53,7 +53,8 @@ function midtransSnap(string $orderId, int $amount, string $itemName, array $cus
             ['id' => 'TOPUP', 'price' => $amount, 'quantity' => 1, 'name' => substr($itemName, 0, 50)],
         ],
         'customer_details' => $customer,
-        'finish_redirect_url' => BASE_URL . '/status.php?ref=' . urlencode($orderId),
+        // Wajib pakai BASE_PATH: sub-aplikasi ini hidup di /top-up (bukan di root domain).
+        'finish_redirect_url' => BASE_URL . BASE_PATH . '/status.php?ref=' . urlencode($orderId),
     ];
 
     $ch = curl_init($base . '/snap/v1/transactions');
@@ -79,12 +80,60 @@ function paymentStatusText(string $s): string {
     return match ($s) {
         'pending' => 'Menunggu Pembayaran',
         'waiting' => 'Menunggu Penjadwalan',
+        'processing' => 'Sedang Diproses',
         'paid' => 'Dibayar',
         'success' => 'Sukses',
         'failed' => 'Gagal',
         'expired' => 'Kedaluwarsa',
+        'cancel' => 'Dibatalkan',
+        'refund' => 'Dana Dikembalikan',
         default => ucfirst($s),
     };
+}
+
+/**
+ * Produk game atau bukan.
+ * Target top-up Digiflazz: game = ID akun (game tertentu pakai "id|zona"),
+ * non-game (pulsa/data/e-money/voucher/PLN/dll) = nomor HP tujuan.
+ */
+function product_is_game(array $p): bool {
+    $cat = strtolower(trim((string) ($p['category'] ?? '')));
+    if ($cat !== '') {
+        if (strpos($cat, 'game') !== false) return true;
+        // Kategori Digiflazz non-game yang sudah dikenal -> pasti pakai nomor HP.
+        if (preg_match('/pulsa|data|voucher|e-?money|pln|tv|gas|sms|telpon|telepon|masa aktif|aktivasi/i', $cat)) {
+            return false;
+        }
+    }
+    // Fallback: tebak dari nama produk (sama dengan chip kategori di katalog).
+    $byName = product_category((string) ($p['name'] ?? ''));
+    return $byName !== 'Paket Data' && $byName !== 'Voucher';
+}
+
+/** Nomor tujuan yang dikirim ke Digiflazz untuk sebuah order. */
+function topupTarget(array $order): string {
+    $st = db()->prepare("SELECT * FROM products WHERE code=?");
+    $st->execute([$order['product_code']]);
+    $product = $st->fetch();
+
+    if ($product && product_is_game($product)) {
+        $target = trim((string) $order['player_id']);
+        if ($target === '') $target = cleanNumber((string) $order['customer_no']);
+        $zone = trim((string) ($order['zone_id'] ?? ''));
+        if ($zone !== '') $target .= '|' . $zone; // format Digiflazz untuk game ber-zona
+        return $target;
+    }
+    return cleanNumber((string) $order['customer_no']);
+}
+
+/** Buang field sensitif dari respons Digiflazz sebelum disimpan/ditampilkan. */
+function dgf_safe(array $res): array {
+    $out = ['http' => $res['http'] ?? 0];
+    if (!empty($res['error'])) $out['error'] = $res['error'];
+    $data = is_array($res['data'] ?? null) ? $res['data'] : [];
+    foreach (['api_key', 'sign', 'username'] as $k) unset($data[$k]);
+    $out['data'] = $data;
+    return $out;
 }
 
 /** Kategorikan produk dari nama (game / paket data / voucher) */
@@ -105,6 +154,124 @@ function product_category(string $name): string {
         return 'Paket Data';
     }
     return 'Voucher';
+}
+
+/**
+ * Eksekusi top-up ke Digiflazz untuk satu order.
+ * Idempotent: status diklaim (waiting/pending -> processing) lebih dulu, jadi aman
+ * dipanggil berulang dari notifikasi Midtrans maupun dari cron poll-pending.
+ *
+ * @return array{status:string,rc:string,message:string,sn:string}
+ */
+function topupExecute(int $orderId): array {
+    $db = db();
+    $st = $db->prepare("SELECT * FROM orders WHERE id=?");
+    $st->execute([$orderId]);
+    $o = $st->fetch();
+    if (!$o) {
+        return ['status' => '', 'rc' => '', 'message' => 'order tidak ditemukan', 'sn' => ''];
+    }
+    if (!in_array($o['order_status'], ['waiting', 'pending'], true)) {
+        return ['status' => (string) $o['order_status'], 'rc' => '', 'message' => 'tidak perlu diproses', 'sn' => (string) $o['sn']];
+    }
+
+    // Klaim (kunci) order: notifikasi Midtrans bisa datang berulang/paralel.
+    $claim = $db->prepare("UPDATE orders SET order_status='processing', attempts=attempts+1, updated_at=CURRENT_TIMESTAMP
+                           WHERE id=? AND order_status IN ('waiting','pending')");
+    $claim->execute([$orderId]);
+    if ($claim->rowCount() === 0) {
+        return ['status' => 'processing', 'rc' => '', 'message' => 'order sedang diproses proses lain', 'sn' => ''];
+    }
+
+    $target = topupTarget($o);
+    $dgf = new Digiflazz();
+    $res = $dgf->topup((string) $o['ref_id'], (string) $o['product_code'], $target);
+    $d = is_array($res['data'] ?? null) ? $res['data'] : [];
+    $rc = (string) ($d['rc'] ?? '');
+    $message = trim((string) ($d['message'] ?? ($res['error'] ?? '')));
+
+    // Gagal di level API (mis. rc 45 IP belum di-whitelist, kredensial, timeout)
+    // -> kembalikan ke 'waiting' supaya cron mencoba lagi, plus catat alasannya.
+    if (!empty($res['error'])) {
+        $db->prepare("UPDATE orders SET order_status='waiting', last_error=?, raw=?, updated_at=CURRENT_TIMESTAMP WHERE id=?")
+           ->execute([$message, json_encode(dgf_safe($res), JSON_UNESCAPED_UNICODE), $orderId]);
+        error_log("DGF topup GAGAL order#$orderId ref={$o['ref_id']} target=$target http=" . ($res['http'] ?? 0) . " rc=$rc $message");
+        return ['status' => 'waiting', 'rc' => $rc, 'message' => $message, 'sn' => ''];
+    }
+
+    $s = strtolower(trim((string) ($d['status'] ?? '')));
+    if (in_array($s, ['sukses', 'success'], true) || $rc === '00') {
+        $status = 'success';
+    } elseif (in_array($s, ['gagal', 'failed'], true) || in_array($rc, ['01', '02', '14', '23', '41', '42', '43', '44'], true)) {
+        $status = 'failed';
+    } else {
+        $status = 'pending'; // rc 03 / status Pending -> tunggu webhook & cron
+    }
+
+    $sn = (string) ($d['sn'] ?? '');
+    $db->prepare("UPDATE orders SET order_status=?, sn=?, last_error=?, raw=?, updated_at=CURRENT_TIMESTAMP WHERE id=?")
+       ->execute([$status, $sn, $status === 'failed' ? $message : '', json_encode(dgf_safe($res), JSON_UNESCAPED_UNICODE), $orderId]);
+    error_log("DGF topup order#$orderId ref={$o['ref_id']} target=$target status=$status rc=$rc");
+    return ['status' => $status, 'rc' => $rc, 'message' => $message, 'sn' => $sn];
+}
+
+/**
+ * Tarik pricelist Digiflazz lalu sinkronkan ke tabel products.
+ * Dipakai panel admin dan cli/sync-pricelist.php (satu implementasi, tidak bercabang).
+ *
+ * @return array{ok:bool,message:string,inserted:int,updated:int,total:int}
+ */
+function syncPriceList(string $type = 'prepaid'): array {
+    $db  = db();
+    $dgf = new Digiflazz();
+    $res = $dgf->priceListV2($type);
+    if (!empty($res['error'])) {
+        return ['ok' => false, 'message' => 'Gagal ambil pricelist: ' . $res['error'], 'inserted' => 0, 'updated' => 0, 'total' => 0];
+    }
+    $d = $res['data'] ?? [];
+    if (is_string($d['rc'] ?? null)) {
+        return ['ok' => false, 'message' => "Digiflazz rc={$d['rc']}: " . ($d['message'] ?? ''), 'inserted' => 0, 'updated' => 0, 'total' => 0];
+    }
+    $list = $d['pricelist'] ?? $d['data'] ?? (isset($d[0]) ? $d : []);
+    if (!$list) {
+        return ['ok' => false, 'message' => 'Pricelist kosong (tidak ada produk).', 'inserted' => 0, 'updated' => 0, 'total' => 0];
+    }
+
+    $before = (int) $db->query("SELECT COUNT(*) c FROM products")->fetch()['c'];
+    $st = $db->prepare("INSERT INTO products (game_id, code, name, price, buy_price, stock, brand, category, status)
+                        VALUES (1,?,?,?,?,1,?,?,1)
+                        ON CONFLICT(code) DO UPDATE SET
+                          name=excluded.name,
+                          price=excluded.price,
+                          buy_price=excluded.buy_price,
+                          stock=excluded.stock,
+                          brand=excluded.brand,
+                          category=excluded.category,
+                          status=1");
+    $processed = 0;
+    foreach ($list as $p) {
+        $code = trim((string) ($p['buyer_sku_code'] ?? ''));
+        if ($code === '') continue;
+        $name = (string) ($p['product_name'] ?? $code);
+        $buy  = (int) ($p['product_price'] ?? $p['price'] ?? 0); // modal
+        $sell = (int) ($p['price'] ?? 0);                        // harga jual
+        if ($sell <= 0) $sell = (int) floor($buy * 1.1);
+        if ($sell <= 0) continue;
+        $st->execute([$code, $name, $sell, $buy, strtoupper((string) ($p['brand'] ?? '')), (string) ($p['category'] ?? '')]);
+        $processed++;
+    }
+    $after = (int) $db->query("SELECT COUNT(*) c FROM products")->fetch()['c'];
+    $inserted = max(0, $after - $before);
+    $updated = max(0, $processed - $inserted);
+    $db->prepare("INSERT OR REPLACE INTO settings (key,value) VALUES ('pricelist_updated', ?)")->execute([date('Y-m-d H:i:s')]);
+
+    return [
+        'ok' => true,
+        'message' => "Sync pricelist ($type) selesai: $inserted produk baru, $updated diperbarui.",
+        'inserted' => $inserted,
+        'updated' => $updated,
+        'total' => $processed,
+    ];
 }
 
 /** Gambar produk: SVG data-uri (gradien + ikon kategori + nama produk) */

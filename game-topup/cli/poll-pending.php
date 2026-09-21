@@ -14,33 +14,34 @@ if (!flock($lock, LOCK_EX | LOCK_NB)) {
 }
 
 $db = db();
-$rows = $db->query("SELECT * FROM orders WHERE order_status='pending' AND payment_status='paid'")
-    ->fetchAll();
+$rows = $db->query("SELECT * FROM orders
+    WHERE payment_status='paid'
+      AND attempts < 6
+      AND (
+            (order_status IN ('waiting','pending') AND updated_at <= datetime('now','-2 minutes'))
+         OR (order_status='processing'             AND updated_at <= datetime('now','-10 minutes'))
+      )
+    ORDER BY id LIMIT 20")->fetchAll();
 
 if (!$rows) {
-    echo "Tidak ada order pending.\n";
+    echo "Tidak ada order yang perlu dicek.\n";
     exit(0);
 }
 
-$dgf = new Digiflazz();
-$done = 0;
+$final = 0;
 foreach ($rows as $o) {
-    $res = $dgf->topup($o['ref_id'], $o['product_code'], $o['customer_no']);
-    $rc  = strval($res['data']['rc'] ?? ($res['error'] ?? '?'));
-    $msg = $res['data']['message'] ?? '';
-
-    if ($rc === '00') {
-        $db->prepare("UPDATE orders SET order_status='success', sn=?, raw=?, updated_at=CURRENT_TIMESTAMP WHERE id=?")
-            ->execute([$res['data']['sn'] ?? '', json_encode($res, JSON_UNESCAPED_UNICODE), $o['id']]);
-        $done++;
-    } elseif (in_array($rc, ['01', '02', '14', '23', '41', '42'])) {
-        $db->prepare("UPDATE orders SET order_status='failed', raw=?, updated_at=CURRENT_TIMESTAMP WHERE id=?")
-            ->execute([json_encode($res, JSON_UNESCAPED_UNICODE), $o['id']]);
-        $done++;
-    }
-    echo "[{$o['ref_id']}] rc=$rc $msg\n";
+    $r = topupExecute((int) $o['id']);
+    printf(
+        "[%s] coba ke-%d status=%s rc=%s %s\n",
+        $o['ref_id'],
+        (int) $o['attempts'] + 1,
+        $r['status'] !== '' ? $r['status'] : '-',
+        $r['rc'] !== '' ? $r['rc'] : '-',
+        substr((string) $r['message'], 0, 140)
+    );
+    if (in_array($r['status'], ['success', 'failed'], true)) $final++;
     usleep(500000); // jeda antar request biar aman
 }
 
-echo "Selesai: $done ter-update.\n";
+echo "Selesai: $final order final, sisanya menunggu percobaan berikutnya.\n";
 flock($lock, LOCK_UN);

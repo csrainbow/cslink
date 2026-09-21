@@ -4,6 +4,31 @@ Semua perubahan penting pada CSLINK dicatat di file ini.
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan proyek mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-09-21
+
+### Diperbaiki (sub-aplikasi TopUp Games `/top-up`)
+- **Order lunas tidak lagi nyangkut**: pengiriman produk ke Digiflazz dipusatkan di `topupExecute()` (`includes/functions.php`), dipakai bersama oleh webhook Midtrans dan cron. Status order diklaim (`waiting` → `processing`) sehingga notifikasi berulang tidak mengirim produk dua kali.
+- **Order tertunda dicoba ulang otomatis**: `cli/poll-pending.php` kini menangani status `waiting`/`pending`/`processing` yang gagal di level API (mis. IP belum di-whitelist), dibatasi 6 percobaan, dan mencatat alasan gagal.
+- **Harga tidak bisa dimanipulasi**: `api/order.php` mengabaikan parameter `amount` dari klien dan selalu memakai harga produk dari server.
+- **Target top-up sesuai jenis produk**: produk game memakai ID akun (+ zona, format `id|zona`), produk pulsa/data/e-money/voucher/PLN memakai nomor tujuan. Formulir `order.php` menyesuaikan (ID akun hanya muncul untuk game).
+- **Redirect setelah bayar benar**: `finish_redirect_url` Snap memakai `BASE_PATH` (kembali ke `/top-up/status.php`, sebelumnya `/status.php` di root domain → 302 ke beranda).
+- **Validasi input**: nomor tujuan 9–15 digit, ID akun wajib untuk produk game, dan klik ganda memakai order + token Snap yang sama (idempotensi 5 menit).
+- **Status baru**: `refund`/`chargeback`, `processing`, dan `cancel` ditampilkan dengan label & badge yang tepat di halaman status, admin, dan cek status.
+
+### Keamanan
+- Password panel admin tidak lagi hardcoded: wajib `GT_ADMIN_PASS_HASH` (`password_hash`) di `config.local.php`, ditambah token CSRF, regenerasi sesi saat login, cookie HttpOnly + SameSite/Secure, dan jeda anti brute-force. Aksi sync pricelist dan proses ulang order kini POST + CSRF.
+- `router.php` memblokir seluruh prefix `/config`, folder `/.git` & `/vendor`, serta berkas backup/sensitif (`*.bak`, `*.db`, `*.md`, `*.env`, `*.log`, dll) agar tidak pernah diserve sebagai teks.
+- File sisa/duplikat di akar webroot game-topup (`functions.php`, `style.css`) dihapus.
+
+### Ditambahkan
+- `Digiflazz::deposit()` (cek saldo) dan `syncPriceList()` — satu jalur logika untuk panel admin dan `cli/sync-pricelist.php`.
+- Panel admin: diagnosa koneksi (mode Digiflazz, saldo, IP keluar server untuk whitelist, mode Midtrans), kolom SN/Error + jumlah percobaan, tombol "Ulang" per order, dan informasi waktu sync pricelist terakhir.
+- Kolom `orders.attempts` & `orders.last_error` (migrasi otomatis).
+- Nginx: alias `location = /api/midtrans-callback.php` dan `/api/digiflazz-callback.php` ke aplikasi top-up, agar notifikasi Midtrans yang terlanjur didaftarkan tanpa prefix `/top-up` tetap sampai ke handler yang benar.
+
+### Operasional (server)
+- Cron baru: `cli/sync-pricelist.php prepaid` tiap 20 menit & `cli/poll-pending.php` tiap 5 menit (sebelumnya belum ada jadwal sama sekali).
+
 ## [1.0.3] - 2026-09-11
 
 ### Ditambahkan

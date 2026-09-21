@@ -40,6 +40,11 @@ if (!defined('MT_SERVER_KEY')) define('MT_SERVER_KEY', $__mtServer);
 if (!defined('MT_CLIENT_KEY')) define('MT_CLIENT_KEY', $__mtClient);
 if (!defined('MIDTRANS_IS_PRODUCTION')) define('MIDTRANS_IS_PRODUCTION', filter_var(getenv('MIDTRANS_IS_PRODUCTION') ?: 'false', FILTER_VALIDATE_BOOLEAN));
 
+// ==================== PANEL ADMIN ====================
+// Hash password admin (JANGAN simpan password polos). Isi di config.local.php atau env:
+//   php -r "echo password_hash('password-rahasia-anda', PASSWORD_DEFAULT), PHP_EOL;"
+if (!defined('GT_ADMIN_PASS_HASH')) define('GT_ADMIN_PASS_HASH', getenv('GT_ADMIN_PASS_HASH') ?: '');
+
 // ==================== DATABASE ====================
 define('DB_PATH', __DIR__ . '/data/topup.db');
 
@@ -108,6 +113,10 @@ function migrate(PDO $pdo): void {
     // Sesuaikan skema DB lama (jika kolom brand/category belum ada)
     try { $pdo->exec("ALTER TABLE products ADD COLUMN brand TEXT DEFAULT ''"); } catch (\Throwable $e) {}
     try { $pdo->exec("ALTER TABLE products ADD COLUMN category TEXT DEFAULT ''"); } catch (\Throwable $e) {}
+
+    // Kolom pemantauan order: jumlah percobaan kirim + alasan gagal terakhir
+    try { $pdo->exec("ALTER TABLE orders ADD COLUMN attempts INTEGER DEFAULT 0"); } catch (\Throwable $e) {}
+    try { $pdo->exec("ALTER TABLE orders ADD COLUMN last_error TEXT DEFAULT ''"); } catch (\Throwable $e) {}
 
     // Seed pricelist cache kosong (diisi oleh cron/manual sync)
     $pdo->exec("INSERT OR IGNORE INTO settings (key,value) VALUES ('pricelist_updated','')");

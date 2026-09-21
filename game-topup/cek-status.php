@@ -52,7 +52,7 @@ if ($ref) {
           <div class="row"><span class="k">Produk</span><span class="v"><?= htmlspecialchars($order['product_name']) ?></span></div>
           <div class="row"><span class="k">Kode Order</span><span class="v mono"><?= htmlspecialchars($order['ref_id']) ?></span></div>
           <div class="row"><span class="k">Status Order</span><span class="v"><span class="badge <?= $cls ?>"><?= paymentStatusText($order['order_status']) ?></span></span></div>
-          <div class="row"><span class="k">Pembayaran</span><span class="v"><span class="badge <?= $order['payment_status']==='paid'?'paid':($order['payment_status']==='expired'?'expired':'wait') ?>"><?= paymentStatusText($order['payment_status']) ?></span></span></div>
+          <div class="row"><span class="k">Pembayaran</span><span class="v"><span class="badge <?= $order['payment_status']==='paid'?'paid':(in_array($order['payment_status'], ['expired','refund','failed','cancel'], true)?'expired':'wait') ?>"><?= paymentStatusText($order['payment_status']) ?></span></span></div>
           <?php if ($order['sn']): ?>
             <div class="row" style="flex-direction:column;align-items:stretch;gap:8px">
               <span class="k">Serial Number (SN)</span>

@@ -45,7 +45,7 @@ if ($ref) {
       </div>
     <?php else:
         $cls = $order['order_status']==='success' ? 'ok' : ($order['order_status']==='failed' ? 'fail' : 'wait');
-        $payCls = $order['payment_status']==='paid' ? 'paid' : ($order['payment_status']==='expired' ? 'expired' : 'wait'); ?>
+        $payCls = $order['payment_status']==='paid' ? 'paid' : (in_array($order['payment_status'], ['expired','refund','failed','cancel'], true) ? 'expired' : 'wait'); ?>
 
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
         <h1 style="font-size:24px;font-weight:900;letter-spacing:-.6px;flex:1">Status Pesanan</h1>
@@ -79,6 +79,8 @@ if ($ref) {
               Voucher berhasil dikirim. Simpan SN di atas. Butuh bantuan? Hubungi admin dengan kode order <b class="mono"><?= htmlspecialchars($order['ref_id']) ?></b>.
             <?php elseif ($order['order_status']==='failed'): ?>
               Pengiriman voucher gagal. Dana otomatis dikembalikan sesuai kebijakan. Hubungi admin bila masih ada masalah.
+            <?php elseif ($order['payment_status']==='paid'): ?>
+              Pembayaran sudah kami terima. Produk sedang dikirim otomatis oleh sistem &mdash; muat ulang halaman ini sesaat lagi (biasanya dalam beberapa menit). Kode order: <b class="mono"><?= htmlspecialchars($order['ref_id']) ?></b>.
             <?php else: ?>
               Order sedang diproses otomatis. Muat ulang halaman ini sesaat lagi &mdash; biasanya selesai dalam beberapa menit.
             <?php endif; ?>

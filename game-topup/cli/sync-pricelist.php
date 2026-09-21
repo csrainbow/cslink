@@ -22,63 +22,24 @@ if (!flock($lock, LOCK_EX | LOCK_NB)) {
     exit(0);
 }
 
-$db = db();
-$dgf = new Digiflazz();
-
 echo "Mengambil pricelist ($type) dari Digiflazz...\n";
-$res = $dgf->priceListV2($type);
+$sync = syncPriceList($type);
+echo ($sync['ok'] ? '' : 'ERROR: ') . $sync['message'] . "\n";
+if (!$sync['ok']) exit(1);
 
-if (!empty($res['error'])) {
-    echo "ERROR: {$res['error']}\n";
-    exit(1);
-}
+// Daftar brand yang perlu logo (diambil dari DB, hasil sync di atas).
+$brands = array_column(db()->query("SELECT DISTINCT brand FROM products WHERE brand<>''")->fetchAll(), 'brand');
 
-$d = $res['data'] ?? [];
-if (is_string($d['rc'] ?? null)) {
-    echo "ERROR Digiflazz rc={$d['rc']}: {$d['message']}\n";
-    exit(1);
-}
-$list = $d['pricelist'] ?? $d['data'] ?? (isset($d[0]) ? $d : []);
-echo "Mendapat " . count($list) . " item.\n";
-if (empty($list)) exit(0);
+// Sinkronisasi produk ditangani syncPriceList() di includes/functions.php
+// (dipakai juga oleh panel admin) supaya tidak ada dua jalur logika.
 
-$inserted = 0;
-$updated = 0;
-$brands = [];
-$st = $db->prepare("INSERT INTO products (game_id, code, name, price, buy_price, stock, brand, category, status)
-                    VALUES (1,?,?,?,?,1,?,?,1)
-                    ON CONFLICT(code) DO UPDATE SET
-                      name=excluded.name,
-                      buy_price=excluded.buy_price,
-                      price=excluded.price,
-                      stock=excluded.stock,
-                      brand=excluded.brand,
-                      category=excluded.category,
-                      status=1");
-
-foreach ($list as $p) {
-    $code = $p['buyer_sku_code'] ?? '';
-    if (!$code) continue;
-    $name = $p['product_name'] ?? $code;
-    $buy = (int) ($p['product_price'] ?? $p['price'] ?? 0); // modal (jarang tersedia sbg product_price)
-    $sell = (int) ($p['price'] ?? 0);                        // harga di katalog (sama dgn modal bila tanpa margin)
-    if ($sell <= 0) $sell = (int) floor($buy * 1.1);
-    $brand = strtoupper((string) ($p['brand'] ?? ''));
-    $cat = (string) ($p['category'] ?? '');
-    $rows = $st->execute([$code, $name, $sell, $buy, $brand, $cat]);
-    if ($rows === 1) $inserted++;
-    else $updated++;
-    if ($brand !== '') $brands[$brand] = true;
-}
-
-$db->exec("INSERT OR REPLACE INTO settings (key,value) VALUES ('pricelist_updated', '" . date('Y-m-d H:i:s') . "')");
-echo "Selesai. Insert: $inserted, Update: $updated di " . date('H:i:s') . "\n";
+// Tampilkan waktu sync terakhir yang tercatat.
 
 // --- Unduh logo brand (favicon resmi resolusi tinggi), cache ke assets/brands/ ---
 $brandDir = __DIR__ . '/../assets/brands';
 if (!is_dir($brandDir)) @mkdir($brandDir, 0755, true);
 
-foreach (array_keys($brands) as $brand) {
+foreach ($brands as $brand) {
     $domain = brand_domain($brand);
     if (!$domain) continue;
     $slug = strtolower(preg_replace('/[^A-Z0-9]/', '', $brand));
