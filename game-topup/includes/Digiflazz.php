@@ -81,6 +81,10 @@ class Digiflazz {
             'customer_no' => $customerNo,
             'ref_id' => $refId,
             'sign' => $this->sign($refId),
+            // WAJIB: tanpa cb_url, Digiflazz tidak mengirim webhook per-transaksi.
+            // URL default juga diset di dashboard (Atur Koneksi > API > Webhook),
+            // tapi cb_url per-request menutupi kasus webhook statis yang belum diset.
+            'cb_url' => BASE_URL . BASE_PATH . '/api/digiflazz-callback.php',
         ];
         if (defined('DGF_TESTING') && DGF_TESTING) {
             $body['testing'] = true;
