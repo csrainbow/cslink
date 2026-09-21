@@ -80,6 +80,14 @@ function uaLabel(name, version) {
   return major ? `${name} ${major}` : String(name);
 }
 
+// Deteksi perayap / pengujian otomatis: jangan dicatat sebagai klik manusia & jangan disuguhi iklan
+const BOT_UA_RE = /bot|crawl|spider|slurp|curl|wget|python|node-fetch|axios|okhttp|go-http-client|headlesschrome|phantom|selenium|puppeteer|playwright|facebookexternalhit|facebot|whatsapp|telegrambot|discordbot|slackbot|skypeuripreview|ahrefs|semrush|mj12bot|dotbot|baiduspider|yandex|bingbot|bingpreview|duckduckbot|googlebot|petalbot|applebot|amazonbot|uptimerobot|pingdom|postman|httpclient|wordpress|wpscan/i;
+
+function isBotUA(ua) {
+  if (!ua || typeof ua !== 'string') return true;
+  return BOT_UA_RE.test(ua);
+}
+
 // Migrasi sekali: isi browser/os yang sebelumnya 'Unknown' dari user_agent mentah yang tersimpan
 function backfillClickUA() {
   if (getConfig('ua_backfill_v1')) return;
@@ -104,8 +112,13 @@ function backfillClickUA() {
 const GEO_API = process.env.GEO_API_BASE || 'https://ipwho.is';
 
 function visitorIp(req) {
-  const fwd = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'];
-  return String(fwd ? String(fwd).split(',')[0].trim() : (req.ip || req.connection.remoteAddress || ''));
+  const peer = String(req.ip || req.connection.remoteAddress || '');
+  const fromProxy = peer === '127.0.0.1' || peer === '::1' || peer === '::ffff:127.0.0.1';
+  if (fromProxy) {
+    const fwd = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
+    if (fwd) return String(fwd).split(',')[0].trim();
+  }
+  return peer;
 }
 
 function cachedIpInfo(ip) {
@@ -436,6 +449,11 @@ app.get('/:code', (req, res) => {
       return res.status(410).json({ error: 'This link has expired' });
     }
 
+    // Bot/perayap: redirect langsung tanpa mencatat klik (pola FB, curl tes, dsb.)
+    if (isBotUA(req.headers['user-agent'])) {
+      return res.redirect(url.original_url);
+    }
+
     const parser = new UAParser(req.headers['user-agent']);
     const ua = parser.getResult();
     const ip = visitorIp(req);
@@ -628,6 +646,30 @@ app.get('/api/analytics/summary', (req, res) => {
     });
   } catch (error) {
     console.error('Error analytics summary:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Grafik klik per tanggal (dashboard) — default 30 hari, isi hari tanpa klik dengan 0
+app.get('/api/analytics/daily', (req, res) => {
+  try {
+    const days = Math.max(1, Math.min(parseInt(req.query.days, 10) || 30, 90));
+    const offset = days - 1;
+    const rows = db.prepare(`
+      WITH RECURSIVE dates(d) AS (
+        SELECT date('now', ?)
+        UNION ALL
+        SELECT date(d, '+1 day') FROM dates WHERE d < date('now')
+      )
+      SELECT dates.d AS date, COUNT(clicks.id) AS count
+      FROM dates
+      LEFT JOIN clicks ON date(clicks.clicked_at) = dates.d
+      GROUP BY dates.d
+      ORDER BY dates.d
+    `).all(`-${offset} days`);
+    res.json({ days, data: rows });
+  } catch (error) {
+    console.error('Error analytics daily:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

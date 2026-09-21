@@ -259,6 +259,36 @@ async function loadStats() {
     }
 }
 
+// ======== Grafik Klik per Hari (30 hari) ========
+async function loadDailyChart() {
+    const chart = document.getElementById('daily-chart');
+    const rangeEl = document.getElementById('daily-range');
+    const totalEl = document.getElementById('daily-total');
+    try {
+        const response = await authFetch('/api/analytics/daily?days=30');
+        const data = await response.json();
+        const list = data.data || [];
+        if (!list.length) {
+            chart.innerHTML = '<p class="no-data">Belum ada data klik.</p>';
+            rangeEl.textContent = '';
+            totalEl.textContent = '0';
+            return;
+        }
+        const max = Math.max(...list.map(d => d.count), 1);
+        const hasClicks = list.some(d => d.count > 0);
+        chart.innerHTML = list.map(d => `
+            <div class="day-col" title="${d.date}: ${d.count} klik">
+                <div class="day-bar" style="height: ${hasClicks ? Math.max((d.count / max) * 100, 2) : 2}%"></div>
+                <span class="day-num">${d.count}</span>
+                <span class="day-date">${formatShortDate(d.date)}</span>
+            </div>`).join('');
+        rangeEl.textContent = `${formatDate(list[0].date)} &ndash; ${formatDate(list[list.length - 1].date)}`;
+        totalEl.textContent = list.reduce((s, d) => s + d.count, 0);
+    } catch (error) {
+        console.error('Failed to load daily chart:', error);
+    }
+}
+
 // ======== Links Management ========
 async function loadLinks(page = 1, search = '') {
     try {
@@ -1111,6 +1141,7 @@ document.getElementById('refresh-orders').addEventListener('click', loadOrders);
 // ======== Initialize ========
 document.addEventListener('DOMContentLoaded', function() {
     loadStats();
+    loadDailyChart();
     loadQRSettings();
     initSettings();
     loadUser();

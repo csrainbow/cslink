@@ -349,6 +349,7 @@ select.form-input option { background: var(--bg-2); color: var(--txt); }
 .stat-lbl { color: var(--mut); font-size: 12.5px; display: block; margin-top: 4px; }
 
 .chart-card, .analytics-card { padding: 20px; margin-bottom: 18px; }
+.daily-chart-card { margin: 22px 0 10px; }
 .chart-card h3, .analytics-card h3 { margin: 0 0 16px; font-size: 16px; }
 .chart-card h3 i, .analytics-card h3 i { color: var(--cyan); }
 .day-chart { display: flex; align-items: flex-end; gap: 6px; height: 170px; }
