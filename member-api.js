@@ -8,6 +8,13 @@ const FREE_LIMIT = 5;
 const FREE_LINK_LIMIT = 5;
 const RENEW_REMIND_DAYS = 7;
 
+// Kode pendek yang bentrok dengan rute halaman/asset sistem — dilarang untuk custom code
+const RESERVED_CODES = new Set([
+  'login', 'register', 'member', 'premium', 'payment', 'fitur', 'faq', 'landing',
+  'admin', 'logout', 'setup', 'csnap', 'top-up', 'qr', 'api', 'analytics',
+  'adblock.js', 'robots.txt', 'sitemap.xml', 'ads.txt', 'favicon.ico', 'manifest.json'
+]);
+
 function daysLeftUntil(until) {
   if (!until) return null;
   const t = new Date(until).getTime();
@@ -205,6 +212,7 @@ module.exports = function register(app, auth) {
     let shortCode = String(customCode || '').trim();
     if (!shortCode) { shortCode = genCode(7); }
     else if (!/^[a-zA-Z0-9_-]{3,20}$/.test(shortCode)) return res.status(400).json({ error: 'Kode kustom 3-20 karakter (huruf, angka, -, _)' });
+    else if (RESERVED_CODES.has(shortCode.toLowerCase())) return res.status(400).json({ error: 'Kode ini bentrok dengan halaman sistem' });
 
     const taken = db.prepare('SELECT id FROM urls WHERE short_code = ?').get(shortCode);
     if (taken) return res.status(409).json({ error: 'Kode sudah dipakai' });

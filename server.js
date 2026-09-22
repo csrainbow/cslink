@@ -48,6 +48,13 @@ const sanitizeUrl = (url) => {
   return clean;
 };
 
+// Kode pendek yang bentrok dengan rute halaman/asset sistem — dilarang untuk custom code
+const RESERVED_CODES = new Set([
+  'login', 'register', 'member', 'premium', 'payment', 'fitur', 'faq', 'landing',
+  'admin', 'logout', 'setup', 'csnap', 'top-up', 'qr', 'api', 'analytics',
+  'adblock.js', 'robots.txt', 'sitemap.xml', 'ads.txt', 'favicon.ico', 'manifest.json'
+]);
+
 // ==================== Autentikasi & Private Mode ====================
 const COOKIE_NAME = 'cslink_session';
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -363,6 +370,9 @@ app.post('/api/shorten', (req, res) => {
         customCode = customCode.trim();
         if (!/^[a-zA-Z0-9_-]+$/.test(customCode) || customCode.length < 3 || customCode.length > 20) {
           return res.status(400).json({ error: 'Custom code must be 3-20 characters (letters, numbers, -, _)' });
+        }
+        if (RESERVED_CODES.has(customCode.toLowerCase())) {
+          return res.status(400).json({ error: 'Kode ini bentrok dengan halaman sistem' });
         }
 
         const existing = db.prepare('SELECT id FROM urls WHERE short_code = ?').get(customCode);
