@@ -4,6 +4,20 @@ Semua perubahan penting pada CSLINK dicatat di file ini.
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan proyek mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-09-23
+
+### Diperbaiki
+- **Link pembayaran toko/kasir via WA langsung terbuka (tanpa halaman iklan)**: link pendek yang mengarah
+  ke halaman internal percetakan (`rainbowprinting.web.id` + path pembayaran: `pay-point.php`,
+  `payment/confirm.php`, `payment/finish.php`, `cek-pesanan.php`, `invoice.php`, `n.php`,
+  `nota-publik.php`, `checkout.php`, `order-success.php`) kini dijawab **HTTP 302 langsung** ke tujuan —
+  tidak lagi ditahan halaman hitung mundur / pemeriksaan AdBlock. Klik tetap dicatat di tabel `clicks`.
+  Link non-pembayaran (dan link ke situs lain) tetap melewati halaman iklan seperti biasa.
+  Penyebab laporan 2 pelanggan: link WA toko dibuat sebagai `anon` sehingga kena iklan 10 detik +
+  tombol lanjut hanya muncul bila lolos deteksi AdBlock + countdown selesai.
+- Cara verifikasi: buat short link ke URL `pay-point.php` / `n.php/.../pay/...` lalu buka tanpa login —
+  harus 302 ke halaman bayar; buat short link ke halaman lain — harus tetap 200 halaman iklan.
+
 ## [1.0.5] - 2026-09-21
 
 ### Diperbaiki (lanjutan sesi yang sama)

@@ -484,6 +484,18 @@ app.get('/:code', (req, res) => {
       geo ? geo.country_code : ''
     );
 
+    // Bebas iklan: link internal pembayaran toko (kasir/payment point) — pelanggan
+    // WA harus sampai ke halaman bayar tanpa hambatan. Klik TETAP dicatat.
+    let directInternal = false;
+    try {
+      const destHost = new URL(url.original_url).hostname.toLowerCase();
+      const destPath = new URL(url.original_url).pathname.toLowerCase();
+      const internalHost = ['rainbowprinting.web.id', 'www.rainbowprinting.web.id'].includes(destHost);
+      const payPath = /pay-point\.php|payment\/confirm\.php|payment\/finish\.php|cek-pesanan\.php|invoice\.php|n\.php|nota-publik\.php|checkout\.php|order-success\.php/i.test(destPath);
+      if (internalHost && payPath) directInternal = true;
+    } catch (_) { /* URL tidak valid -> biarkan alur normal */ }
+    if (directInternal) return res.redirect(url.original_url);
+
     // Bebas iklan: link milik akun premium, pemilik link, pengunjung premium, atau admin
     let skipAd = false;
     if (url.created_by && url.created_by.startsWith('user:')) {
