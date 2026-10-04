@@ -175,7 +175,7 @@ Aplikasi publik di `/csnap/` — download video/foto dari Instagram, TikTok, You
 
 ### Pasang Iklan di CSNAP
 
-Buka **`https://<host>/csnap/setting`** (wajib login admin) — simpan konfigurasi di server (2 slot perangkat: `desktop` & `mobile`; hanya slot perangkat aktif yang tampil):
+Buka **`https://<host>/csnap/setting`** (wajib login admin) — simpan konfigurasi di server (2 slot perangkat: `desktop` & `mobile`; hanya slot perangkat aktif yang tampil). Kolom **Kode iklan** juga tersedia di menu **Pengaturan** pada dashboard super admin (`/`).
 
 Urutan prioritas tiap slot: **kode iklan (script/HTML)** → **banner manual**.
 

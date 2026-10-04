@@ -9,6 +9,9 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan p
 ### Diperbaiki
 - **Deteksi/pemblokiran AdBlock dihapus**: hapus `public/adblock.js` beserta semua referensi `__csAdblock`, `<script src="/adblock.js">`, dan teks FAQ soal mematikan AdBlock. Halaman interstitial kini menjalankan hitung mundur tanpa dihalangi pemeriksaan AdBlock; halaman publik (`landing/fitur/faq/member`) tidak lagi memunculkan banner peringatan AdBlock. `adblock.js` juga dihapus dari daftar reserved code.
 
+### Ditambahkan
+- **Kolom iklan custom (kode iklan per perangkat) di Pengaturan super admin** (`/` → menu Pengaturan): kartu "Pengaturan Iklan" berisi kolom **Kode iklan (script/HTML) Desktop** dan **Mobile**, tersimpan di server lewat `PUT /csnap/api/settings` (sinkron dengan `/csnap/setting`). Banner fallback tetap dikelola di `/csnap/setting`.
+
 ## [1.0.7] - 2026-10-04
 
 ### Diperbaiki

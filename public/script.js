@@ -1085,6 +1085,36 @@ document.getElementById('save-payment-settings').addEventListener('click', async
     } catch (e) { showToast(e.message, 'error'); }
 });
 
+// ======== Pengaturan Iklan (kolom iklan custom) ========
+async function loadAdConfig() {
+    try {
+        const response = await authFetch('/csnap/api/settings');
+        if (!response.ok) return;
+        const d = await response.json();
+        document.getElementById('ad-code-desktop').value = (d.codes && d.codes.desktop) || '';
+        document.getElementById('ad-code-mobile').value = (d.codes && d.codes.mobile) || '';
+    } catch (e) {}
+}
+
+document.getElementById('save-ad-settings').addEventListener('click', async function() {
+    const body = {
+        codes: {
+            desktop: document.getElementById('ad-code-desktop').value.trim(),
+            mobile: document.getElementById('ad-code-mobile').value.trim()
+        }
+    };
+    try {
+        const response = await authFetch('/csnap/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const d = await response.json();
+        if (!response.ok) throw new Error(d.error || 'Gagal menyimpan');
+        showToast('Pengaturan iklan disimpan');
+    } catch (e) { showToast(e.message, 'error'); }
+});
+
 const rupiah = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
 
 async function loadOrders() {
@@ -1146,5 +1176,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initSettings();
     loadUser();
     loadPaymentConfig();
+    loadAdConfig();
     loadOrders();
 });

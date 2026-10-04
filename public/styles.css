@@ -140,6 +140,16 @@ select.form-input { appearance: none; cursor: pointer;
   background-image: linear-gradient(45deg, transparent 50%, var(--mut) 50%), linear-gradient(135deg, var(--mut) 50%, transparent 50%);
   background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
 select.form-input option { background: var(--bg-2); color: var(--txt); }
+.ad-code {
+  width: 100%; min-height: 92px; resize: vertical;
+  padding: 13px 15px;
+  background: rgba(10, 15, 38, .6);
+  border: 1px solid var(--line-soft); border-radius: var(--r-sm);
+  color: var(--txt); font-family: ui-monospace, Consolas, Menlo, monospace; font-size: 13px;
+  outline: none; transition: border-color .18s ease, box-shadow .18s ease;
+}
+.ad-code::placeholder { color: var(--mut-2); }
+.ad-code:focus { border-color: rgba(34,211,238,.6); box-shadow: 0 0 0 3px rgba(34,211,238,.14); }
 
 .loading {
   display: inline-block; width: 14px; height: 14px; margin-right: 6px;

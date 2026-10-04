@@ -243,7 +243,7 @@
                 <div class="section-header">
                     <h2><i class="fas fa-cog"></i> Pengaturan</h2>
                 </div>
-                <p class="section-description">Sesuaikan preferensi QR code dan aplikasi Anda. Pengaturan disimpan otomatis di browser ini.</p>
+                <p class="section-description">Sesuaikan preferensi QR code, pengaturan pembayaran premium, dan kolom iklan. QR disimpan di browser ini; pembayaran & iklan disimpan di server.</p>
 
                 <div class="settings-grid">
                     <!-- QR Code Settings -->
@@ -341,6 +341,29 @@
                                 <input type="number" id="pay-days" class="form-input" value="30" min="1">
                             </div>
                             <button class="btn btn-primary" id="save-payment-settings"><i class="fas fa-save"></i> Simpan Pembayaran</button>
+                        </div>
+                    </div>
+
+                    <!-- Ad Settings -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-bullhorn settings-card-icon"></i>
+                            <div>
+                                <h3>Pengaturan Iklan (Kolom Iklan)</h3>
+                                <p>Kode iklan per perangkat dipakai di halaman iklan link pendek &amp; CSNAP.</p>
+                            </div>
+                        </div>
+                        <div class="settings-form">
+                            <div class="settings-group">
+                                <label>Kode iklan (script/HTML) — Desktop</label>
+                                <textarea id="ad-code-desktop" class="ad-code" placeholder="<script>…kode jaringan iklan (mis. aads.com)…</script>"></textarea>
+                            </div>
+                            <div class="settings-group">
+                                <label>Kode iklan (script/HTML) — Mobile</label>
+                                <textarea id="ad-code-mobile" class="ad-code" placeholder="<script>…kode jaringan iklan…</script>"></textarea>
+                            </div>
+                            <p style="color:var(--mut);font-size:12.5px">Prioritas: kode iklan → fallback banner (kelola banner di /csnap/setting). Desktop = layar &ge;768px, mobile di bawahnya.</p>
+                            <button class="btn btn-primary" id="save-ad-settings"><i class="fas fa-save"></i> Simpan Iklan</button>
                         </div>
                     </div>
 
