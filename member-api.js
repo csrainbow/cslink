@@ -12,7 +12,7 @@ const RENEW_REMIND_DAYS = 7;
 const RESERVED_CODES = new Set([
   'login', 'register', 'member', 'premium', 'payment', 'fitur', 'faq', 'landing',
   'admin', 'logout', 'setup', 'csnap', 'top-up', 'qr', 'api', 'analytics',
-  'adblock.js', 'robots.txt', 'sitemap.xml', 'ads.txt', 'favicon.ico', 'manifest.json'
+  'robots.txt', 'sitemap.xml', 'ads.txt', 'favicon.ico', 'manifest.json'
 ]);
 
 function daysLeftUntil(until) {

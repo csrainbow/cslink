@@ -4,10 +4,15 @@ Semua perubahan penting pada CSLINK dicatat di file ini.
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan proyek mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2026-10-04
+
+### Diperbaiki
+- **Deteksi/pemblokiran AdBlock dihapus**: hapus `public/adblock.js` beserta semua referensi `__csAdblock`, `<script src="/adblock.js">`, dan teks FAQ soal mematikan AdBlock. Halaman interstitial kini menjalankan hitung mundur tanpa dihalangi pemeriksaan AdBlock; halaman publik (`landing/fitur/faq/member`) tidak lagi memunculkan banner peringatan AdBlock. `adblock.js` juga dihapus dari daftar reserved code.
+
 ## [1.0.7] - 2026-10-04
 
 ### Diperbaiki
-- **Kolom iklan di interstitial/link pendek kosong karena mengabaikan `codes` & `banners`**: `public/ad.html` sebelumnya hanya mengenal AdSense dan tetap mem-push `adsbygoogle` walau slot unit kosong → iklan blank + error console tanpa fallback. Kini interstitial merender **kode iklan (script/HTML) → banner manual** sesuai perangkat (desktop ≥768px / mobile), dan hitung mundur hanya ditahan pemeriksaan AdBlock bila memang ada iklan terpasang.
+- **Kolom iklan di interstitial/link pendek kosong karena mengabaikan `codes` & `banners`**: `public/ad.html` sebelumnya hanya mengenal AdSense dan tetap mem-push `adsbygoogle` walau slot unit kosong → iklan blank + error console tanpa fallback. Kini interstitial merender **kode iklan (script/HTML) → banner manual** sesuai perangkat (desktop ≥768px / mobile).
 - **AdSense dihapus total** (tidak memenuhi kriteria): hapus `adsenseClient`/`adsenseSlots` dari `csnap-api.js` (default, `GET/PUT /csnap/api/settings`, `GET /csnap/api/config`), dari halaman pengaturan `/csnap/setting`, `public/csnap/app.js`, halaman publik `landing/fitur/faq/member`, tag verifikasi `google-adsense-account`, dan berkas `public/ads.txt`. Kolom iklan yang tersedia kini hanya **kotak Kode iklan** per perangkat (dengan banner gambar sebagai fallback).
 - Verifikasi: buka `/csnap/setting` (login) → isi kode iklan Desktop/Mobile → simpan → buka link pendek non-pembayaran dari perangkat lain → iklan kode muncul di halaman interstitial & halaman publik.
 

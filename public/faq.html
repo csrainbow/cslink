@@ -89,7 +89,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
     <div class="faq">
       <details open><summary>Apakah CSLINK gratis?</summary><p>Ya, 5 link pertama gratis tanpa daftar. Buat akun gratis untuk dashboard pribadi, atau upgrade Premium untuk link tanpa batas dan tanpa iklan.</p></details>
       <details><summary>Apakah perlu mendaftar?</summary><p>Tidak harus. Tanpa akun Anda bisa langsung memendekkan 5 link per perangkat. Daftar akun gratis untuk mengelola link di dashboard Anda.</p></details>
-      <details><summary>Apa itu iklan interstitial?</summary><p>Halaman ringkas yang muncul sesaat sebelum pengunjung sampai ke link tujuan. Pengguna Premium dan pengunjung link Premium langsung dialihkan tanpa melihat iklan. Jika AdBlock aktif, Anda perlu mematikannya untuk melanjutkan.</p></details>
+      <details><summary>Apa itu iklan interstitial?</summary><p>Halaman ringkas yang muncul sesaat sebelum pengunjung sampai ke link tujuan. Pengguna Premium dan pengunjung link Premium langsung dialihkan tanpa melihat iklan. Iklan yang tampil mengikuti konfigurasi Pengaturan Iklan.</p></details>
       <details><summary>Statistik klik apa saja yang tersedia?</summary><p>Jumlah klik, lokasi negara, perangkat, dan browser — ditampilkan dalam dashboard dan grafik real-time.</p></details>
       <details><summary>Bagaimana cara upgrade ke Premium?</summary><p>Daftar atau masuk ke akun, buka halaman <a href="/premium">Premium</a>, lalu klik Bayar. Total tagihan dihitung otomatis (harga + biaya layanan 0,7% + kode unik). Bayar via QRIS lalu konfirmasi lewat WhatsApp ke admin.</p></details>
       <details><summary>Untuk apa CSLINK cocok?</summary><p>Promosi media sosial, bio Instagram, WhatsApp, cetak QR, dan kampanye iklan.</p></details>
@@ -109,7 +109,6 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
     <footer><a href="/">Beranda</a><span class="sep">·</span><a href="/fitur">Fitur</a><span class="sep">·</span><a href="/premium">Premium</a><span class="sep">·</span><a href="/csnap/">CSNAP</a><span class="sep">·</span><a href="/member/login">Masuk</a><span class="sep">·</span><a href="/register">Daftar</a><br>© 2026 CSLINK · Powered By <a href="https://percetakanrainbow.com">Percetakan Rainbow</a></footer>
   </div>
 
-<script src="/adblock.js"></script>
 <script>
   (async function renderAds(){
     let free = true;
@@ -128,7 +127,6 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       if (code) { box.innerHTML = ''; box.classList.add('ready'); box.innerHTML = code; }
       else if (b.img) { box.innerHTML = '<a class="adlink" href="' + esc(b.url || '#') + '" target="_blank" rel="noopener sponsored"><img src="' + esc(b.img) + '" alt="' + esc(b.alt || 'Iklan') + '" style="max-width:100%;height:auto;display:block;margin:0 auto" loading="lazy"></a>'; box.classList.add('ready'); }
     });
-    if (window.__csAdblock && code) window.__csAdblock.detect(function(blocked){ if (blocked) window.__csAdblock.banner(); });
   })();
 </script>
 </body>

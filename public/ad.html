@@ -32,7 +32,6 @@ footer{padding:18px;text-align:center;color:var(--mut);font-size:12px}
 </div>
 <div class="sp"></div>
 <footer>© 2026 CSLINK — Powered By Percetakan Rainbow</footer>
-<script src="/adblock.js"></script>
 <script>
 window.__AD={dest:__AD_DEST__};
 const SEC=__AD_SECONDS__;const AUTO=__AD_AUTO__;
@@ -63,17 +62,8 @@ function renderAdBox(c){
 }
 (function(){
   (async function(){
-    let hasAd=false;
-    try{const c=await(await fetch('/csnap/api/config')).json();hasAd=renderAdBox(c);}catch(e){ADSLOT.innerHTML='<span>Mengalihkan…</span>';}
-    if(!hasAd){startCountdown();return;}
-    const check=function(){
-      if(!window.__csAdblock){startCountdown();return;}
-      __csAdblock.detect(function(blocked){
-        if(blocked){__csAdblock.blocker(check);}
-        else{__csAdblock.unblock();startCountdown();}
-      });
-    };
-    check();
+    try{const c=await(await fetch('/csnap/api/config')).json();renderAdBox(c);}catch(e){ADSLOT.innerHTML='<span>Mengalihkan…</span>';}
+    startCountdown();
   })();
 })();
 </script></body></html>
