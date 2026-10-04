@@ -11,6 +11,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan p
 
 ### Ditambahkan
 - **Kolom iklan custom (kode iklan per perangkat) di Pengaturan super admin** (`/` → menu Pengaturan): kartu "Pengaturan Iklan" berisi kolom **Kode iklan (script/HTML) Desktop** dan **Mobile**, tersimpan di server lewat `PUT /csnap/api/settings` (sinkron dengan `/csnap/setting`). Banner fallback tetap dikelola di `/csnap/setting`.
+- **Halaman awal publik di `/` saat `PUBLIC_HOME=true`**: pengunjung yang belum login dibuka ke `landing.html` (form pendekan link + iklan) alih-alih diarahkan ke `/login`. Admin yang sudah login tetap mendapat dashboard. Kunci `PUBLIC_HOME` didokumentasikan di `.env.example`; ada tautan **Admin** di footer landing menuju `/login`.
 
 ## [1.0.7] - 2026-10-04
 
