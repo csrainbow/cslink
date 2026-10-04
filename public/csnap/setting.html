@@ -13,26 +13,20 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 <h2>Pengaturan CSNAP</h2>
 <p style="color:#9aa7c7">Konfigurasi iklan disimpan di server dan langsung dipakai halaman CSNAP.</p>
 <div id="msg"></div>
-<label>Google AdSense — Client ID</label>
-<input id="adsenseClient" placeholder="ca-pub-XXXXXXXX — kosongkan utk pakai layanan lain / banner">
-<h3>Slot Iklan — 2 perangkat</h3>
-<p style="color:#9aa7c7;font-size:13px">Kode iklan (script/HTML) paling prioritas → banner manual → AdSense. Slot desktop tampil di layar ≥768px, mobile di bawahnya.</p>
+<h3>Kolom Iklan — 2 perangkat</h3>
+<p style="color:#9aa7c7;font-size:13px">Kode iklan (script/HTML) paling prioritas → banner manual sebagai fallback. Slot desktop tampil di layar ≥768px, mobile di bawahnya.</p>
 <div class="g2">
 <div class="banner"><h4>🖥️ Desktop</h4>
 <label>Kode iklan (script/HTML)</label>
 <textarea id="cDesktop" placeholder="<script>…kode dari jaringan iklan (mis. aads.com)…</script>"></textarea>
 <label>Banner gambar (fallback)</label>
 <input id="bDesktopImg" placeholder="URL gambar banner"><input id="bDesktopUrl" placeholder="URL tujuan klik"><input id="bDesktopAlt" placeholder="Teks alt / caption">
-<label>AdSense unit ID (prioritas terakhir)</label>
-<input id="slotDesktop" placeholder="ID unit">
 <div class="preview" id="pvDesktop"></div></div>
 <div class="banner"><h4>📱 Mobile</h4>
 <label>Kode iklan (script/HTML)</label>
 <textarea id="cMobile" placeholder="<script>…kode dari jaringan iklan…</script>"></textarea>
 <label>Banner gambar (fallback)</label>
 <input id="bMobileImg" placeholder="URL gambar banner"><input id="bMobileUrl" placeholder="URL tujuan klik"><input id="bMobileAlt" placeholder="Teks alt / caption">
-<label>AdSense unit ID (prioritas terakhir)</label>
-<input id="slotMobile" placeholder="ID unit">
 <div class="preview" id="pvMobile"></div></div>
 </div>
 <div class="row" style="gap:10px">
@@ -45,9 +39,6 @@ const $=s=>document.querySelector(s);
 const msgEl=$('#msg');
 function msg(t,c){msgEl.textContent=t;msgEl.className=c||'ok';}
 function setInputs(s){
-  $('#adsenseClient').value=s.adsenseClient||'';
-  $('#slotDesktop').value=(s.adsenseSlots&&s.adsenseSlots.desktop)||'';
-  $('#slotMobile').value=(s.adsenseSlots&&s.adsenseSlots.mobile)||'';
   const set=(id,b,code)=>{
     if(!b)return;
     $('#'+id+'Img').value=b.img||'';
@@ -71,9 +62,7 @@ async function load(){
   }catch(e){msg('Gagal memuat: '+e.message,'err');}
 }
 async function save(){
-  const p={adsenseClient:$('#adsenseClient').value.trim(),
-    adsenseSlots:{desktop:$('#slotDesktop').value.trim(),mobile:$('#slotMobile').value.trim()},
-    codes:{desktop:$('#cDesktop').value.trim(),mobile:$('#cMobile').value.trim()},
+  const p={codes:{desktop:$('#cDesktop').value.trim(),mobile:$('#cMobile').value.trim()},
     banners:{
       desktop:pick('bDesktop'),mobile:pick('bMobile')}};
   try{
@@ -88,7 +77,7 @@ function pick(x){return{img:$('#'+x+'Img').value.trim(),url:$('#'+x+'Url').value
 async function resetAll(){
   if(!confirm('Hapus semua pengaturan iklan?'))return;
   try{
-    const r=await fetch('/csnap/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({adsenseClient:'',adsenseSlots:{desktop:'',mobile:''},codes:{desktop:'',mobile:''},banners:{desktop:{img:'',url:'',alt:'Iklan'},mobile:{img:'',url:'',alt:'Iklan'}}})});
+    const r=await fetch('/csnap/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({codes:{desktop:'',mobile:''},banners:{desktop:{img:'',url:'',alt:'Iklan'},mobile:{img:'',url:'',alt:'Iklan'}}})});
     if(r.status===401){msg('Sesi berakhir — arahkan ke login…','err');setTimeout(()=>{location.href='/login';},1200);return;}
     if(!r.ok)throw new Error('HTTP '+r.status);
     msg('Di-reset ke default ✓','ok');load();

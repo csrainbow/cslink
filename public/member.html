@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Saya — CSLINK</title>
-<meta name="google-adsense-account" content="ca-pub-8595163342864825">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
@@ -145,18 +144,16 @@ let me=null;
 async function renderAd(){
   const box=document.getElementById('member-ad');
   if(me && me.premium){box.remove();return;}
-  let client='',slot='';
-  try{const c=await(await fetch('/csnap/api/config')).json();client=(c.adsenseClient||'').trim();slot=((c.adsenseSlots&&(c.adsenseSlots.desktop||c.adsenseSlots.mobile))||'').trim();}catch(e){}
-  if(!client)return;
-  const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';
-  s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(client);
-  document.head.appendChild(s);
-  const ins=document.createElement('ins');ins.className='adsbygoogle';ins.style.display='block';
-  ins.setAttribute('data-ad-client',client);ins.setAttribute('data-ad-format','auto');ins.setAttribute('data-full-width-responsive','true');
-  if(slot)ins.setAttribute('data-ad-slot',slot);
-  box.innerHTML='';box.classList.add('ready');box.appendChild(ins);
-  try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
-  if(window.__csAdblock)window.__csAdblock.detect(function(blocked){if(blocked)window.__csAdblock.banner();});
+  let c=null;
+  try{c=await(await fetch('/csnap/api/config')).json();}catch(e){}
+  if(!c)return;
+  const isDesktop=typeof window.matchMedia==='function'?window.matchMedia('(min-width:768px)').matches:true;
+  const key=isDesktop?'desktop':'mobile';
+  const code=((c.codes||{})[key]||'').trim();
+  const b=(c.banners||{})[key]||{};
+  if(code){box.innerHTML='';box.classList.add('ready');box.innerHTML=code;}
+  else if(b.img){box.innerHTML='<a class="adlink" href="'+String(b.url||'#').replace(/"/g,'&quot;')+'" target="_blank" rel="noopener sponsored"><img src="'+String(b.img).replace(/"/g,'&quot;')+'" alt="'+String(b.alt||'Iklan').replace(/"/g,'&quot;')+'" style="max-width:100%;height:auto;display:block;margin:0 auto" loading="lazy"></a>';box.classList.add('ready');}
+  if(window.__csAdblock&&code)window.__csAdblock.detect(function(blocked){if(blocked)window.__csAdblock.banner();});
 }
 
 async function loadMe(){

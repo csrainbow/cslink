@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fitur — CSLINK</title>
 <meta name="description" content="Fitur CSLINK: statistik klik real-time, link kustom, QR code, link kedaluwarsa, dan bebas iklan untuk pengguna Premium.">
-<meta name="google-adsense-account" content="ca-pub-8595163342864825">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
@@ -118,20 +117,19 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
     try { const m = await (await fetch('/api/member/me')).json(); if (m && m.premium) free = false; } catch(e){}
     if (free) { try { const s = await (await fetch('/api/auth/status')).json(); if (s.authenticated) free = false; } catch(e){} }
     if (!free) { document.querySelectorAll('.adbox').forEach(b => b.remove()); return; }
-    let client = '', slot = '';
-    try { const c = await (await fetch('/csnap/api/config')).json(); client = (c.adsenseClient || '').trim(); slot = ((c.adsenseSlots && (c.adsenseSlots.desktop || c.adsenseSlots.mobile)) || '').trim(); } catch(e){}
-    if (!client) return;
-    const s = document.createElement('script'); s.async = true;
-    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(client);
-    s.crossOrigin = 'anonymous'; document.head.appendChild(s);
+    let c = null;
+    try { c = await (await fetch('/csnap/api/config')).json(); } catch(e){}
+    if (!c) return;
+    const isDesktop = typeof window.matchMedia === 'function' ? window.matchMedia('(min-width:768px)').matches : true;
+    const key = isDesktop ? 'desktop' : 'mobile';
+    const code = ((c.codes || {})[key] || '').trim();
+    const b = (c.banners || {})[key] || {};
+    const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     document.querySelectorAll('.adbox').forEach(box => {
-      const ins = document.createElement('ins'); ins.className = 'adsbygoogle'; ins.style.display = 'block';
-      ins.setAttribute('data-ad-client', client); ins.setAttribute('data-ad-format', 'auto'); ins.setAttribute('data-full-width-responsive', 'true');
-      if (slot) ins.setAttribute('data-ad-slot', slot);
-      box.innerHTML = ''; box.classList.add('ready'); box.appendChild(ins);
-      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
+      if (code) { box.innerHTML = ''; box.classList.add('ready'); box.innerHTML = code; }
+      else if (b.img) { box.innerHTML = '<a class="adlink" href="' + esc(b.url || '#') + '" target="_blank" rel="noopener sponsored"><img src="' + esc(b.img) + '" alt="' + esc(b.alt || 'Iklan') + '" style="max-width:100%;height:auto;display:block;margin:0 auto" loading="lazy"></a>'; box.classList.add('ready'); }
     });
-    if (window.__csAdblock) window.__csAdblock.detect(function(blocked){ if (blocked) window.__csAdblock.banner(); });
+    if (window.__csAdblock && code) window.__csAdblock.detect(function(blocked){ if (blocked) window.__csAdblock.banner(); });
   })();
 </script>
 </body>

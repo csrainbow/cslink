@@ -12,8 +12,6 @@ module.exports = function register(app, auth) {
 
   function defaultSettings() {
     return {
-      adsenseClient: '',
-      adsenseSlots: { desktop: '', mobile: '' },
       codes: { desktop: '', mobile: '' },
       banners: {
         desktop: { img: '', url: '', alt: 'Iklan' },
@@ -34,13 +32,7 @@ module.exports = function register(app, auth) {
       const row = db.prepare('SELECT value FROM config WHERE key = ?').get(SETTINGS_KEY);
       if (!row) return defaultSettings();
       const raw = JSON.parse(row.value);
-      const d = defaultSettings();
       return {
-        adsenseClient: String(raw.adsenseClient || d.adsenseClient).trim(),
-        adsenseSlots: {
-          desktop: String((raw.adsenseSlots && raw.adsenseSlots.desktop) || '').trim(),
-          mobile: String((raw.adsenseSlots && raw.adsenseSlots.mobile) || '').trim()
-        },
         codes: {
           desktop: cleanCode(raw.codes && raw.codes.desktop),
           mobile: cleanCode(raw.codes && raw.codes.mobile)
@@ -66,11 +58,6 @@ module.exports = function register(app, auth) {
     const b = req.body || {};
     const d = getSettings();
     const s = {
-      adsenseClient: String(b.adsenseClient != null ? b.adsenseClient : d.adsenseClient).trim(),
-      adsenseSlots: {
-        desktop: String((b.adsenseSlots && b.adsenseSlots.desktop != null) ? b.adsenseSlots.desktop : (d.adsenseSlots && d.adsenseSlots.desktop)).trim(),
-        mobile: String((b.adsenseSlots && b.adsenseSlots.mobile != null) ? b.adsenseSlots.mobile : (d.adsenseSlots && d.adsenseSlots.mobile)).trim()
-      },
       codes: {
         desktop: cleanCode((b.codes && b.codes.desktop != null) ? b.codes.desktop : (d.codes && d.codes.desktop)),
         mobile: cleanCode((b.codes && b.codes.mobile != null) ? b.codes.mobile : (d.codes && d.codes.mobile))

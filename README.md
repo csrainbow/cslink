@@ -177,17 +177,16 @@ Aplikasi publik di `/csnap/` — download video/foto dari Instagram, TikTok, You
 
 Buka **`https://<host>/csnap/setting`** (wajib login admin) — simpan konfigurasi di server (2 slot perangkat: `desktop` & `mobile`; hanya slot perangkat aktif yang tampil):
 
-Urutan prioritas tiap slot: **kode iklan (script/HTML)** → **banner manual** → **AdSense**.
+Urutan prioritas tiap slot: **kode iklan (script/HTML)** → **banner manual**.
 
 1. **Kode iklan (script/HTML)** — tempel kode dari jaringan iklan apa pun (mis. aads.com) di textarea Desktop/Mobile. Kode dirender apa adanya di slot perangkat yang sesuai (desktop ≥768px, mobile di bawahnya). Paling fleksibel & adaptif.
 2. **Banner custom** (fallback): isi **URL gambar**, **URL tujuan**, dan **alt** per slot.
-3. **Google AdSense** (halaman harus lolos review AdSense): isi **Client ID** (`ca-pub-...`) dan **ID slot** per perangkat. Skrip `adsbygoogle` dimuat otomatis saat Client ID terisi.
 
 Slot kosong tidak menampilkan apa pun. Konfigurasi disimpan server-side di tabel `config` (key `csnap_settings`). Halaman CSNAP memuatnya secara publik via `GET /csnap/api/config`.
 
 #### Interstitial iklan 5 detik
 
-- **Link pendek CSLINK** (`/:code`): setiap klik menampilkan halaman iklan dengan hitung mundur 5 detik lalu otomatis dialihkan ke tujuan. Iklan (unit AdSense dari `csnap_settings`) dimuat bila Client ID terisi; tanpa konfigurasi tetap menunggu 5 detik.
+- **Link pendek CSLINK** (`/:code`): setiap klik menampilkan halaman iklan dengan hitung mundur 5 detik lalu otomatis dialihkan ke tujuan. Iklan (kode/banner dari `csnap_settings`) dirender per perangkat; tanpa konfigurasi tetap menunggu 5 detik.
 - **Download CSNAP**: tombol Download mengarah ke `/csnap/api/ad` (validasi `url` wajib `http(s)://`), jeda 5 detik, lalu menuju `/csnap/api/proxy` internal (aman dari open redirect).
 - Halaman interstitial: `public/ad.html` (placeholder `__AD_DEST__` diisi server via `renderAdPage()`).
 

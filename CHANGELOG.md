@@ -4,6 +4,13 @@ Semua perubahan penting pada CSLINK dicatat di file ini.
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan proyek mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-10-04
+
+### Diperbaiki
+- **Kolom iklan di interstitial/link pendek kosong karena mengabaikan `codes` & `banners`**: `public/ad.html` sebelumnya hanya mengenal AdSense dan tetap mem-push `adsbygoogle` walau slot unit kosong → iklan blank + error console tanpa fallback. Kini interstitial merender **kode iklan (script/HTML) → banner manual** sesuai perangkat (desktop ≥768px / mobile), dan hitung mundur hanya ditahan pemeriksaan AdBlock bila memang ada iklan terpasang.
+- **AdSense dihapus total** (tidak memenuhi kriteria): hapus `adsenseClient`/`adsenseSlots` dari `csnap-api.js` (default, `GET/PUT /csnap/api/settings`, `GET /csnap/api/config`), dari halaman pengaturan `/csnap/setting`, `public/csnap/app.js`, halaman publik `landing/fitur/faq/member`, tag verifikasi `google-adsense-account`, dan berkas `public/ads.txt`. Kolom iklan yang tersedia kini hanya **kotak Kode iklan** per perangkat (dengan banner gambar sebagai fallback).
+- Verifikasi: buka `/csnap/setting` (login) → isi kode iklan Desktop/Mobile → simpan → buka link pendek non-pembayaran dari perangkat lain → iklan kode muncul di halaman interstitial & halaman publik.
+
 ## [1.0.6] - 2026-09-23
 
 ### Diperbaiki

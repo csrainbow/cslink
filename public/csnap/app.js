@@ -14,8 +14,6 @@ id:{navIg:'Instagram',navTt:'TikTok',navYt:'YouTube',navFb:'Facebook',pill:'Grat
 en:{navIg:'Instagram',navTt:'TikTok',navYt:'YouTube',navFb:'Facebook',pill:'Free • No Watermark • HD 1080p',h1a:'Instagram',h1b:'Downloader',sub:'Download Reels, Photos, Videos, Stories & IGTV in HD. Paste link, hit Download — done in 3s.',hint:'Example:',s1t:'How to Download — 3 Steps',s1p:'Easy copy-paste.',st1t:'Copy Link',st1p:'Open IG > three dots > Copy Link.',st2t:'Paste Link',st2p:'Paste link then press Download.',st3t:'Save File',st3p:'Pick HD/SD quality.',go:'⬇ Download',ph:'Paste Instagram link here…',loading:'Fetching media…',err:'Failed: ',dl:'Download',prev:'Preview',open:'Open'}};
 let lang='id';
 let AD_CONFIG={
-  adsenseClient:'',
-  adsenseSlots:{desktop:'',mobile:''},
   codes:{desktop:'',mobile:''},
   banners:{
     desktop:{img:'',url:'',alt:'Iklan'},
@@ -28,8 +26,6 @@ async function initAds(){
     const c=await r.json();
     if(c){
       AD_CONFIG={
-        adsenseClient:(c.adsenseClient||'').trim(),
-        adsenseSlots:{desktop:((c.adsenseSlots&&c.adsenseSlots.desktop)||'').trim(),mobile:((c.adsenseSlots&&c.adsenseSlots.mobile)||'').trim()},
         codes:{desktop:(c.codes&&c.codes.desktop)||'',mobile:(c.codes&&c.codes.mobile)||''},
         banners:{
           desktop:(c.banners&&c.banners.desktop)||{img:'',url:'',alt:'Iklan'},
@@ -38,9 +34,8 @@ async function initAds(){
       };
     }
   }catch(e){
-    AD_CONFIG={adsenseClient:'',adsenseSlots:{desktop:'',mobile:''},codes:{desktop:'',mobile:''},banners:{desktop:{img:'',url:'',alt:'Iklan'},mobile:{img:'',url:'',alt:'Iklan'}}};
+    AD_CONFIG={codes:{desktop:'',mobile:''},banners:{desktop:{img:'',url:'',alt:'Iklan'},mobile:{img:'',url:'',alt:'Iklan'}}};
   }
-  loadAdSense();
   renderAds();
 }
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -52,13 +47,10 @@ function renderAds(){
   const other=document.querySelector('[data-ad-slot="'+(isDesktop?'mobile':'desktop')+'"]');
   if(other)other.innerHTML='';
   if(!slot)return;
-  const useAdSense=!!(AD_CONFIG.adsenseClient&&window.adsbygoogle);
-  const slotId=AD_CONFIG.adsenseSlots[key];
   const b=AD_CONFIG.banners[key];
   const code=AD_CONFIG.codes[key];
   let sig='';
   if(code)sig='c:'+code;
-  else if(useAdSense&&slotId)sig='a:'+slotId;
   else if(b&&b.img)sig='b:'+b.img;
   if(!sig){slot.innerHTML='';adInsertedKey=null;return;}
   if(adInsertedKey===key&&adInsertedSig===sig)return;
@@ -66,16 +58,6 @@ function renderAds(){
   slot.innerHTML='';
   if(code){
     slot.innerHTML=code;
-  }else if(useAdSense&&slotId){
-    const ins=document.createElement('ins');
-    ins.className='adsbygoogle';
-    ins.style.display='block';
-    ins.setAttribute('data-ad-client',AD_CONFIG.adsenseClient);
-    ins.setAttribute('data-ad-slot',slotId);
-    ins.setAttribute('data-ad-format','auto');
-    ins.setAttribute('data-full-width-responsive','true');
-    slot.appendChild(ins);
-    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
   }else if(b&&b.img){
     slot.innerHTML='<a class="adlink" href="'+esc(b.url||'#')+'" target="_blank" rel="noopener sponsored"><img src="'+esc(b.img)+'" alt="'+esc(b.alt||'Iklan')+'" loading="lazy"></a>';
   }
@@ -83,16 +65,6 @@ function renderAds(){
 if(typeof window.matchMedia==='function'){
   const mq=window.matchMedia('(min-width:768px)');
   if(mq.addEventListener)mq.addEventListener('change',renderAds);
-}
-function loadAdSense(){
-  if(!AD_CONFIG.adsenseClient)return;
-  const base='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+AD_CONFIG.adsenseClient;
-  const s=document.createElement('script');
-  s.async=true;
-  s.crossOrigin='anonymous';
-  s.src=base;
-  s.onload=renderAds;
-  document.head.appendChild(s);
 }
 function setLang(l){lang=l;const d=STR[l];document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.dataset.i18n;if(d[k])e.textContent=d[k];});goBtn.textContent=d.go;$('#btnId').classList.toggle('on',l==='id');$('#btnEn').classList.toggle('on',l==='en');setPlatform(platform,true);}
 $('#btnId').onclick=()=>setLang('id');$('#btnEn').onclick=()=>setLang('en');

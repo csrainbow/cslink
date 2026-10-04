@@ -1,5 +1,4 @@
 <!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="google-adsense-account" content="ca-pub-8595163342864825">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-33CSGGEP7N"></script>
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-33CSGGEP7N');
@@ -18,6 +17,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 .btn{display:none;margin-top:6px;padding:13px 34px;border:0;border-radius:12px;cursor:pointer;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--p1),var(--p2));box-shadow:0 8px 24px rgba(124,58,237,.35)}
 .btn:hover{filter:brightness(1.08)}
 .adslot{min-height:120px;margin:16px 0 0;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);border-radius:12px;color:var(--mut);font-size:13px;overflow:hidden}
+.adslot .adlink img{max-width:100%;height:auto;display:block}
 .sp{flex:1}
 footer{padding:18px;text-align:center;color:var(--mut);font-size:12px}
 </style></head><body>
@@ -37,6 +37,7 @@ footer{padding:18px;text-align:center;color:var(--mut);font-size:12px}
 window.__AD={dest:__AD_DEST__};
 const SEC=__AD_SECONDS__;const AUTO=__AD_AUTO__;
 const el=document.getElementById('sec'),ring=document.getElementById('ring'),go=document.getElementById('go');
+let left;
 let iv=null;
 function updateRing(){const deg=(SEC-left)/SEC*360;ring.style.background='conic-gradient(#7c3aed '+deg+'deg,#243056 '+deg+'deg)';}
 function tick(){
@@ -45,20 +46,34 @@ function tick(){
 }
 function startCountdown(){if(iv)return;left=SEC;el.textContent=left;ring.dataset.sec=left;updateRing();iv=setInterval(tick,1000);}
 go.addEventListener('click',()=>{go.disabled=true;window.location.href=__AD.dest;});
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+const ADSLOT=document.getElementById('adslot');
+function renderAdBox(c){
+  const isDesktop=typeof window.matchMedia==='function'?window.matchMedia('(min-width:768px)').matches:true;
+  const key=isDesktop?'desktop':'mobile';
+  const code=((c&&c.codes&&c.codes[key])||'').trim();
+  const b=(c&&c.banners&&c.banners[key])||{};
+  let html='';
+  if(code)html=code;
+  else if(b.img)html='<a class="adlink" href="'+esc(b.url||'#')+'" target="_blank" rel="noopener sponsored"><img src="'+esc(b.img)+'" alt="'+esc(b.alt||'Iklan')+'" loading="lazy"></a>';
+  if(!html){ADSLOT.innerHTML='<span>Mengalihkan…</span>';return false;}
+  ADSLOT.innerHTML='';ADSLOT.style.border='none';
+  ADSLOT.innerHTML=html;
+  return true;
+}
 (function(){
-  function check(){
-    if (window.__csAdblock) __csAdblock.detect(function(blocked){
-      if(blocked){__csAdblock.blocker(function(){check();});}
-      else{__csAdblock.unblock();startCountdown();}
-    });
-    else startCountdown();
-  }
   (async function(){
-    let client='';
-    try{const c=await(await fetch('/csnap/api/config')).json();client=(c&&c.adsenseClient)||'';}catch(e){}
-    if(!client){startCountdown();return;}
+    let hasAd=false;
+    try{const c=await(await fetch('/csnap/api/config')).json();hasAd=renderAdBox(c);}catch(e){ADSLOT.innerHTML='<span>Mengalihkan…</span>';}
+    if(!hasAd){startCountdown();return;}
+    const check=function(){
+      if(!window.__csAdblock){startCountdown();return;}
+      __csAdblock.detect(function(blocked){
+        if(blocked){__csAdblock.blocker(check);}
+        else{__csAdblock.unblock();startCountdown();}
+      });
+    };
     check();
   })();
 })();
-(async()=>{const slot=document.getElementById('adslot');try{const r=await fetch('/csnap/api/config');const c=await r.json();const client=(c&&c.adsenseClient)||'';if(!client){slot.innerHTML='<span>Mengalihkan…</span>';return;}slot.innerHTML='';slot.style.border='none';const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(client);s.crossOrigin='anonymous';s.onerror=()=>{slot.style.display='none';};document.head.appendChild(s);const slotId=(c.adsenseSlots&&(c.adsenseSlots.desktop||c.adsenseSlots.mobile))||'';const ins=document.createElement('ins');ins.className='adsbygoogle';ins.style.display='block';ins.setAttribute('data-ad-client',client);if(slotId){ins.setAttribute('data-ad-slot',slotId);}ins.setAttribute('data-ad-format','auto');ins.setAttribute('data-full-width-responsive','true');slot.appendChild(ins);try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}}catch(e){slot.innerHTML='<span>Mengalihkan…</span>';}})();
 </script></body></html>
