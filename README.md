@@ -172,6 +172,7 @@ Aplikasi publik di `/csnap/` — download video/foto dari Instagram, TikTok, You
 - Deploy Cobalt: `docker run -d --name cobalt --restart unless-stopped -p 127.0.0.1:9000:9000 -e API_URL=http://localhost:9000 ghcr.io/imputnet/cobalt:latest`
 - Set `COBALT_API=http://127.0.0.1:9000/` di `.env`, lalu `systemctl restart cslink`.
 - Tanpa Cobalt (atau provider memblokir bot), CSNAP menampilkan mode demo dengan file contoh.
+- Jika Cobalt mati/offline (container `docker stop cobalt`, atau OOM-kill di RAM terbatas), CSNAP akan menampilkan penyebab sebenarnya di note/caption: `Cobalt tidak bisa dihubungi` — jalankan `docker start cobalt`. Status cepat: `GET /csnap/api/health` → `cobalt: { configured, up }`. Selalu pakai `--restart unless-stopped` agar container hidup kembali otomatis.
 
 ### Pasang Iklan di CSNAP
 

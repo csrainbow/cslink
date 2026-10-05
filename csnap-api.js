@@ -132,10 +132,18 @@ module.exports = function register(app, auth) {
     try {
       const r = await ffetch(C, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ url, videoQuality: '1080' }) }, 15000);
       const j = await r.json().catch(() => null);
-      const pick = j && (j.url || j.stream || (j.urls && j.urls[0] && (j.urls[0].url || j.urls[0])));
+      const pick = j && (j.url || j.stream || (Array.isArray(j.urls) && j.urls[0] && (j.urls[0].url || j.urls[0])));
       if (pick) return { configured: true, url: pick, thumb: j.thumbnail || j.thumb || null };
-    } catch (e) { /* fallback */ }
-    return { configured: true };
+      const err = (j && j.error) || {};
+      const apiError = [err.code || j.errorCode, err.description || err.text || (typeof j.error === 'string' ? j.error : '')]
+        .filter(Boolean).join(': ') || ('HTTP ' + r.status);
+      return { configured: true, apiError: apiError };
+    } catch (e) {
+      const msg = String((e && e.message) || e || '');
+      const timeout = e && e.name === 'AbortError';
+      const offline = timeout || /ECONNREFUSED|ECONNRESET|ENOTFOUND|EHOSTUNREACH|ENETUNREACH|EAI_AGAIN|fetch failed|socket hang up/i.test(msg);
+      return { configured: true, offline: offline, apiError: offline ? (timeout ? 'timeout 15 detik' : null) : msg };
+    }
   }
 
   function meta(html) {
@@ -211,9 +219,13 @@ module.exports = function register(app, auth) {
       }
     }
     const d = demoMedia(p, code);
-    const demoTxt = cob && cob.configured
-      ? 'Mode demo - server media ditolak oleh ' + p + ' utk link ini (blokir bot / butuh login). Coba link lain.'
-      : 'Mode demo ' + p + ' - isi COBALT_API utk link asli (lihat README).';
+    const demoTxt = !cob || !cob.configured
+      ? 'Mode demo ' + p + ' - isi COBALT_API utk link asli (lihat README).'
+      : cob.offline
+        ? 'Mode demo ' + p + ' - server downloader (Cobalt) tidak bisa dihubungi (' + (cob.apiError || 'offline') + '). Admin: nyalakan service Cobalt, lalu coba lagi.'
+        : cob.apiError
+          ? 'Mode demo ' + p + ' - Cobalt menolak link ini: ' + cob.apiError + '. Coba link lain.'
+          : 'Mode demo - server media ditolak oleh ' + p + ' utk link ini (blokir bot / butuh login). Coba link lain.';
     return res.json({ success: true, demo: true, platform: p, mode: md, type: md, shortcode: code, author: '@demo.user', caption: demoTxt, thumbnail: d.thumb, duration: '0:15', originalUrl: clean, note: 'DEMO', medias: d.medias });
   });
   app.get('/csnap/api/proxy', async (req, res) => {
@@ -230,5 +242,13 @@ module.exports = function register(app, auth) {
     } catch (e) { res.status(500).send('proxy err ' + e.message); }
   });
 
-  app.get('/csnap/api/health', (req, res) => res.json({ ok: true, app: 'csnap', platforms: ['instagram', 'tiktok', 'youtube', 'facebook'] }));
+  app.get('/csnap/api/health', async (req, res) => {
+    const C = process.env.COBALT_API || '';
+    let cobaltUp = null;
+    if (C) {
+      try { const r = await ffetch(C, { headers: { 'Accept': 'application/json' } }, 4000); cobaltUp = r.ok; }
+      catch (e) { cobaltUp = false; }
+    }
+    res.json({ ok: true, app: 'csnap', platforms: ['instagram', 'tiktok', 'youtube', 'facebook'], cobalt: { configured: !!C, up: cobaltUp } });
+  });
 };

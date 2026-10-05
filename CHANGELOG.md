@@ -7,6 +7,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), dan p
 ## [1.0.8] - 2026-10-04
 
 ### Diperbaiki
+- **CSNAP menampilkan "ditolak oleh {platform}" padahal Cobalt mati**: `cobalt()` selalu mengembalikan `configured: true` begitu `COBALT_API` terisi, termasuk saat endpoint menolak koneksi / timeout, sehingga pesan demo menyalahkan platform (mis. "ditolak facebook") padahal server downloader yang mati. Kini `cobalt()` membedakan: `offline` (ECONNREFUSED/timeout → "Cobalt tidak bisa dihubungi, admin nyalakan service") dan `apiError` (pesan error asli dari Cobalt, mis. link privat/terhapus), termasuk parsing `j.urls[0]` untuk mode stream. Container Cobalt di server produksi yang mati (`Exited 137`) sudah dinyalakan dan diberi `--restart unless-stopped`.
 - **Deteksi/pemblokiran AdBlock dihapus**: hapus `public/adblock.js` beserta semua referensi `__csAdblock`, `<script src="/adblock.js">`, dan teks FAQ soal mematikan AdBlock. Halaman interstitial kini menjalankan hitung mundur tanpa dihalangi pemeriksaan AdBlock; halaman publik (`landing/fitur/faq/member`) tidak lagi memunculkan banner peringatan AdBlock. `adblock.js` juga dihapus dari daftar reserved code.
 
 ### Ditambahkan
